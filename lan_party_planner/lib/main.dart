@@ -3,11 +3,8 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart';
-import 'dart:convert' show utf8, base64Encode, base64Decode;
 
-// Função global para criptografia
 String encryptData(String data, {String key = 'lanparty-key'}) {
   final bytes = utf8.encode('$data$key');
   final digest = sha256.convert(bytes);
@@ -60,7 +57,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// SplashScreen exibido na primeira execução
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -99,7 +95,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo centralizada
             Image.asset(
               'PNGs/logoIASemfundo.png',
               width: 160,
@@ -123,7 +118,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-// Onboarding com persistência local
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -135,21 +129,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
   bool _consentAccepted = false;
   DateTime? _consentDate;
-  final String _termsVersion = "1.0.0"; // Versão do termo
+  final String _termsVersion = "1.0.0";
 
   String? _consentError;
   String? _consentSuccess;
 
-  // Função utilitária para criptografar dados sensíveis (simples, para exemplo)
   String encryptData(String data, {String key = 'lanparty-key'}) {
-    // Gera um hash SHA256 do dado + chave e codifica em base64
     final bytes = utf8.encode('$data$key');
     final digest = sha256.convert(bytes);
     return base64Encode(digest.bytes);
   }
 
-  // Função utilitária para "descriptografar" (apenas para simulação, pois SHA256 é irreversível)
-  // Em produção, use uma biblioteca de criptografia simétrica (ex: AES).
   bool verifyEncrypted(String data, String encrypted, {String key = 'lanparty-key'}) {
     return encryptData(data, key: key) == encrypted;
   }
@@ -158,8 +148,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
     await prefs.setBool('consent_accepted', _consentAccepted);
-
-    // Criptografa registro do consentimento (data/hora, versão)
     if (_consentAccepted) {
       _consentDate = DateTime.now();
       final consentInfo = jsonEncode({
@@ -170,7 +158,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       final encryptedConsent = encryptData(consentInfo);
       await prefs.setString('consent_info', encryptedConsent);
 
-      // Simulação de persistência no backend (substitua por chamada real)
       await _sendConsentToBackend(encryptedConsent);
 
       setState(() {
@@ -180,15 +167,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  // Simulação de envio para backend
   Future<void> _sendConsentToBackend(String consentInfo) async {
-    // Aqui você faria uma chamada HTTP real para o backend
     await Future.delayed(const Duration(milliseconds: 500));
-    // print("Consentimento enviado ao backend: $consentInfo");
   }
 
   void _nextPage() {
-    // Impede avanço sem consentimento na última tela
     if (_currentPage == 3 && !_consentAccepted) {
       setState(() {
         _consentError = "Você precisa aceitar os termos para continuar.";
@@ -243,7 +226,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
-      // Tela 1: Boas-vindas
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -262,7 +244,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
-      // Tela 2: Sobre o aplicativo
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -284,7 +265,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
-      // Tela 3: Tudo pronto!
       Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -303,7 +283,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
-      // Tela 4: Política e Consentimento
       SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -326,7 +305,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  // Exibição dos termos (simples, pode ser expandido)
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -459,14 +437,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ),
-          // Botões centralizados na parte inferior
           Positioned(
             left: 0,
             right: 0,
             bottom: 32,
             child: Column(
               children: [
-                // Telas intermediárias: "Voltar" e "Pular" centralizados acima do "Avançar"
                 if (_currentPage == 1 || _currentPage == 2) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -565,9 +541,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                 ],
-                // Tela do consentimento: "Voltar" centralizado acima do "Consentir"
                 if (_currentPage == 3) ...[
-                  const SizedBox(height: 24), // Espaço extra para afastar os botões do texto
+                  const SizedBox(height: 24),
                   Center(
                     child: Focus(
                       child: Semantics(
@@ -638,20 +613,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool _canAccess = false;
-
-  // Adicione as variáveis e métodos do checklist que estavam ausentes
-  final List<bool> _checklistStatus = [true, false, false, true];
-  final List<String> _checklistItems = [
-    'Montar setup',
-    'Comprar snacks',
-    'Testar conexão',
-    'Definir jogos',
-  ];
+  List<Event> _events = [];
 
   @override
   void initState() {
     super.initState();
     _checkAccess();
+    _loadEvents();
   }
 
   Future<void> _checkAccess() async {
@@ -669,86 +637,16 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Future<void> _revokeConsent() async {
+  Future<void> _loadEvents() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_done', false);
-    await prefs.setBool('consent_accepted', false);
-    await prefs.remove('consent_info');
+    final list = prefs.getStringList('events') ?? [];
     setState(() {
-      _canAccess = false;
+      _events = list.map((e) => Event.fromJson(jsonDecode(e))).toList();
     });
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-    );
-  }
-
-  void _showRevokeDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: slate,
-        title: Text('Revogar Consentimento', style: TextStyle(color: purple)),
-        content: const Text(
-          'Tem certeza que deseja revogar o consentimento? Você será redirecionado para o início do app.',
-          style: TextStyle(color: Colors.white),
-        ),
-        actions: [
-          TextButton(
-            child: const Text('Cancelar', style: TextStyle(color: cyan)),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          TextButton(
-            child: const Text('Revogar', style: TextStyle(color: purple)),
-            onPressed: () {
-              Navigator.of(context).pop();
-              _revokeConsent();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Adicione o checklistItem que estava ausente
-  Widget checklistItem(String text, bool checked, VoidCallback onTap) {
-    return Focus(
-      child: Semantics(
-        checked: checked,
-        label: text,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6.0),
-            child: Row(
-              children: [
-                Icon(
-                  checked ? Icons.check_circle : Icons.radio_button_unchecked,
-                  color: checked
-                      ? Theme.of(context).colorScheme.primary
-                      : Colors.white,
-                  size: 32,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  text,
-                  style: TextStyle(
-                    color: Colors.white,
-                    decoration: checked ? TextDecoration.lineThrough : null,
-                    fontSize: 18,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Adicione as actions do AppBar que estavam ausentes
     return Scaffold(
       appBar: AppBar(
         backgroundColor: purple,
@@ -773,25 +671,15 @@ class _MyHomePageState extends State<MyHomePage> {
           Focus(
             child: Semantics(
               button: true,
-              label: 'Revogar Consentimento',
-              child: IconButton(
-                icon: Icon(Icons.logout, color: cyan),
-                tooltip: 'Revogar Consentimento',
-                onPressed: _showRevokeDialog,
-              ),
-            ),
-          ),
-          Focus(
-            child: Semantics(
-              button: true,
               label: 'Eventos',
               child: IconButton(
                 icon: Icon(Icons.event, color: cyan),
                 tooltip: 'Eventos',
-                onPressed: () {
-                  Navigator.of(context).push(
+                onPressed: () async {
+                  await Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) => const EventCrudScreen()),
                   );
+                  await _loadEvents(); // Atualiza eventos ao voltar do CRUD
                 },
               ),
             ),
@@ -801,78 +689,85 @@ class _MyHomePageState extends State<MyHomePage> {
       body: _canAccess
           ? Padding(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Image.asset(
-                    'PNGs/logoIASemfundo.png',
-                    width: 120,
-                    height: 120,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Mini-evento de Sábado',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Horário: 15:00 - 22:00',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  Card(
-                    color: slate,
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Checklist',
-                            style: TextStyle(
-                              color: cyan,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Image.asset(
+                      'PNGs/logoIASemfundo.png',
+                      width: 120,
+                      height: 120,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Eventos cadastrados',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    if (_events.isEmpty)
+                      Text(
+                        'Nenhum evento cadastrado.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ..._events.map((event) => Card(
+                          color: slate,
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  event.nome,
+                                  style: TextStyle(
+                                    color: cyan,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Início: ${DateFormat('dd/MM/yyyy HH:mm').format(event.horarioInicio)}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                Text(
+                                  'Fim: ${DateFormat('dd/MM/yyyy HH:mm').format(event.horarioFim)}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                Text(
+                                  'Duração: ${event.duracao.inMinutes} min',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                Text(
+                                  'Pessoas: ${event.quantidadePessoas}',
+                                  style: const TextStyle(color: Colors.white70),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Checklist:',
+                                  style: TextStyle(
+                                    color: cyan,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                ...event.checklist.map((item) => Row(
+                                      children: [
+                                        Icon(Icons.check_circle, color: purple, size: 20),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          item,
+                                          style: const TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    )),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          ...List.generate(_checklistItems.length, (index) {
-                            return checklistItem(
-                              _checklistItems[index],
-                              _checklistStatus[index],
-                              () {
-                                setState(() {
-                                  _checklistStatus[index] = !_checklistStatus[index];
-                                });
-                              },
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Focus(
-                    child: Semantics(
-                      button: true,
-                      label: 'Revogar Consentimento',
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: purple,
-                          minimumSize: const Size(180, 48),
-                        ),
-                        icon: const Icon(Icons.logout, color: Colors.white),
-                        label: const Text(
-                          'Revogar Consentimento',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: _showRevokeDialog,
-                      ),
-                    ),
-                  ),
-                ],
+                        )),
+                  ],
+                ),
               ),
             )
           : Center(
@@ -912,9 +807,7 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
     });
   }
 
-  // Para exibir, simula descriptografia (apenas para exemplo)
   Map<String, dynamic>? _getConsentData() {
-    // Não é possível recuperar o original do SHA256, então apenas mostra que está protegido
     if (_consentInfo != null) {
       return {
         'info': 'Dados protegidos por criptografia.',
@@ -1135,6 +1028,7 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
         _checklistController.clear();
       });
       await _saveEvents();
+      Navigator.of(context).pop(); // Fecha o CRUD após salvar
     }
   }
 
@@ -1181,9 +1075,15 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                     children: [
                       TextFormField(
                         initialValue: _nome,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Nome do evento',
-                          labelStyle: TextStyle(color: Colors.white),
+                          labelStyle: const TextStyle(color: Colors.white),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: cyan),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: purple),
+                          ),
                         ),
                         style: const TextStyle(color: Colors.white),
                         onSaved: (val) => _nome = val ?? '',
@@ -1195,9 +1095,15 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                         children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Quantidade de pessoas',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: cyan),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: purple),
+                                ),
                               ),
                               style: const TextStyle(color: Colors.white),
                               keyboardType: TextInputType.number,
@@ -1216,9 +1122,15 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Duração (min)',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: cyan),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: purple),
+                                ),
                               ),
                               style: const TextStyle(color: Colors.white),
                               keyboardType: TextInputType.number,
@@ -1241,9 +1153,15 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                         children: [
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Início (dd/MM/yyyy HH:mm)',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: cyan),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: purple),
+                                ),
                               ),
                               style: const TextStyle(color: Colors.white),
                               initialValue:
@@ -1267,9 +1185,15 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: TextFormField(
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Fim (dd/MM/yyyy HH:mm)',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: cyan),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: purple),
+                                ),
                               ),
                               style: const TextStyle(color: Colors.white),
                               initialValue:
@@ -1298,9 +1222,15 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                           Expanded(
                             child: TextFormField(
                               controller: _checklistController,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 labelText: 'Item do checklist',
-                                labelStyle: TextStyle(color: Colors.white),
+                                labelStyle: const TextStyle(color: Colors.white),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: cyan),
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: purple),
+                                ),
                               ),
                               style: const TextStyle(color: Colors.white),
                             ),
@@ -1341,7 +1271,11 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: purple,
+                            foregroundColor: Colors.white,
                             minimumSize: const Size(180, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
                           ),
                           onPressed: _addOrUpdateEvent,
                           child: Text(_editingIndex == null ? 'Adicionar Evento' : 'Salvar Alterações'),
@@ -1395,7 +1329,7 @@ class _EventCrudScreenState extends State<EventCrudScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit, color: cyan),
+                          icon: Icon(Icons.edit, color: cyan),
                           onPressed: () => _editEvent(index),
                         ),
                         IconButton(
