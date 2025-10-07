@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
 
 String encryptData(String data, {String key = 'lanparty-key'}) {
   final bytes = utf8.encode('$data$key');
@@ -118,6 +119,268 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
+// --- TELA DE MARKETING ---
+class MarketingConsentPage extends StatefulWidget {
+  final VoidCallback onContinue;
+  const MarketingConsentPage({super.key, required this.onContinue});
+
+  @override
+  State<MarketingConsentPage> createState() => _MarketingConsentPageState();
+}
+
+class _MarketingConsentPageState extends State<MarketingConsentPage> {
+  bool _marketingConsent = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: slate,
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.mark_email_read, color: cyan, size: 80),
+                const SizedBox(height: 24),
+                Text(
+                  'Receber material de marketing',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    'Gostaria de receber novidades, promoções e materiais de marketing sobre eventos gamers?',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                SwitchListTile(
+                  value: _marketingConsent,
+                  onChanged: (val) {
+                    setState(() {
+                      _marketingConsent = val;
+                    });
+                  },
+                  title: const Text(
+                    'Receber material de marketing',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  activeColor: purple,
+                  inactiveThumbColor: Colors.white24,
+                  inactiveTrackColor: Colors.white10,
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: purple,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(200, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  onPressed: widget.onContinue,
+                  child: const Text('Salvar Consentimento'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// --- TELA DE CONSENTIMENTO (PRONTO PARA COMEÇAR) ---
+class ConsentimentoResumoPage extends StatelessWidget {
+  final VoidCallback onLerPolitica;
+  final VoidCallback onLerTermos;
+  final VoidCallback onAvancar;
+  final bool politicaLida;
+  final bool termosLidos;
+
+  const ConsentimentoResumoPage({
+    super.key,
+    required this.onLerPolitica,
+    required this.onLerTermos,
+    required this.onAvancar,
+    required this.politicaLida,
+    required this.termosLidos,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final podeAvancar = politicaLida && termosLidos;
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: slate,
+        body: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.verified_user, color: cyan, size: 80),
+                const SizedBox(height: 24),
+                Text(
+                  'Tudo pronto para Começar',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Text(
+                    'Leia e aceite os termos para garantir sua segurança e privacidade.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ListTile(
+                  leading: Icon(
+                    politicaLida ? Icons.check_circle : Icons.cancel,
+                    color: politicaLida ? cyan : Colors.redAccent,
+                  ),
+                  title: const Text('Política de Privacidade', style: TextStyle(color: Colors.white)),
+                  trailing: TextButton(
+                    onPressed: onLerPolitica,
+                    child: const Text('Ler', style: TextStyle(color: cyan)),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    termosLidos ? Icons.check_circle : Icons.cancel,
+                    color: termosLidos ? cyan : Colors.redAccent,
+                  ),
+                  title: const Text('Termos de Uso', style: TextStyle(color: Colors.white)),
+                  trailing: TextButton(
+                    onPressed: onLerTermos,
+                    child: const Text('Ler', style: TextStyle(color: cyan)),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: podeAvancar ? purple : Colors.grey,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(220, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  onPressed: podeAvancar ? onAvancar : null,
+                  child: const Text('Avançar'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// --- TELA DE LEITURA DE POLÍTICA/TERMOS ---
+class LeituraMdPage extends StatefulWidget {
+  final String titulo;
+  final String assetPath;
+  final VoidCallback onLeuTudo;
+
+  const LeituraMdPage({
+    super.key,
+    required this.titulo,
+    required this.assetPath,
+    required this.onLeuTudo,
+  });
+
+  @override
+  State<LeituraMdPage> createState() => _LeituraMdPageState();
+}
+
+class _LeituraMdPageState extends State<LeituraMdPage> {
+  String _conteudo = '';
+  bool _leuTudo = false;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarMd();
+    _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _carregarMd() async {
+    final texto = await rootBundle.loadString(widget.assetPath);
+    setState(() {
+      _conteudo = texto;
+    });
+  }
+
+  void _onScroll() {
+    if (!_leuTudo &&
+        _scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 10) {
+      setState(() {
+        _leuTudo = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: slate,
+      appBar: AppBar(
+        backgroundColor: purple,
+        title: Text(widget.titulo),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _conteudo.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(24),
+                    child: SelectableText(
+                      _conteudo,
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FilledButton.icon(
+                onPressed: _leuTudo ? widget.onLeuTudo : null,
+                icon: const Icon(Icons.check),
+                label: const Text('Concordo com os termos'),
+                style: FilledButton.styleFrom(
+                  backgroundColor: _leuTudo ? purple : slate,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(220, 48),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// --- INTEGRAÇÃO NO ONBOARDING ---
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -127,479 +390,275 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int _currentPage = 0;
-  bool _consentAccepted = false;
-  DateTime? _consentDate;
-  final String _termsVersion = "1.0.0";
+  bool _politicaLida = false;
+  bool _termosLidos = false;
 
-  String? _consentError;
-  String? _consentSuccess;
-
-  String encryptData(String data, {String key = 'lanparty-key'}) {
-    final bytes = utf8.encode('$data$key');
-    final digest = sha256.convert(bytes);
-    return base64Encode(digest.bytes);
+  void _irParaPolitica() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => LeituraMdPage(
+        titulo: 'Política de Privacidade',
+        assetPath: 'privacidade.md',
+        onLeuTudo: () {
+          setState(() => _politicaLida = true);
+          Navigator.of(context).pop();
+        },
+      ),
+    ));
   }
 
-  bool verifyEncrypted(String data, String encrypted, {String key = 'lanparty-key'}) {
-    return encryptData(data, key: key) == encrypted;
+  void _irParaTermos() async {
+    await Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => LeituraMdPage(
+        titulo: 'Termos de Uso',
+        assetPath: 'termos.md',
+        onLeuTudo: () {
+          setState(() => _termosLidos = true);
+          Navigator.of(context).pop();
+        },
+      ),
+    ));
   }
 
-  Future<void> _saveOnboardingData() async {
+  void _avancarConsentimento() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
-    await prefs.setBool('consent_accepted', _consentAccepted);
-    if (_consentAccepted) {
-      _consentDate = DateTime.now();
-      final consentInfo = jsonEncode({
-        'accepted': true,
-        'date': _consentDate!.toIso8601String(),
-        'version': _termsVersion,
-      });
-      final encryptedConsent = encryptData(consentInfo);
-      await prefs.setString('consent_info', encryptedConsent);
-
-      await _sendConsentToBackend(encryptedConsent);
-
-      setState(() {
-        _consentSuccess = "Consentimento registrado com sucesso!";
-        _consentError = null;
-      });
-    }
-  }
-
-  Future<void> _sendConsentToBackend(String consentInfo) async {
-    await Future.delayed(const Duration(milliseconds: 500));
-  }
-
-  void _nextPage() {
-    if (_currentPage == 3 && !_consentAccepted) {
-      setState(() {
-        _consentError = "Você precisa aceitar os termos para continuar.";
-        _consentSuccess = null;
-      });
-      return;
-    }
-    setState(() {
-      _consentError = null;
-      _consentSuccess = null;
-      if (_currentPage < 3) _currentPage++;
-    });
-  }
-
-  void _prevPage() {
-    setState(() {
-      if (_currentPage > 0) _currentPage--;
-    });
-  }
-
-  void _skipToConsent() {
-    setState(() {
-      _currentPage = 3;
-    });
-  }
-
-  Future<void> _finishOnboarding() async {
-    await _saveOnboardingData();
+    await prefs.setBool('consent_accepted', true);
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const MyHomePage()),
-    );
-  }
-
-  Widget _buildDotsIndicator() {
-    if (_currentPage == 3) return const SizedBox.shrink();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(4, (index) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: index == _currentPage ? purple : Colors.white24,
-            shape: BoxShape.circle,
-          ),
-        );
-      }),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> pages = [
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('PNGs/logoIASemfundo.png', width: 120, height: 120),
-          const SizedBox(height: 24),
-          Text(
-            'Bem-vindo!',
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Organize mini-eventos gamers com facilidade.',
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.info_outline, color: cyan, size: 80),
-          const SizedBox(height: 24),
-          Text(
-            'O que é o Gamer Event Platform?',
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              'Crie eventos, marque tarefas e acompanhe o progresso do seu mini-evento gamer com checklist e horários!',
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
-      ),
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.celebration, color: cyan, size: 80),
-          const SizedBox(height: 24),
-          Text(
-            'Tudo pronto!',
-            style: Theme.of(context).textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Vamos começar a organizar seu evento gamer!',
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-      SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.verified_user, color: cyan, size: 80),
-            const SizedBox(height: 24),
-            Text(
-              'Consentimento',
-              style: Theme.of(context).textTheme.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  Text(
-                    'Para usar o app, você precisa aceitar os termos de uso e política de privacidade.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white10,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Termos de Uso - v$_termsVersion',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Ao utilizar este aplicativo, você concorda com os termos de uso e política de privacidade. Seus dados serão utilizados apenas para fins de funcionamento do app e nunca compartilhados sem autorização.',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        const SizedBox(height: 8),
-                        GestureDetector(
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                backgroundColor: slate,
-                                title: const Text('Política de Privacidade', style: TextStyle(color: cyan)),
-                                content: const Text(
-                                  'Sua privacidade é importante. Nenhum dado pessoal será compartilhado com terceiros. Você pode revogar o consentimento a qualquer momento nas configurações.',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('Fechar', style: TextStyle(color: purple)),
-                                    onPressed: () => Navigator.of(context).pop(),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'Ver política de privacidade',
-                            style: TextStyle(
-                              color: cyan,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+      Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('PNGs/logoIASemfundo.png', width: 120, height: 120),
+              const SizedBox(height: 24),
+              Text(
+                'Bem-vindo!',
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
               ),
-            ),
-            const SizedBox(height: 24),
-            CheckboxListTile(
-              title: Text(
-                'Eu aceito os termos de uso e política de privacidade.',
-                style: TextStyle(
-                  color: _consentAccepted ? cyan : Colors.white,
-                  fontWeight: _consentAccepted ? FontWeight.bold : FontWeight.normal,
-                ),
+              const SizedBox(height: 12),
+              Text(
+                'Organize mini-eventos gamers com facilidade.',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
               ),
-              value: _consentAccepted,
-              activeColor: purple,
-              onChanged: (val) {
-                setState(() {
-                  _consentAccepted = val ?? false;
-                  if (_consentAccepted) {
-                    _consentDate = DateTime.now();
-                    _consentSuccess = "Consentimento aceito!";
-                    _consentError = null;
-                  } else {
-                    _consentDate = null;
-                    _consentSuccess = null;
-                    _consentError = "Você precisa aceitar os termos para continuar.";
-                  }
-                });
-              },
-            ),
-            if (_consentAccepted && _consentDate != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  'Aceito em: ${DateFormat('dd/MM/yyyy HH:mm').format(_consentDate!)}',
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
-              ),
-            if (_consentError != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  _consentError!,
-                  style: const TextStyle(color: Colors.redAccent, fontSize: 15),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            if (_consentSuccess != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Text(
-                  _consentSuccess!,
-                  style: const TextStyle(color: Colors.greenAccent, fontSize: 15),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
+      ),
+      Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.info_outline, color: cyan, size: 80),
+              const SizedBox(height: 24),
+              Text(
+                'O que é o Gamer Event Platform?',
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  'Crie eventos, marque tarefas e acompanhe o progresso do seu mini-evento gamer com checklist e horários!',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.celebration, color: cyan, size: 80),
+              const SizedBox(height: 24),
+              Text(
+                'Tudo pronto!',
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Vamos começar a organizar seu evento gamer!',
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+      MarketingConsentPage(
+        onContinue: () {
+          setState(() => _currentPage = 4);
+        },
+      ),
+      ConsentimentoResumoPage(
+        onLerPolitica: _irParaPolitica,
+        onLerTermos: _irParaTermos,
+        onAvancar: _avancarConsentimento,
+        politicaLida: _politicaLida,
+        termosLidos: _termosLidos,
       ),
     ];
 
     return Scaffold(
       backgroundColor: slate,
-      body: Stack(
-        children: [
-          Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      body: pages[_currentPage],
+      bottomNavigationBar: _currentPage < 3
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: pages[_currentPage],
+                  if (_currentPage > 0)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: slate,
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(100, 40),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _currentPage--;
+                        });
+                      },
+                      child: const Text('Voltar'),
+                    ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: purple,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(100, 40),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _currentPage++;
+                      });
+                    },
+                    child: const Text('Avançar'),
                   ),
-                  const SizedBox(height: 32),
-                  _buildDotsIndicator(),
                 ],
               ),
-            ),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 32,
+            )
+          : null,
+    );
+  }
+}
+
+class ConsentPageFS extends StatefulWidget {
+  final VoidCallback onConsentAccepted;
+  const ConsentPageFS({super.key, required this.onConsentAccepted});
+
+  @override
+  State<ConsentPageFS> createState() => _ConsentPageFSState();
+}
+
+class _ConsentPageFSState extends State<ConsentPageFS> {
+  final ScrollController _scrollController = ScrollController();
+  bool _reachedEnd = false;
+
+  final String _policyContent = '''
+**Termos de Uso e Política de Privacidade**
+
+Ao utilizar este aplicativo, você concorda com os seguintes termos:
+
+- Seus dados serão utilizados apenas para funcionamento do app.
+- Nenhum dado pessoal será compartilhado com terceiros sem sua autorização.
+- Você pode revogar o consentimento a qualquer momento nas configurações.
+
+Leia atentamente todos os termos antes de aceitar.
+  ''';
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_reachedEnd &&
+        _scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent) {
+      setState(() {
+        _reachedEnd = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(24),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (_currentPage == 1 || _currentPage == 2) ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Focus(
-                        child: Semantics(
-                          button: true,
-                          label: 'Voltar',
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: slate,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(100, 40),
-                            ),
-                            onPressed: _prevPage,
-                            child: const Text('Voltar'),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Focus(
-                        child: Semantics(
-                          button: true,
-                          label: 'Pular',
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: cyan,
-                              foregroundColor: Colors.white,
-                              minimumSize: const Size(100, 40),
-                            ),
-                            onPressed: _skipToConsent,
-                            child: const Text('Pular'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Focus(
-                      child: Semantics(
-                        button: true,
-                        label: 'Avançar',
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: purple,
-                            minimumSize: const Size(180, 48),
-                          ),
-                          onPressed: _nextPage,
-                          child: const Text(
-                            'Avançar',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
+                Icon(Icons.verified_user, color: cyan, size: 80),
+                const SizedBox(height: 24),
+                Text(
+                  'Consentimento',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _policyContent,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: Text(
+                    _reachedEnd
+                        ? 'Você leu até o final. Agora pode aceitar os termos.'
+                        : 'Role até o final para aceitar os termos.',
+                    style: TextStyle(
+                      color: _reachedEnd ? Colors.greenAccent : Colors.white70,
+                      fontSize: 15,
                     ),
                   ),
-                ],
-                // Primeira tela: "Pular" centralizado acima do "Avançar"
-                if (_currentPage == 0) ...[
-                  Center(
-                    child: Focus(
-                      child: Semantics(
-                        button: true,
-                        label: 'Pular',
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: cyan,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(100, 40),
-                          ),
-                          onPressed: _skipToConsent,
-                          child: const Text('Pular'),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Focus(
-                      child: Semantics(
-                        button: true,
-                        label: 'Avançar',
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: purple,
-                            minimumSize: const Size(180, 48),
-                          ),
-                          onPressed: _nextPage,
-                          child: const Text(
-                            'Avançar',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                if (_currentPage == 3) ...[
-                  const SizedBox(height: 24),
-                  Center(
-                    child: Focus(
-                      child: Semantics(
-                        button: true,
-                        label: 'Voltar',
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: slate,
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(100, 40),
-                          ),
-                          onPressed: _prevPage,
-                          child: const Text('Voltar'),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Focus(
-                      child: Semantics(
-                        button: true,
-                        enabled: _consentAccepted,
-                        label: 'Consentir',
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _consentAccepted
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                            minimumSize: const Size(180, 48),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(
-                                color: _consentAccepted
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.white24,
-                                width: 2,
-                              ),
-                            ),
-                            elevation: _consentAccepted ? 2 : 0,
-                          ),
-                          onPressed: _consentAccepted ? _finishOnboarding : null,
-                          child: const Text(
-                            'Consentir',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FilledButton.icon(
+              onPressed: _reachedEnd ? widget.onConsentAccepted : null,
+              icon: const Icon(Icons.check),
+              label: const Text('Concordo com os termos'),
+              style: FilledButton.styleFrom(
+                backgroundColor: _reachedEnd ? purple : slate,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(220, 48),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -745,23 +804,33 @@ class _MyHomePageState extends State<MyHomePage> {
                                   style: const TextStyle(color: Colors.white70),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  'Checklist:',
-                                  style: TextStyle(
-                                    color: cyan,
-                                    fontWeight: FontWeight.bold,
+                                Center(
+                                  child: Text(
+                                    'Checklist:',
+                                    style: TextStyle(
+                                      color: cyan,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                                ...event.checklist.map((item) => Row(
-                                      children: [
-                                        Icon(Icons.check_circle, color: purple, size: 20),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          item,
-                                          style: const TextStyle(color: Colors.white),
-                                        ),
-                                      ],
-                                    )),
+                                if (event.checklist.isNotEmpty)
+                                  Column(
+                                    children: event.checklist
+                                        .map((item) => Center(
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Icon(Icons.check_circle, color: purple, size: 20),
+                                                  const SizedBox(width: 6),
+                                                  Text(
+                                                    item,
+                                                    style: const TextStyle(color: Colors.white),
+                                                  ),
+                                                ],
+                                              ),
+                                            ))
+                                        .toList(),
+                                  ),
                               ],
                             ),
                           ),

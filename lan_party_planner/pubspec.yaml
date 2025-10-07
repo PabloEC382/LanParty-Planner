@@ -28,6 +28,8 @@ flutter:
   assets:
     - PNGs/logoIASemfundo.png
     - PNGs/logoIA.png
+    - privacidade.md
+    - termos.md
 
 flutter_icons:
   android: true
