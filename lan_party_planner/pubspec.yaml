@@ -26,13 +26,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - PNGs/logoIASemfundo.png
-    - PNGs/logoIA.png
-    - privacidade.md
-    - termos.md
+    - lib/assets/PNGs/logoIASemfundo.png
+    - lib/assets/PNGs/logoIA.png
+    - lib/assets/privacidade.md
+    - lib/assets/termos.md
 
 flutter_icons:
   android: true
   ios: true
-  image_path: "PNGs/logoIA.png"
+  image_path: "lib/assets/PNGs/logoIA.png"
 
