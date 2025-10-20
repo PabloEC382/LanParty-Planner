@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/theme.dart';
-import '../../models/event.dart';
-import '../consent/consent_history_screen.dart';
-import '../events/event_crud_screen.dart';
 import 'marketing_consent_page.dart';
 import 'consentimento_resumo_page.dart';
 import 'leitura_md_page.dart';
