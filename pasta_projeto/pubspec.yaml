@@ -18,6 +18,9 @@ dependencies:
   intl: ^0.18.1
   http: ^1.2.1
   crypto: ^3.0.3
+  image_picker: ^1.0.7
+  flutter_image_compress: ^2.2.0
+  path_provider: ^2.1.2
 
 dev_dependencies:
   flutter_test:
@@ -26,13 +29,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/assets/PNGs/logoIASemfundo.png
-    - lib/assets/PNGs/logoIA.png
-    - lib/assets/privacidade.md
-    - lib/assets/termos.md
+    - assets/PNGs/logoIASemfundo.png
+    - assets/PNGs/logoIA.png
+    - assets/privacidade.md
+    - assets/termos.md
 
 flutter_icons:
   android: true
   ios: true
-  image_path: "lib/assets/PNGs/logoIA.png"
+  image_path: "assets/PNGs/logoIA.png"
 

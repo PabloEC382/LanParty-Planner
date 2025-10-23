@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../core/theme.dart';
-import '../onboarding/onboarding_screen.dart';
+import '../core/theme.dart';
+import '../onboarding/onboarding_page.dart';
 
 class ConsentHistoryScreen extends StatefulWidget {
   const ConsentHistoryScreen({super.key});
@@ -11,33 +11,26 @@ class ConsentHistoryScreen extends StatefulWidget {
 }
 
 class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
-  String? _consentInfo;
-  bool _consentAccepted = false;
+  bool _accepted = false;
+  String? _infoHash;
+  DateTime? _date;
 
   @override
   void initState() {
     super.initState();
-    _loadConsentInfo();
+    _loadConsent();
   }
 
-  Future<void> _loadConsentInfo() async {
+  Future<void> _loadConsent() async {
     final prefs = await SharedPreferences.getInstance();
-    final encryptedInfo = prefs.getString('consent_info');
     final accepted = prefs.getBool('consent_accepted') ?? false;
+    final hash = prefs.getString('consent_info');
+    final millis = prefs.getInt('consent_date');
     setState(() {
-      _consentInfo = encryptedInfo;
-      _consentAccepted = accepted;
+      _accepted = accepted;
+      _infoHash = hash;
+      _date = millis != null ? DateTime.fromMillisecondsSinceEpoch(millis) : null;
     });
-  }
-
-  Map<String, dynamic>? _getConsentData() {
-    if (_consentInfo != null) {
-      return {
-        'info': 'Dados protegidos por criptografia.',
-        'hash': _consentInfo,
-      };
-    }
-    return null;
   }
 
   Future<void> _revokeConsent() async {
@@ -45,19 +38,31 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
     await prefs.setBool('onboarding_done', false);
     await prefs.setBool('consent_accepted', false);
     await prefs.remove('consent_info');
-    setState(() {
-      _consentAccepted = false;
-      _consentInfo = null;
-    });
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+    await prefs.remove('consent_date');
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed(OnboardingPage.routeName);
+  }
+
+  void _confirmRevoke() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: slate,
+        title: Text('Revogar consentimento', style: TextStyle(color: purple)),
+        content: const Text(
+          'Tem certeza que deseja revogar o consentimento? Você será redirecionado para o início.',
+          style: TextStyle(color: Colors.white),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancelar', style: TextStyle(color: cyan))),
+          TextButton(onPressed: () { Navigator.of(ctx).pop(); _revokeConsent(); }, child: const Text('Revogar', style: TextStyle(color: purple))),
+        ],
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final consentData = _getConsentData();
-
     return Scaffold(
       backgroundColor: slate,
       appBar: AppBar(
@@ -72,77 +77,39 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
           children: [
             Icon(Icons.verified_user, color: cyan, size: 60),
             const SizedBox(height: 16),
-            Text(
-              'Status atual:',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Text('Status atual:', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
-              _consentAccepted
-                  ? 'Consentimento ACEITO'
-                  : 'Consentimento NÃO ACEITO',
+              _accepted ? 'Consentimento ACEITO' : 'Consentimento NÃO ACEITO',
               style: TextStyle(
-                color: _consentAccepted ? cyan : Colors.redAccent,
+                color: _accepted ? cyan : Colors.redAccent,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
             ),
             const SizedBox(height: 24),
-            if (consentData != null) ...[
-              Text(
-                consentData['info'],
-                style: const TextStyle(color: Colors.white70),
-              ),
-              Text(
-                'Hash: ${consentData['hash']}',
-                style: const TextStyle(color: Colors.white38, fontSize: 12),
-              ),
-            ] else ...[
-              const Text(
-                'Nenhum consentimento registrado.',
-                style: TextStyle(color: Colors.white70),
-              ),
-            ],
-            const SizedBox(height: 32),
-            if (_consentAccepted)
+            if (_infoHash != null) ...[
+              const Text('Informação registrada:', style: TextStyle(color: Colors.white70)),
+              const SizedBox(height: 8),
+              Text('Hash: $_infoHash', style: const TextStyle(color: Colors.white38, fontSize: 12)),
+              const SizedBox(height: 8),
+              if (_date != null) Text('Data: ${_date.toString()}', style: const TextStyle(color: Colors.white70)),
+            ] else
+              const Text('Nenhum consentimento registrado.', style: TextStyle(color: Colors.white70)),
+            const Spacer(),
+            if (_accepted)
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: purple,
-                    minimumSize: const Size(180, 48),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size.fromHeight(48),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
                   ),
-                  icon: const Icon(Icons.cancel, color: Colors.white),
-                  label: const Text(
-                    'Revogar Consentimento',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        backgroundColor: slate,
-                        title: Text('Revogar Consentimento', style: TextStyle(color: purple)),
-                        content: const Text(
-                          'Tem certeza que deseja revogar o consentimento? Você será redirecionado para o início do app.',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        actions: [
-                          TextButton(
-                            child: const Text('Cancelar', style: TextStyle(color: cyan)),
-                            onPressed: () => Navigator.of(context).pop(),
-                          ),
-                          TextButton(
-                            child: const Text('Revogar', style: TextStyle(color: purple)),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              _revokeConsent();
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  icon: const Icon(Icons.cancel),
+                  label: const Text('Revogar Consentimento'),
+                  onPressed: _confirmRevoke,
                 ),
               ),
           ],
