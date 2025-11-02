@@ -1,7 +1,7 @@
 /// Domain entity representing a Lan Party Event.
 ///
-/// This model is central to the event management feature, defining the
-/// structure of an event with its name, date, checklist, and attendees.
+/// This is the internal application model consumed by the UI and business logic.
+/// It represents the "ideal format" for internal data manipulation.
 class Event {
   final String id;
   final String name;
@@ -20,28 +20,36 @@ class Event {
   })  : checklist = {...?checklist},
         attendees = [...?attendees];
 
-  /// Serialization helper from a Map (e.g., from a DTO).
-  /// This is useful for creating a domain object from a data layer object.
-  factory Event.fromMap(Map<String, dynamic> map) {
-    return Event(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      eventDate: DateTime.parse(map['eventDate'] as String),
-      checklist: Map<String, bool>.from(map['checklist'] as Map),
-      attendees: List<String>.from(map['attendees'] as List),
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
-    );
+  /// Convenience getter for UI: displays event summary
+  String get summary {
+    final taskCount = checklist.length;
+    final completedCount = checklist.values.where((done) => done).length;
+    return '$name • $completedCount/$taskCount tarefas';
   }
 
-  /// Convert to a Map suitable for serialization (e.g., to a DTO).
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'eventDate': eventDate.toIso8601String(),
-      'checklist': checklist,
-      'attendees': attendees,
-      'updatedAt': updatedAt.toIso8601String(),
-    };
+  /// Convenience getter: checks if all tasks are completed
+  bool get isComplete => checklist.isNotEmpty && 
+                         checklist.values.every((done) => done);
+
+  /// Convenience getter: number of attendees
+  int get attendeeCount => attendees.length;
+
+  /// Creates a copy with modified fields (useful for state management)
+  Event copyWith({
+    String? id,
+    String? name,
+    DateTime? eventDate,
+    Map<String, bool>? checklist,
+    List<String>? attendees,
+    DateTime? updatedAt,
+  }) {
+    return Event(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      eventDate: eventDate ?? this.eventDate,
+      checklist: checklist ?? this.checklist,
+      attendees: attendees ?? this.attendees,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 }
