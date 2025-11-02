@@ -12,15 +12,27 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # UI & Utils
   cupertino_icons: ^1.0.8
-  shared_preferences: ^2.2.2
-  flutter_launcher_icons: ^0.14.4
   intl: ^0.18.1
-  http: ^1.2.1
-  crypto: ^3.0.3
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.2
+  
+  # Supabase (NOVO!)
+  supabase_flutter: ^2.5.0
+  
+  # Images
   image_picker: ^1.0.7
   flutter_image_compress: ^2.2.0
-  path_provider: ^2.1.2
+  
+  # Crypto
+  crypto: ^3.0.3
+  http: ^1.2.1
+  
+  # Icons
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -38,4 +50,3 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/PNGs/logoIA.png"
-
