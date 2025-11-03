@@ -6,6 +6,7 @@ import '../../services/shared_preferences_services.dart';
 import '../core/theme.dart';
 import '../crudscreen/event_crud_screen.dart';
 import '../consent/consent_history_screen.dart';
+import '../screens/games_list_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   static const routeName = '/home';
@@ -54,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),
     );
+
+
   }
 
   @override
@@ -89,6 +92,15 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const EventCrudScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.sports_esports),
+              title: const Text('Jogos'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const GamesListScreen()),
                 );
               },
             ),
