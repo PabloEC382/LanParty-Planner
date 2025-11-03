@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:lan_party_planner/features/home/profile_page.dart';
 import '../../services/shared_preferences_services.dart';
 import '../core/theme.dart';
-import '../crudscreen/event_crud_screen.dart';
+//import '../crudscreen/event_crud_screen.dart';
 import '../consent/consent_history_screen.dart';
 import '../screens/games_list_screen.dart';
+import '../screens/tournaments_list_screen.dart';
+import '../screens/events_list_screen.dart';
+import '../screens/venues_list_screen.dart';
+import '../screens/participants_list_screen.dart';
 
 class MyHomePage extends StatefulWidget {
   static const routeName = '/home';
@@ -91,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('Gerenciar Eventos'),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const EventCrudScreen()),
+                  MaterialPageRoute(builder: (_) => const EventsListScreen()),
                 );
               },
             ),
@@ -101,6 +105,33 @@ class _MyHomePageState extends State<MyHomePage> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const GamesListScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.emoji_events),
+              title: const Text('Torneios'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const TournamentsListScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.location_on),
+              title: const Text('Local'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const VenuesListScreen()),
+                );
+              },
+            ),
+                        ListTile(
+              leading: const Icon(Icons.people),
+              title: const Text('Participantes'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ParticipantsListScreen()),
                 );
               },
             ),
