@@ -1,12 +1,8 @@
 import '../../domain/entities/tournament.dart';
 import '../dtos/tournament_dto.dart';
 
-/// Mapper for Tournament: DTO ↔ Entity conversions.
-///
-/// Handles enum string conversions and defensive parsing.
 class TournamentMapper {
   static Tournament toEntity(TournamentDto dto) {
-    // Convert string to enum (defensive)
     TournamentFormat format = TournamentFormat.singleElimination;
     switch (dto.format.toLowerCase()) {
       case 'single_elimination': format = TournamentFormat.singleElimination; break;

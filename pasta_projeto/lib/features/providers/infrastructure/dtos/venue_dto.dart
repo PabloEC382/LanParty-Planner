@@ -1,8 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
-/// Data Transfer Object for Venue.
-///
-/// Mirrors backend structure with snake_case.
 class VenueDto {
   final String id;
   final String name;

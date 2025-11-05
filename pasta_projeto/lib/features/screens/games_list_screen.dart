@@ -3,8 +3,6 @@ import '../core/theme.dart';
 import '../providers/domain/entities/game.dart';
 import '../providers/infrastructure/repositories/games_repository.dart';
 
-/// Tela de listagem de jogos
-/// Demonstra o uso do Repository + Entity
 class GamesListScreen extends StatefulWidget {
   const GamesListScreen({super.key});
 
@@ -61,7 +59,6 @@ class _GamesListScreenState extends State<GamesListScreen> {
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Navegar para tela de adicionar jogo
         },
         backgroundColor: purple,
         child: const Icon(Icons.add),
@@ -137,7 +134,6 @@ class _GamesListScreenState extends State<GamesListScreen> {
   }
 }
 
-/// Card individual de jogo
 class _GameCard extends StatelessWidget {
   final Game game;
 

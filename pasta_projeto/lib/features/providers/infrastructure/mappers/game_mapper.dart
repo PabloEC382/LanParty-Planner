@@ -1,7 +1,6 @@
 import '../../domain/entities/game.dart';
 import '../dtos/game_dto.dart';
 
-/// Mapper for Game: DTO ↔ Entity conversions.
 class GameMapper {
   static Game toEntity(GameDto dto) {
     Uri? coverUri;

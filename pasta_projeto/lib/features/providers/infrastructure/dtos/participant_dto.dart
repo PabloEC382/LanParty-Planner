@@ -1,20 +1,14 @@
-// ignore_for_file: non_constant_identifier_names
-
-/// Data Transfer Object for Participant.
-///
-/// Mirrors the backend/storage structure exactly.
-/// Uses snake_case to match JSON/database conventions.
 class ParticipantDto {
   final String id;
   final String name;
   final String email;
-  final String? avatar_url; // String as it comes from network
+  final String? avatar_url;
   final String nickname;
   final int skill_level;
-  final List<String>? preferred_games; // List in storage, Set in Entity
+  final List<String>? preferred_games;
   final bool is_premium;
-  final String registered_at; // ISO8601 string
-  final String updated_at; // ISO8601 string
+  final String registered_at;
+  final String updated_at;
 
   ParticipantDto({
     required this.id,
@@ -29,7 +23,6 @@ class ParticipantDto {
     required this.updated_at,
   });
 
-  /// From JSON map (from storage or API response)
   factory ParticipantDto.fromMap(Map<String, dynamic> map) {
     return ParticipantDto(
       id: map['id'] as String,
@@ -45,7 +38,6 @@ class ParticipantDto {
     );
   }
 
-  /// To JSON map (for storage or API request)
   Map<String, dynamic> toMap() {
     return {
       'id': id,

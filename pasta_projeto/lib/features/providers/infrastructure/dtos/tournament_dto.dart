@@ -1,24 +1,20 @@
-// ignore_for_file: non_constant_identifier_names
 
-/// Data Transfer Object for Tournament.
-///
-/// Uses snake_case and stores enums as strings for JSON compatibility.
 class TournamentDto {
   final String id;
   final String name;
   final String? description;
   final String game_id;
-  final String format; // String representation of enum
-  final String status; // String representation of enum
+  final String format;
+  final String status;
   final int max_participants;
   final int current_participants;
   final double prize_pool;
-  final String start_date; // ISO8601
-  final String? end_date; // ISO8601
+  final String start_date;
+  final String? end_date;
   final List<String>? organizer_ids;
   final Map<String, dynamic>? rules;
-  final String created_at; // ISO8601
-  final String updated_at; // ISO8601
+  final String created_at;
+  final String updated_at;
 
   TournamentDto({
     required this.id,

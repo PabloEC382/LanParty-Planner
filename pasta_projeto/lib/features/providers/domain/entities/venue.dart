@@ -1,6 +1,3 @@
-/// Domain entity representing a Venue (local) for gaming events.
-///
-/// Strong typing with geographic coordinates, capacity rules, and facilities.
 class Venue {
   final String id;
   final String name;
@@ -8,13 +5,13 @@ class Venue {
   final String city;
   final String state;
   final String zipCode;
-  final double latitude; // -90 to 90
-  final double longitude; // -180 to 180
-  final int capacity; // Minimum 1
-  final double pricePerHour; // Non-negative
-  final Set<String> facilities; // WiFi, AC, Parking, etc.
-  final double rating; // 0.0 to 5.0
-  final int totalReviews; // Non-negative
+  final double latitude;
+  final double longitude; 
+  final int capacity;
+  final double pricePerHour;
+  final Set<String> facilities; 
+  final double rating; 
+  final int totalReviews; 
   final bool isVerified;
   final Uri? websiteUri;
   final String? phoneNumber;
@@ -40,29 +37,25 @@ class Venue {
     this.phoneNumber,
     required this.createdAt,
     required this.updatedAt,
-  })  : latitude = latitude.clamp(-90.0, 90.0), // Invariant: valid latitude
-        longitude = longitude.clamp(-180.0, 180.0), // Invariant: valid longitude
-        capacity = capacity < 1 ? 1 : capacity, // Invariant: min 1 person
-        pricePerHour = pricePerHour < 0 ? 0 : pricePerHour, // Invariant: non-negative
-        rating = rating.clamp(0.0, 5.0), // Invariant: 0-5 rating
-        totalReviews = totalReviews < 0 ? 0 : totalReviews, // Invariant: non-negative
+  })  : latitude = latitude.clamp(-90.0, 90.0),
+        longitude = longitude.clamp(-180.0, 180.0),
+        capacity = capacity < 1 ? 1 : capacity,
+        pricePerHour = pricePerHour < 0 ? 0 : pricePerHour, 
+        rating = rating.clamp(0.0, 5.0),
+        totalReviews = totalReviews < 0 ? 0 : totalReviews,
         facilities = {...?facilities};
 
-  /// Convenience: Full address
   String get fullAddress => '$address, $city - $state, $zipCode';
 
-  /// Convenience: Rating display with stars
   String get ratingDisplay {
     final stars = '⭐' * rating.round();
     return '$stars ${rating.toStringAsFixed(1)} (${totalReviews} avaliações)';
   }
 
-  /// Convenience: Price display
   String get priceDisplay => pricePerHour > 0
       ? 'R\$ ${pricePerHour.toStringAsFixed(2)}/hora'
       : 'Gratuito';
 
-  /// Convenience: Capacity category
   String get capacityCategory {
     if (capacity <= 10) return 'Pequeno';
     if (capacity <= 50) return 'Médio';
@@ -70,16 +63,13 @@ class Venue {
     return 'Extra Grande';
   }
 
-  /// Convenience: Has essential facilities
   bool get hasEssentials {
     return facilities.contains('WiFi') && facilities.contains('AC');
   }
 
-  /// Convenience: Google Maps URL
   String get mapsUrl =>
       'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
 
-  /// Convenience: Badge for verified venues
   String get badge => isVerified ? '✅ Verificado' : '⏳ Não verificado';
 
   Venue copyWith({

@@ -1,7 +1,6 @@
 import '../../domain/entities/venue.dart';
 import '../dtos/venue_dto.dart';
 
-/// Mapper for Venue: DTO ↔ Entity conversions.
 class VenueMapper {
   static Venue toEntity(VenueDto dto) {
     Uri? websiteUri;

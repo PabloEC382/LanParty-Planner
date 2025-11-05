@@ -1,15 +1,12 @@
-/// Domain entity representing a Participant in a gaming event.
-///
-/// This is the internal application model with strong typing and domain invariants.
-/// The UI consumes this clean, validated representation.
+
 class Participant {
   final String id;
   final String name;
   final String email;
-  final Uri? avatarUri; // Stronger than String
+  final Uri? avatarUri;
   final String nickname;
-  final int skillLevel; // 1-5, clamped
-  final Set<String> preferredGames; // Set prevents duplicates
+  final int skillLevel;
+  final Set<String> preferredGames;
   final bool isPremium;
   final DateTime registeredAt;
   final DateTime updatedAt;
@@ -25,13 +22,11 @@ class Participant {
     this.isPremium = false,
     required this.registeredAt,
     required this.updatedAt,
-  })  : skillLevel = skillLevel.clamp(1, 5), // Invariant: skill always 1-5
+  })  : skillLevel = skillLevel.clamp(1, 5),
         preferredGames = {...?preferredGames};
 
-  /// Convenience: Display name with nickname
   String get displayName => '$name (@$nickname)';
 
-  /// Convenience: Skill level as text
   String get skillLevelText {
     switch (skillLevel) {
       case 1: return 'Iniciante';
@@ -43,16 +38,13 @@ class Participant {
     }
   }
 
-  /// Convenience: Badge for UI
   String get badge => isPremium ? '⭐ Premium' : '🎮 Jogador';
 
-  /// Validation: Check if email format is valid
   bool get hasValidEmail {
     final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
     return emailRegex.hasMatch(email);
   }
 
-  /// Immutable copy with modifications
   Participant copyWith({
     String? id,
     String? name,
