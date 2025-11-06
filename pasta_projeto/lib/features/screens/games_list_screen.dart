@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../providers/domain/entities/game.dart';
-import '../providers/infrastructure/repositories/games_repository.dart';
 
 class GamesListScreen extends StatefulWidget {
   const GamesListScreen({super.key});
@@ -11,7 +10,6 @@ class GamesListScreen extends StatefulWidget {
 }
 
 class _GamesListScreenState extends State<GamesListScreen> {
-  final _repository = GamesRepository();
   List<Game> _games = [];
   bool _loading = true;
   String? _error;
@@ -27,19 +25,6 @@ class _GamesListScreenState extends State<GamesListScreen> {
       _loading = true;
       _error = null;
     });
-
-    try {
-      final games = await _repository.getAllGames();
-      setState(() {
-        _games = games;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
-    }
   }
 
   @override
@@ -50,16 +35,12 @@ class _GamesListScreenState extends State<GamesListScreen> {
         backgroundColor: purple,
         title: const Text('Jogos Disponíveis'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadGames,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadGames),
         ],
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-        },
+        onPressed: () {},
         backgroundColor: purple,
         child: const Icon(Icons.add),
       ),
@@ -68,9 +49,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: cyan),
-      );
+      return const Center(child: CircularProgressIndicator(color: cyan));
     }
 
     if (_error != null) {
@@ -158,7 +137,10 @@ class _GameCard extends StatelessWidget {
                     width: 60,
                     height: 60,
                     color: purple.withOpacity(0.3),
-                    child: const Icon(Icons.sports_esports, color: Colors.white),
+                    child: const Icon(
+                      Icons.sports_esports,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               )
@@ -183,10 +165,7 @@ class _GameCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 4),
-            Text(
-              game.genre,
-              style: TextStyle(color: cyan, fontSize: 12),
-            ),
+            Text(game.genre, style: TextStyle(color: cyan, fontSize: 12)),
             const SizedBox(height: 4),
             Text(
               game.playerRange,
@@ -202,7 +181,10 @@ class _GameCard extends StatelessWidget {
                 const SizedBox(width: 12),
                 if (game.isPopular)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: cyan.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(4),
@@ -216,12 +198,16 @@ class _GameCard extends StatelessWidget {
             ),
           ],
         ),
-        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 16),
+        trailing: const Icon(
+          Icons.arrow_forward_ios,
+          color: Colors.white38,
+          size: 16,
+        ),
         onTap: () {
           // TODO: Navegar para detalhes do jogo
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Detalhes de ${game.title}')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Detalhes de ${game.title}')));
         },
       ),
     );

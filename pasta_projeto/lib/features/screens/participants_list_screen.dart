@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../providers/domain/entities/participant.dart';
-import '../providers/infrastructure/repositories/participants_repository.dart';
 
 class ParticipantsListScreen extends StatefulWidget {
   const ParticipantsListScreen({super.key});
@@ -11,7 +10,6 @@ class ParticipantsListScreen extends StatefulWidget {
 }
 
 class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
-  final _repository = ParticipantsRepository();
   List<Participant> _participants = [];
   bool _loading = true;
   String? _error;
@@ -27,19 +25,6 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
       _loading = true;
       _error = null;
     });
-
-    try {
-      final participants = await _repository.getAllParticipants();
-      setState(() {
-        _participants = participants;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
-    }
   }
 
   @override
@@ -50,7 +35,10 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
         backgroundColor: purple,
         title: const Text('Participantes'),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadParticipants),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadParticipants,
+          ),
         ],
       ),
       body: _buildBody(),
@@ -58,9 +46,22 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
   }
 
   Widget _buildBody() {
-    if (_loading) return const Center(child: CircularProgressIndicator(color: cyan));
-    if (_error != null) return Center(child: Text('Erro: $_error', style: const TextStyle(color: Colors.white)));
-    if (_participants.isEmpty) return const Center(child: Text('Nenhum participante', style: TextStyle(color: Colors.white70)));
+    if (_loading)
+      return const Center(child: CircularProgressIndicator(color: cyan));
+    if (_error != null)
+      return Center(
+        child: Text(
+          'Erro: $_error',
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+    if (_participants.isEmpty)
+      return const Center(
+        child: Text(
+          'Nenhum participante',
+          style: TextStyle(color: Colors.white70),
+        ),
+      );
 
     return RefreshIndicator(
       onRefresh: _loadParticipants,
@@ -75,18 +76,39 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             child: ListTile(
               leading: CircleAvatar(
-                backgroundColor: participant.isPremium ? cyan : purple.withOpacity(0.3),
-                child: Text(participant.nickname[0].toUpperCase(), style: const TextStyle(color: Colors.white)),
+                backgroundColor: participant.isPremium
+                    ? cyan
+                    : purple.withOpacity(0.3),
+                child: Text(
+                  participant.nickname[0].toUpperCase(),
+                  style: const TextStyle(color: Colors.white),
+                ),
               ),
-              title: Text(participant.displayName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              title: Text(
+                participant.displayName,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(participant.skillLevelText, style: TextStyle(color: cyan, fontSize: 12)),
-                  Text(participant.badge, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text(
+                    participant.skillLevelText,
+                    style: TextStyle(color: cyan, fontSize: 12),
+                  ),
+                  Text(
+                    participant.badge,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
                 ],
               ),
-              trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 16),
+              trailing: const Icon(
+                Icons.arrow_forward_ios,
+                color: Colors.white38,
+                size: 16,
+              ),
             ),
           );
         },
