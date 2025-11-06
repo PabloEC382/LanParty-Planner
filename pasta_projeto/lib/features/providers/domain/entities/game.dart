@@ -1,17 +1,14 @@
-/// Domain entity representing a Game in the gaming event platform.
-///
-/// Strong typing and domain invariants ensure data integrity.
 class Game {
   final String id;
   final String title;
   final String? description;
   final Uri? coverImageUri;
-  final String genre; // e.g., "FPS", "MOBA", "RPG"
-  final int minPlayers; // Minimum 1
-  final int maxPlayers; // Minimum 1, must be >= minPlayers
-  final Set<String> platforms; // PC, PS5, Xbox, etc.
-  final double averageRating; // 0.0 to 5.0, clamped
-  final int totalMatches; // Non-negative
+  final String genre;
+  final int minPlayers;
+  final int maxPlayers;
+  final Set<String> platforms;
+  final double averageRating;
+  final int totalMatches;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -28,25 +25,20 @@ class Game {
     required int totalMatches,
     required this.createdAt,
     required this.updatedAt,
-  })  : minPlayers = minPlayers < 1 ? 1 : minPlayers, // Invariant: min 1 player
-        maxPlayers = maxPlayers < minPlayers ? minPlayers : maxPlayers, // Invariant: max >= min
-        averageRating = averageRating.clamp(0.0, 5.0), // Invariant: rating 0-5
-        totalMatches = totalMatches < 0 ? 0 : totalMatches, // Invariant: non-negative
+  })  : minPlayers = minPlayers < 1 ? 1 : minPlayers,
+        maxPlayers = maxPlayers < minPlayers ? minPlayers : maxPlayers, 
+        averageRating = averageRating.clamp(0.0, 5.0),
+        totalMatches = totalMatches < 0 ? 0 : totalMatches,
         platforms = {...?platforms};
 
-  /// Convenience: Player range display
   String get playerRange => '$minPlayers-$maxPlayers jogadores';
 
-  /// Convenience: Rating with stars
   String get ratingDisplay => '${'⭐' * averageRating.round()} ${averageRating.toStringAsFixed(1)}';
 
-  /// Convenience: Formatted platforms
   String get platformsDisplay => platforms.isEmpty ? 'N/A' : platforms.join(', ');
 
-  /// Convenience: Check if game is popular (many matches)
   bool get isPopular => totalMatches >= 50;
 
-  /// Convenience: Short description (first 100 chars)
   String get shortDescription {
     if (description == null || description!.isEmpty) return 'Sem descrição';
     return description!.length > 100 

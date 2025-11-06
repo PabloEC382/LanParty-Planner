@@ -1,8 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
-/// Data Transfer Object for Game.
-///
-/// Mirrors backend structure with snake_case naming.
 class GameDto {
   final String id;
   final String title;
@@ -14,8 +9,8 @@ class GameDto {
   final List<String>? platforms;
   final double average_rating;
   final int total_matches;
-  final String created_at; // ISO8601
-  final String updated_at; // ISO8601
+  final String created_at;
+  final String updated_at;
 
   GameDto({
     required this.id,

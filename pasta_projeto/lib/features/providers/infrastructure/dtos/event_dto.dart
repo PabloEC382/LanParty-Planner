@@ -1,19 +1,10 @@
-// Allow snake_case field names that mirror the JSON/database columns.
-// ignore_for_file: non_constant_identifier_names
-
-/// Data Transfer Object for Event.
-///
-/// This class mirrors the structure of data as it's stored/transmitted.
-/// Field names use snake_case to match the storage format (SharedPreferences JSON).
-/// 
-/// The DTO is the "wire format" - optimized for data transit and storage.
 class EventDto {
   final String id;
   final String name;
-  final String event_date; // ISO8601 string
-  final Map<String, dynamic> checklist; // Using dynamic for JSON compatibility
+  final String event_date;
+  final Map<String, dynamic> checklist;
   final List<String> attendees;
-  final String updated_at; // ISO8601 string
+  final String updated_at;
 
   EventDto({
     required this.id,
@@ -24,7 +15,6 @@ class EventDto {
     required this.updated_at,
   });
 
-  /// Creates a DTO from a JSON map (from SharedPreferences or API)
   factory EventDto.fromMap(Map<String, dynamic> map) {
     return EventDto(
       id: map['id'] as String,
@@ -36,7 +26,6 @@ class EventDto {
     );
   }
 
-  /// Converts the DTO to a JSON map for storage/transmission
   Map<String, dynamic> toMap() {
     return {
       'id': id,

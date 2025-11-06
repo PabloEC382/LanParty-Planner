@@ -1,12 +1,7 @@
 import '../../domain/entities/participant.dart';
 import '../dtos/participant_dto.dart';
 
-/// Mapper for Participant: DTO ↔ Entity conversions.
-///
-/// Centralizes all conversion logic. No business rules here,
-/// only type conversions and normalizations.
 class ParticipantMapper {
-  /// Converts DTO (wire format) to Entity (domain model)
   static Participant toEntity(ParticipantDto dto) {
     // Defensive: parse URI safely
     Uri? avatarUri;
@@ -14,7 +9,6 @@ class ParticipantMapper {
       avatarUri = Uri.tryParse(dto.avatar_url!);
     }
 
-    // Defensive: ensure games list is not null, convert to Set
     final games = dto.preferred_games?.toSet() ?? <String>{};
 
     return Participant(
@@ -23,7 +17,7 @@ class ParticipantMapper {
       email: dto.email,
       avatarUri: avatarUri,
       nickname: dto.nickname,
-      skillLevel: dto.skill_level, // Clamp happens in Entity constructor
+      skillLevel: dto.skill_level,
       preferredGames: games,
       isPremium: dto.is_premium,
       registeredAt: DateTime.parse(dto.registered_at),
@@ -31,7 +25,6 @@ class ParticipantMapper {
     );
   }
 
-  /// Converts Entity (domain model) to DTO (wire format)
   static ParticipantDto toDto(Participant entity) {
     return ParticipantDto(
       id: entity.id,
@@ -47,12 +40,10 @@ class ParticipantMapper {
     );
   }
 
-  /// Batch conversion: DTOs → Entities
   static List<Participant> toEntities(List<ParticipantDto> dtos) {
     return dtos.map(toEntity).toList();
   }
 
-  /// Batch conversion: Entities → DTOs
   static List<ParticipantDto> toDtos(List<Participant> entities) {
     return entities.map(toDto).toList();
   }
