@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../providers/domain/entities/game.dart';
+import '../providers/infrastructure/dtos/game_dto.dart';
+import '../providers/infrastructure/repositories/games_repository_impl.dart';
+import '../providers/infrastructure/local/games_local_dao_shared_prefs.dart';
+import '../providers/presentation/dialogs/game_form_dialog.dart';
 
 class GamesListScreen extends StatefulWidget {
   const GamesListScreen({super.key});
@@ -13,10 +17,12 @@ class _GamesListScreenState extends State<GamesListScreen> {
   List<Game> _games = [];
   bool _loading = true;
   String? _error;
+  late GamesRepositoryImpl _repository;
 
   @override
   void initState() {
     super.initState();
+    _repository = GamesRepositoryImpl(localDao: GamesLocalDaoSharedPrefs());
     _loadGames();
   }
 
@@ -25,6 +31,149 @@ class _GamesListScreenState extends State<GamesListScreen> {
       _loading = true;
       _error = null;
     });
+
+    try {
+      final games = await _repository.listAll();
+      setState(() {
+        _games = games;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+        _loading = false;
+      });
+    }
+  }
+
+  GameDto _convertGameToDto(Game game) {
+    return GameDto(
+      id: game.id,
+      title: game.title,
+      description: game.description,
+      cover_image_url: game.coverImageUri?.toString(),
+      genre: game.genre,
+      min_players: game.minPlayers,
+      max_players: game.maxPlayers,
+      platforms: game.platforms.toList(),
+      average_rating: game.averageRating,
+      total_matches: game.totalMatches,
+      created_at: game.createdAt.toIso8601String(),
+      updated_at: game.updatedAt.toIso8601String(),
+    );
+  }
+
+  Future<void> _showAddGameDialog() async {
+    final result = await showGameFormDialog(context);
+    if (result != null) {
+      try {
+        final newGame = Game(
+          id: result.id,
+          title: result.title,
+          description: result.description,
+          coverImageUri: result.cover_image_url != null ? Uri.tryParse(result.cover_image_url!) : null,
+          genre: result.genre,
+          minPlayers: result.min_players,
+          maxPlayers: result.max_players,
+          platforms: (result.platforms ?? []).toSet(),
+          averageRating: result.average_rating,
+          totalMatches: result.total_matches,
+          createdAt: DateTime.parse(result.created_at),
+          updatedAt: DateTime.parse(result.updated_at),
+        );
+        
+        await _repository.create(newGame);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Jogo adicionado com sucesso!')),
+          );
+          _loadGames();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao adicionar jogo: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showEditGameDialog(Game game) async {
+    final gameDto = _convertGameToDto(game);
+    final result = await showGameFormDialog(context, initial: gameDto);
+    if (result != null) {
+      try {
+        final updatedGame = Game(
+          id: result.id,
+          title: result.title,
+          description: result.description,
+          coverImageUri: result.cover_image_url != null ? Uri.tryParse(result.cover_image_url!) : null,
+          genre: result.genre,
+          minPlayers: result.min_players,
+          maxPlayers: result.max_players,
+          platforms: (result.platforms ?? []).toSet(),
+          averageRating: result.average_rating,
+          totalMatches: result.total_matches,
+          createdAt: DateTime.parse(result.created_at),
+          updatedAt: DateTime.parse(result.updated_at),
+        );
+        
+        await _repository.update(updatedGame);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Jogo atualizado com sucesso!')),
+          );
+          _loadGames();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao atualizar jogo: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _deleteGame(String gameId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar exclusão'),
+        content: const Text('Tem certeza que deseja deletar este jogo?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _repository.delete(gameId);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Jogo deletado com sucesso!')),
+          );
+          _loadGames();
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao deletar jogo: $e')),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -40,7 +189,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: _showAddGameDialog,
         backgroundColor: purple,
         child: const Icon(Icons.add),
       ),
@@ -106,7 +255,21 @@ class _GamesListScreenState extends State<GamesListScreen> {
         itemCount: _games.length,
         itemBuilder: (context, index) {
           final game = _games[index];
-          return _GameCard(game: game);
+          return Dismissible(
+            key: Key(game.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 16),
+              color: Colors.red,
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            onDismissed: (_) => _deleteGame(game.id),
+            child: _GameCard(
+              game: game,
+              onEdit: () => _showEditGameDialog(game),
+            ),
+          );
         },
       ),
     );
@@ -115,8 +278,9 @@ class _GamesListScreenState extends State<GamesListScreen> {
 
 class _GameCard extends StatelessWidget {
   final Game game;
+  final VoidCallback onEdit;
 
-  const _GameCard({required this.game});
+  const _GameCard({required this.game, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
@@ -198,17 +362,10 @@ class _GameCard extends StatelessWidget {
             ),
           ],
         ),
-        trailing: const Icon(
-          Icons.arrow_forward_ios,
-          color: Colors.white38,
-          size: 16,
+        trailing: IconButton(
+          icon: const Icon(Icons.edit, color: Colors.white38),
+          onPressed: onEdit,
         ),
-        onTap: () {
-          // TODO: Navegar para detalhes do jogo
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Detalhes de ${game.title}')));
-        },
       ),
     );
   }
