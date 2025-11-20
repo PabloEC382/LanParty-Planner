@@ -1,0 +1,303 @@
+import 'package:flutter/material.dart';
+import '../../domain/entities/participant.dart';
+import '../../../core/theme.dart';
+import '../dialogs/participant_form_dialog.dart';
+import '../../infrastructure/repositories/participants_repository_impl.dart';
+import '../../infrastructure/local/participants_local_dao_shared_prefs.dart';
+import '../../infrastructure/mappers/participant_mapper.dart';
+
+class ParticipantDetailScreen extends StatefulWidget {
+  final Participant participant;
+  final VoidCallback onParticipantUpdated;
+
+  const ParticipantDetailScreen({
+    required this.participant,
+    required this.onParticipantUpdated,
+    super.key,
+  });
+
+  @override
+  State<ParticipantDetailScreen> createState() => _ParticipantDetailScreenState();
+}
+
+class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
+  late Participant _participant;
+  late ParticipantsRepositoryImpl _repository;
+
+  @override
+  void initState() {
+    super.initState();
+    _participant = widget.participant;
+    _repository = ParticipantsRepositoryImpl(localDao: ParticipantsLocalDaoSharedPrefs());
+  }
+
+  Future<void> _showEditDialog() async {
+    final dto = ParticipantMapper.toDto(_participant);
+    final result = await showParticipantFormDialog(context, initial: dto);
+    if (result != null && mounted) {
+      try {
+        final updatedParticipant = ParticipantMapper.toEntity(result);
+        await _repository.update(updatedParticipant);
+        setState(() {
+          _participant = updatedParticipant;
+        });
+        widget.onParticipantUpdated();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Participante atualizado com sucesso!')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao atualizar: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _showDeleteConfirmation() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: slate,
+        title: const Text(
+          'Confirmar exclusão',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: Text(
+          'Tem certeza que deseja deletar "${_participant.displayName}"?',
+          style: const TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              'Cancelar',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              'Deletar',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      try {
+        await _repository.delete(_participant.id);
+        widget.onParticipantUpdated();
+        if (mounted) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Participante deletado com sucesso!')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erro ao deletar: $e')),
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: slate,
+      appBar: AppBar(
+        backgroundColor: purple,
+        title: const Text('Detalhes do Participante'),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Avatar e Nome
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 48,
+                  backgroundColor: _participant.isPremium
+                      ? cyan
+                      : purple.withOpacity(0.3),
+                  child: Text(
+                    _participant.nickname[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 24),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _participant.displayName,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '@${_participant.nickname}',
+                        style: const TextStyle(
+                          color: cyan,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      if (_participant.isPremium)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: cyan.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: const Text(
+                            '👑 Premium',
+                            style: TextStyle(color: cyan, fontSize: 12),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Informações
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: purple.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: cyan.withOpacity(0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Nível de Habilidade:',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      Text(
+                        _participant.skillLevelText,
+                        style: const TextStyle(color: cyan, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Email:',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                      Expanded(
+                        child: Text(
+                          _participant.email,
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(color: cyan, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  if (_participant.preferredGames.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Jogos Preferidos:',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: _participant.preferredGames
+                              .map(
+                                (game) => Chip(
+                                  label: Text(game),
+                                  backgroundColor: cyan.withOpacity(0.2),
+                                  labelStyle: const TextStyle(color: cyan),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Botões de ação
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: purple,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: _showEditDialog,
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Editar'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.withOpacity(0.8),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: _showDeleteConfirmation,
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Deletar'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.withOpacity(0.6),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    label: const Text('Fechar'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

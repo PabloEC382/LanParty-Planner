@@ -1,17 +1,25 @@
 class EventDto {
   final String id;
   final String name;
-  final String event_date;
-  final Map<String, dynamic> checklist;
-  final List<String> attendees;
+  final String start_date;
+  final String end_date;
+  final String description;
+  final String start_time;
+  final String end_time;
+  final String? venue_id;
+  final String created_at;
   final String updated_at;
 
   EventDto({
     required this.id,
     required this.name,
-    required this.event_date,
-    required this.checklist,
-    required this.attendees,
+    required this.start_date,
+    required this.end_date,
+    required this.description,
+    required this.start_time,
+    required this.end_time,
+    this.venue_id,
+    required this.created_at,
     required this.updated_at,
   });
 
@@ -19,9 +27,13 @@ class EventDto {
     return EventDto(
       id: map['id'] as String,
       name: map['name'] as String,
-      event_date: map['event_date'] as String,
-      checklist: Map<String, dynamic>.from(map['checklist'] as Map),
-      attendees: List<String>.from(map['attendees'] as List),
+      start_date: map['start_date'] as String,
+      end_date: map['end_date'] as String,
+      description: map['description'] as String,
+      start_time: map['start_time'] as String,
+      end_time: map['end_time'] as String,
+      venue_id: map['venue_id'] as String?,
+      created_at: map['created_at'] as String,
       updated_at: map['updated_at'] as String,
     );
   }
@@ -30,9 +42,13 @@ class EventDto {
     return {
       'id': id,
       'name': name,
-      'event_date': event_date,
-      'checklist': checklist,
-      'attendees': attendees,
+      'start_date': start_date,
+      'end_date': end_date,
+      'description': description,
+      'start_time': start_time,
+      'end_time': end_time,
+      'venue_id': venue_id,
+      'created_at': created_at,
       'updated_at': updated_at,
     };
   }

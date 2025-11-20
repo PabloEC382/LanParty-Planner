@@ -14,7 +14,7 @@ class ReadyObPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.celebration, color: cyan, size: 88),
+              const Icon(Icons.celebration, color: cyan, size: 88),
               const SizedBox(height: 20),
               Text(
                 'Tudo pronto!',

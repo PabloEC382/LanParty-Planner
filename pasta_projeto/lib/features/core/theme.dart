@@ -7,7 +7,7 @@ const Color slate = Color(0xFF0F172A);
 final ThemeData appTheme = ThemeData(
   brightness: Brightness.dark,
   useMaterial3: true,
-  colorScheme: ColorScheme.dark(
+  colorScheme: const ColorScheme.dark(
     primary: purple,
     onPrimary: Colors.white,
     secondary: cyan,
@@ -54,7 +54,7 @@ final ThemeData appTheme = ThemeData(
     fillColor: slate.withOpacity(0.12),
     hintStyle: const TextStyle(color: Colors.white54),
     labelStyle: const TextStyle(color: Colors.white70),
-    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: cyan)),
-    focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: purple)),
+    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: cyan)),
+    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: purple)),
   ),
 );

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../providers/domain/entities/participant.dart';
-import '../providers/infrastructure/dtos/participant_dto.dart';
 import '../providers/infrastructure/repositories/participants_repository_impl.dart';
 import '../providers/infrastructure/local/participants_local_dao_shared_prefs.dart';
 import '../providers/presentation/dialogs/participant_form_dialog.dart';
+import '../providers/presentation/dialogs/participant_actions_dialog.dart';
+import '../providers/infrastructure/mappers/participant_mapper.dart';
+import '../providers/presentation/screens/participant_detail_screen.dart';
 
 class ParticipantsListScreen extends StatefulWidget {
   const ParticipantsListScreen({super.key});
@@ -46,50 +48,22 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
     }
   }
 
-  ParticipantDto _convertParticipantToDto(Participant participant) {
-    return ParticipantDto(
-      id: participant.id,
-      name: participant.name,
-      email: participant.email,
-      nickname: participant.nickname,
-      avatar_url: participant.avatarUri?.toString(),
-      skill_level: participant.skillLevel,
-      preferred_games: participant.preferredGames.toList(),
-      is_premium: participant.isPremium,
-      registered_at: participant.registeredAt.toIso8601String(),
-      updated_at: participant.updatedAt.toIso8601String(),
-    );
-  }
-
   Future<void> _showAddParticipantDialog() async {
     final result = await showParticipantFormDialog(context);
-    if (result != null) {
+    if (result != null && mounted) {
       try {
-        final newParticipant = Participant(
-          id: result.id,
-          name: result.name,
-          email: result.email,
-          nickname: result.nickname,
-          skillLevel: result.skill_level,
-          avatarUri: result.avatar_url != null ? Uri.tryParse(result.avatar_url!) : null,
-          isPremium: result.is_premium,
-          preferredGames: (result.preferred_games ?? []).toSet(),
-          registeredAt: DateTime.parse(result.registered_at),
-          updatedAt: DateTime.parse(result.updated_at),
-        );
-        
-        await _repository.create(newParticipant);
-        
+        final participant = ParticipantMapper.toEntity(result);
+        await _repository.create(participant);
+        await _loadParticipants();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Participante adicionado com sucesso!')),
           );
-          _loadParticipants();
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar participante: $e')),
+            SnackBar(content: Text('Erro ao adicionar: $e')),
           );
         }
       }
@@ -97,35 +71,22 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
   }
 
   Future<void> _showEditParticipantDialog(Participant participant) async {
-    final participantDto = _convertParticipantToDto(participant);
-    final result = await showParticipantFormDialog(context, initial: participantDto);
-    if (result != null) {
+    final dto = ParticipantMapper.toDto(participant);
+    final result = await showParticipantFormDialog(context, initial: dto);
+    if (result != null && mounted) {
       try {
-        final updatedParticipant = Participant(
-          id: result.id,
-          name: result.name,
-          email: result.email,
-          nickname: result.nickname,
-          skillLevel: result.skill_level,
-          avatarUri: result.avatar_url != null ? Uri.tryParse(result.avatar_url!) : null,
-          isPremium: result.is_premium,
-          preferredGames: (result.preferred_games ?? []).toSet(),
-          registeredAt: DateTime.parse(result.registered_at),
-          updatedAt: DateTime.parse(result.updated_at),
-        );
-        
+        final updatedParticipant = ParticipantMapper.toEntity(result);
         await _repository.update(updatedParticipant);
-        
+        await _loadParticipants();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Participante atualizado com sucesso!')),
           );
-          _loadParticipants();
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar participante: $e')),
+            SnackBar(content: Text('Erro ao atualizar: $e')),
           );
         }
       }
@@ -133,39 +94,19 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
   }
 
   Future<void> _deleteParticipant(String participantId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar exclusão'),
-        content: const Text('Tem certeza que deseja deletar este participante?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      try {
-        await _repository.delete(participantId);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Participante deletado com sucesso!')),
-          );
-          _loadParticipants();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar participante: $e')),
-          );
-        }
+    try {
+      await _repository.delete(participantId);
+      await _loadParticipants();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Participante deletado com sucesso!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao deletar: $e')),
+        );
       }
     }
   }
@@ -186,30 +127,33 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: cyan,
         onPressed: _showAddParticipantDialog,
-        backgroundColor: purple,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.black),
       ),
     );
   }
 
   Widget _buildBody() {
-    if (_loading)
+    if (_loading) {
       return const Center(child: CircularProgressIndicator(color: cyan));
-    if (_error != null)
+    }
+    if (_error != null) {
       return Center(
         child: Text(
           'Erro: $_error',
           style: const TextStyle(color: Colors.white),
         ),
       );
-    if (_participants.isEmpty)
+    }
+    if (_participants.isEmpty) {
       return const Center(
         child: Text(
           'Nenhum participante',
           style: TextStyle(color: Colors.white70),
         ),
       );
+    }
 
     return RefreshIndicator(
       onRefresh: _loadParticipants,
@@ -228,8 +172,57 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
               color: Colors.red,
               child: const Icon(Icons.delete, color: Colors.white),
             ),
+            confirmDismiss: (direction) async {
+              return await showDialog<bool>(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                  backgroundColor: slate,
+                  title: const Text(
+                    'Confirmar exclusão',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  content: Text(
+                    'Tem certeza que deseja remover "${participant.displayName}"?',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        'Remover',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              ) ?? false;
+            },
             onDismissed: (_) => _deleteParticipant(participant.id),
-            child: Card(
+            child: GestureDetector(
+              onLongPress: () => showParticipantActionsDialog(
+                context,
+                participant: participant,
+                onEdit: () => _showEditParticipantDialog(participant),
+                onDelete: () => _deleteParticipant(participant.id),
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ParticipantDetailScreen(
+                    participant: participant,
+                    onParticipantUpdated: _loadParticipants,
+                  ),
+                ),
+              ),
+              child: Card(
               color: slate.withOpacity(0.5),
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
@@ -254,7 +247,7 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
                   children: [
                     Text(
                       participant.skillLevelText,
-                      style: TextStyle(color: cyan, fontSize: 12),
+                      style: const TextStyle(color: cyan, fontSize: 12),
                     ),
                     Text(
                       participant.badge,
@@ -263,10 +256,11 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
                   ],
                 ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white38),
+                  icon: const Icon(Icons.edit, color: cyan),
                   onPressed: () => _showEditParticipantDialog(participant),
                 ),
               ),
+            ),
             ),
           );
         },

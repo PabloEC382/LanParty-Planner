@@ -37,7 +37,7 @@ class _MarketingConsentPageState extends State<MarketingConsentPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(Icons.mark_email_read_outlined, color: cyan, size: 90),
+              const Icon(Icons.mark_email_read_outlined, color: cyan, size: 90),
               const SizedBox(height: 28),
               Text(
                 'Receber material de marketing',

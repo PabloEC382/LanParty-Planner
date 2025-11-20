@@ -12,7 +12,7 @@ class HowItWorksObPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.info_outline, color: cyan, size: 80),
+            const Icon(Icons.info_outline, color: cyan, size: 80),
             const SizedBox(height: 24),
             Text('O que é o Gamer Event Platform?', style: Theme.of(context).textTheme.headlineMedium, textAlign: TextAlign.center),
             const SizedBox(height: 12),

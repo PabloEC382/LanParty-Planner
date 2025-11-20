@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../providers/domain/entities/tournament.dart';
-import '../providers/infrastructure/dtos/tournament_dto.dart';
 import '../providers/infrastructure/repositories/tournaments_repository_impl.dart';
 import '../providers/infrastructure/local/tournaments_local_dao_shared_prefs.dart';
 import '../providers/presentation/dialogs/tournament_form_dialog.dart';
+import '../providers/presentation/dialogs/tournament_actions_dialog.dart';
+import '../providers/infrastructure/mappers/tournament_mapper.dart';
+import '../providers/presentation/screens/tournament_detail_screen.dart';
 
 class TournamentsListScreen extends StatefulWidget {
   const TournamentsListScreen({super.key});
@@ -46,60 +48,22 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
     }
   }
 
-  TournamentDto _convertTournamentToDto(Tournament tournament) {
-    return TournamentDto(
-      id: tournament.id,
-      name: tournament.name,
-      description: tournament.description,
-      game_id: tournament.gameId,
-      format: tournament.format.toString().split('.').last,
-      status: tournament.status.toString().split('.').last,
-      max_participants: tournament.maxParticipants,
-      current_participants: tournament.currentParticipants,
-      prize_pool: tournament.prizePool,
-      start_date: tournament.startDate.toIso8601String(),
-      end_date: tournament.endDate?.toIso8601String(),
-      organizer_ids: tournament.organizerIds.toList(),
-      rules: tournament.rules,
-      created_at: tournament.createdAt.toIso8601String(),
-      updated_at: tournament.updatedAt.toIso8601String(),
-    );
-  }
-
   Future<void> _showAddTournamentDialog() async {
     final result = await showTournamentFormDialog(context);
-    if (result != null) {
+    if (result != null && mounted) {
       try {
-        final newTournament = Tournament(
-          id: result.id,
-          name: result.name,
-          description: result.description,
-          gameId: result.game_id,
-          format: _parseFormat(result.format),
-          status: _parseStatus(result.status),
-          maxParticipants: result.max_participants,
-          currentParticipants: result.current_participants,
-          prizePool: result.prize_pool,
-          startDate: DateTime.parse(result.start_date),
-          endDate: result.end_date != null ? DateTime.parse(result.end_date!) : null,
-          organizerIds: (result.organizer_ids ?? []).toSet(),
-          rules: result.rules,
-          createdAt: DateTime.parse(result.created_at),
-          updatedAt: DateTime.parse(result.updated_at),
-        );
-        
-        await _repository.create(newTournament);
-        
+        final tournament = TournamentMapper.toEntity(result);
+        await _repository.create(tournament);
+        await _loadTournaments();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Torneio adicionado com sucesso!')),
           );
-          _loadTournaments();
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar torneio: $e')),
+            SnackBar(content: Text('Erro ao adicionar: $e')),
           );
         }
       }
@@ -107,40 +71,22 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
   }
 
   Future<void> _showEditTournamentDialog(Tournament tournament) async {
-    final tournamentDto = _convertTournamentToDto(tournament);
-    final result = await showTournamentFormDialog(context, initial: tournamentDto);
-    if (result != null) {
+    final dto = TournamentMapper.toDto(tournament);
+    final result = await showTournamentFormDialog(context, initial: dto);
+    if (result != null && mounted) {
       try {
-        final updatedTournament = Tournament(
-          id: result.id,
-          name: result.name,
-          description: result.description,
-          gameId: result.game_id,
-          format: _parseFormat(result.format),
-          status: _parseStatus(result.status),
-          maxParticipants: result.max_participants,
-          currentParticipants: result.current_participants,
-          prizePool: result.prize_pool,
-          startDate: DateTime.parse(result.start_date),
-          endDate: result.end_date != null ? DateTime.parse(result.end_date!) : null,
-          organizerIds: (result.organizer_ids ?? []).toSet(),
-          rules: result.rules,
-          createdAt: DateTime.parse(result.created_at),
-          updatedAt: DateTime.parse(result.updated_at),
-        );
-        
+        final updatedTournament = TournamentMapper.toEntity(result);
         await _repository.update(updatedTournament);
-        
+        await _loadTournaments();
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Torneio atualizado com sucesso!')),
           );
-          _loadTournaments();
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar torneio: $e')),
+            SnackBar(content: Text('Erro ao atualizar: $e')),
           );
         }
       }
@@ -148,59 +94,20 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
   }
 
   Future<void> _deleteTournament(String tournamentId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar exclusão'),
-        content: const Text('Tem certeza que deseja deletar este torneio?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-      try {
-        await _repository.delete(tournamentId);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Torneio deletado com sucesso!')),
-          );
-          _loadTournaments();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar torneio: $e')),
-          );
-        }
+    try {
+      await _repository.delete(tournamentId);
+      await _loadTournaments();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Torneio deletado com sucesso!')),
+        );
       }
-    }
-  }
-
-  TournamentFormat _parseFormat(String format) {
-    switch (format.toLowerCase()) {
-      case 'double_elimination': return TournamentFormat.doubleElimination;
-      case 'round_robin': return TournamentFormat.roundRobin;
-      case 'swiss': return TournamentFormat.swiss;
-      default: return TournamentFormat.singleElimination;
-    }
-  }
-
-  TournamentStatus _parseStatus(String status) {
-    switch (status.toLowerCase()) {
-      case 'registration': return TournamentStatus.registration;
-      case 'in_progress': return TournamentStatus.inProgress;
-      case 'finished': return TournamentStatus.finished;
-      case 'cancelled': return TournamentStatus.cancelled;
-      default: return TournamentStatus.draft;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao deletar: $e')),
+        );
+      }
     }
   }
 
@@ -220,27 +127,30 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: cyan,
         onPressed: _showAddTournamentDialog,
-        backgroundColor: purple,
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add, color: Colors.black),
       ),
     );
   }
 
   Widget _buildBody() {
-    if (_loading)
+    if (_loading) {
       return const Center(child: CircularProgressIndicator(color: cyan));
-    if (_error != null)
+    }
+    if (_error != null) {
       return Center(
         child: Text(
           'Erro: $_error',
           style: const TextStyle(color: Colors.white),
         ),
       );
-    if (_tournaments.isEmpty)
+    }
+    if (_tournaments.isEmpty) {
       return const Center(
         child: Text('Nenhum torneio', style: TextStyle(color: Colors.white70)),
       );
+    }
 
     return RefreshIndicator(
       onRefresh: _loadTournaments,
@@ -259,8 +169,57 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
               color: Colors.red,
               child: const Icon(Icons.delete, color: Colors.white),
             ),
+            confirmDismiss: (direction) async {
+              return await showDialog<bool>(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => AlertDialog(
+                  backgroundColor: slate,
+                  title: const Text(
+                    'Confirmar exclusão',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  content: Text(
+                    'Tem certeza que deseja remover "${tournament.name}"?',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text(
+                        'Remover',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              ) ?? false;
+            },
             onDismissed: (_) => _deleteTournament(tournament.id),
-            child: Card(
+            child: GestureDetector(
+              onLongPress: () => showTournamentActionsDialog(
+                context,
+                tournament: tournament,
+                onEdit: () => _showEditTournamentDialog(tournament),
+                onDelete: () => _deleteTournament(tournament.id),
+              ),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TournamentDetailScreen(
+                    tournament: tournament,
+                    onTournamentUpdated: _loadTournaments,
+                  ),
+                ),
+              ),
+              child: Card(
               color: slate.withOpacity(0.5),
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
@@ -282,7 +241,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
                     const SizedBox(height: 4),
                     Text(
                       tournament.statusText,
-                      style: TextStyle(color: cyan, fontSize: 12),
+                      style: const TextStyle(color: cyan, fontSize: 12),
                     ),
                     Text(
                       tournament.formatText,
@@ -299,10 +258,11 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
                   ],
                 ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white38),
+                  icon: const Icon(Icons.edit, color: cyan),
                   onPressed: () => _showEditTournamentDialog(tournament),
                 ),
               ),
+            ),
             ),
           );
         },

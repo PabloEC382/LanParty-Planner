@@ -120,7 +120,7 @@ class _TournamentFormDialogState extends State<_TournamentFormDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _format,
+              initialValue: _format,
               decoration: const InputDecoration(
                 labelText: 'Formato',
                 border: OutlineInputBorder(),
@@ -139,7 +139,7 @@ class _TournamentFormDialogState extends State<_TournamentFormDialog> {
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
-              value: _status,
+              initialValue: _status,
               decoration: const InputDecoration(
                 labelText: 'Status',
                 border: OutlineInputBorder(),

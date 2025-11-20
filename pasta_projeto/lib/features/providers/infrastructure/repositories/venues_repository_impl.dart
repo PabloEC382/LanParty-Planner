@@ -115,9 +115,8 @@ class VenuesRepositoryImpl implements VenuesRepository {
   @override
   Future<List<Venue>> findVerified() async {
     try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.is_verified).toList();
-      return filtered.map((dto) => VenueMapper.toEntity(dto)).toList();
+      // Método removido - campo 'is_verified' foi removido do modelo
+      return [];
     } catch (e) {
       throw Exception('Erro ao buscar locais verificados: $e');
     }

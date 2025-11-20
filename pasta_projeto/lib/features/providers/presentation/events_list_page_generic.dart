@@ -16,6 +16,8 @@ import './generic_list_page.dart';
 /// - Dialog: showEventFormDialog → showGameFormDialog, etc.
 
 class EventsListPageGeneric extends StatefulWidget {
+  const EventsListPageGeneric({super.key});
+
   @override
   State<EventsListPageGeneric> createState() => _EventsListPageGenericState();
 }
@@ -32,12 +34,12 @@ class _EventsListPageGenericState extends State<EventsListPageGeneric> {
       loadData: _loadEvents,
       itemBuilder: (item) => ListTile(
         title: Text(item['name'] ?? 'Sem nome'),
-        subtitle: Text(item['event_date'] ?? ''),
-        leading: Icon(Icons.event),
+        subtitle: Text('${item['start_date'] ?? ''} às ${item['start_time'] ?? ''}'),
+        leading: const Icon(Icons.event),
       ),
       getItemId: (item) => item['id'] ?? '',
       getItemTitle: (item) => item['name'] ?? 'Evento',
-      getItemSubtitle: (item) => item['event_date'],
+      getItemSubtitle: (item) => '${item['start_date'] ?? ''} às ${item['start_time'] ?? ''}',
       onDelete: _deleteEvent,
       onAdd: _showAddEventDialog,
       onUpdate: _updateEvent,
@@ -51,7 +53,8 @@ class _EventsListPageGenericState extends State<EventsListPageGeneric> {
           .map((event) => {
                 'id': event.id,
                 'name': event.name,
-                'event_date': event.eventDate,
+                'start_date': event.startDate.toIso8601String().split('T')[0],
+                'start_time': event.startTime,
               })
           .toList();
     } catch (e) {
@@ -83,7 +86,7 @@ class _EventsListPageGenericState extends State<EventsListPageGeneric> {
       await eventsRepository.create(event);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Evento adicionado com sucesso!')),
+        const SnackBar(content: Text('Evento adicionado com sucesso!')),
       );
 
       setState(() {});

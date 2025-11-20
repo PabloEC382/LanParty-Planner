@@ -48,7 +48,7 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: slate,
-        title: Text('Revogar consentimento', style: TextStyle(color: purple)),
+        title: const Text('Revogar consentimento', style: TextStyle(color: purple)),
         content: const Text(
           'Tem certeza que deseja revogar o consentimento? Você será redirecionado para o início.',
           style: TextStyle(color: Colors.white),
@@ -75,7 +75,7 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.verified_user, color: cyan, size: 60),
+            const Icon(Icons.verified_user, color: cyan, size: 60),
             const SizedBox(height: 16),
             Text('Status atual:', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),

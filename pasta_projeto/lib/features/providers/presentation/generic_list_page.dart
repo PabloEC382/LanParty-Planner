@@ -34,7 +34,7 @@ class GenericListPage<T> extends StatefulWidget {
   final String? Function(T item)? getItemImageUrl;
 
   const GenericListPage({
-    Key? key,
+    super.key,
     required this.title,
     required this.loadData,
     required this.itemBuilder,
@@ -45,7 +45,7 @@ class GenericListPage<T> extends StatefulWidget {
     this.onAdd,
     this.getItemSubtitle,
     this.getItemImageUrl,
-  }) : super(key: key);
+  });
 
   @override
   State<GenericListPage<T>> createState() => _GenericListPageState<T>();
@@ -98,16 +98,16 @@ class _GenericListPageState<T> extends State<GenericListPage<T>> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirmar exclusão'),
+        title: const Text('Confirmar exclusão'),
         content: Text('Tem certeza que deseja deletar "${widget.getItemTitle(item)}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancelar'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Deletar', style: TextStyle(color: Colors.red)),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -131,23 +131,23 @@ class _GenericListPageState<T> extends State<GenericListPage<T>> {
         title: Text(widget.title),
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : _items.isEmpty
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.inbox, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
+                      const Icon(Icons.inbox, size: 64, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      const Text(
                         'Nenhum item encontrado',
                         style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
-                      SizedBox(height: 32),
+                      const SizedBox(height: 32),
                       ElevatedButton.icon(
                         onPressed: _loadData,
-                        icon: Icon(Icons.refresh),
-                        label: Text('Recarregar'),
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Recarregar'),
                       ),
                     ],
                   ),
@@ -163,9 +163,9 @@ class _GenericListPageState<T> extends State<GenericListPage<T>> {
                         direction: DismissDirection.endToStart,
                         background: Container(
                           alignment: Alignment.centerRight,
-                          padding: EdgeInsets.only(right: 16),
+                          padding: const EdgeInsets.only(right: 16),
                           color: Colors.red,
-                          child: Icon(Icons.delete, color: Colors.white),
+                          child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         onDismissed: (_) => _deleteItem(item),
                         child: widget.itemBuilder(item),
@@ -176,7 +176,7 @@ class _GenericListPageState<T> extends State<GenericListPage<T>> {
       floatingActionButton: widget.onAdd != null
           ? FloatingActionButton(
               onPressed: widget.onAdd,
-              child: Icon(Icons.add),
+              child: const Icon(Icons.add),
             )
           : null,
     );
@@ -194,7 +194,7 @@ class ProviderListItem extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const ProviderListItem({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     this.imageUrl,
@@ -202,7 +202,7 @@ class ProviderListItem extends StatelessWidget {
     this.distanceKm,
     this.onTap,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +222,7 @@ class ProviderListItem extends StatelessWidget {
                     color: Colors.grey[300],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.image_not_supported),
+                  child: const Icon(Icons.image_not_supported),
                 ),
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
@@ -233,7 +233,7 @@ class ProviderListItem extends StatelessWidget {
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
                   );
                 },
               ),
@@ -245,7 +245,7 @@ class ProviderListItem extends StatelessWidget {
                 color: Colors.grey[300],
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.inventory),
+              child: const Icon(Icons.inventory),
             ),
       title: Text(title),
       subtitle: Column(
@@ -254,25 +254,25 @@ class ProviderListItem extends StatelessWidget {
         children: [
           if (subtitle != null) ...[
             Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
           ],
           Row(
             children: [
               if (rating != null) ...[
-                Icon(Icons.star, size: 16, color: Colors.amber),
-                SizedBox(width: 4),
+                const Icon(Icons.star, size: 16, color: Colors.amber),
+                const SizedBox(width: 4),
                 Text(
                   rating!.toStringAsFixed(1),
-                  style: TextStyle(fontSize: 12),
+                  style: const TextStyle(fontSize: 12),
                 ),
               ],
               if (distanceKm != null) ...[
-                SizedBox(width: 16),
-                Icon(Icons.location_on, size: 16, color: Colors.grey),
-                SizedBox(width: 4),
+                const SizedBox(width: 16),
+                const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                const SizedBox(width: 4),
                 Text(
                   '${distanceKm!.toStringAsFixed(1)} km',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ],
@@ -282,7 +282,7 @@ class ProviderListItem extends StatelessWidget {
       onTap: onTap,
       trailing: onDelete != null
           ? IconButton(
-              icon: Icon(Icons.more_vert),
+              icon: const Icon(Icons.more_vert),
               onPressed: onDelete,
             )
           : null,

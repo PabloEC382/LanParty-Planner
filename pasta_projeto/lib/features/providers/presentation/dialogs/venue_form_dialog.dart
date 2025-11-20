@@ -25,14 +25,7 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
   late TextEditingController _addressController;
   late TextEditingController _cityController;
   late TextEditingController _stateController;
-  late TextEditingController _zipCodeController;
-  late TextEditingController _latitudeController;
-  late TextEditingController _longitudeController;
   late TextEditingController _capacityController;
-  late TextEditingController _pricePerHourController;
-  late TextEditingController _phoneController;
-  late TextEditingController _websiteController;
-  late bool _isVerified;
 
   @override
   void initState() {
@@ -41,14 +34,7 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
     _addressController = TextEditingController(text: widget.initial?.address ?? '');
     _cityController = TextEditingController(text: widget.initial?.city ?? '');
     _stateController = TextEditingController(text: widget.initial?.state ?? '');
-    _zipCodeController = TextEditingController(text: widget.initial?.zip_code ?? '');
-    _latitudeController = TextEditingController(text: widget.initial?.latitude.toString() ?? '0.0');
-    _longitudeController = TextEditingController(text: widget.initial?.longitude.toString() ?? '0.0');
     _capacityController = TextEditingController(text: widget.initial?.capacity.toString() ?? '100');
-    _pricePerHourController = TextEditingController(text: widget.initial?.price_per_hour.toString() ?? '0.0');
-    _phoneController = TextEditingController(text: widget.initial?.phone_number ?? '');
-    _websiteController = TextEditingController(text: widget.initial?.website_url ?? '');
-    _isVerified = widget.initial?.is_verified ?? false;
   }
 
   @override
@@ -57,13 +43,7 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
     _addressController.dispose();
     _cityController.dispose();
     _stateController.dispose();
-    _zipCodeController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
     _capacityController.dispose();
-    _pricePerHourController.dispose();
-    _phoneController.dispose();
-    _websiteController.dispose();
     super.dispose();
   }
 
@@ -75,10 +55,7 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
       return;
     }
 
-    final latitude = double.tryParse(_latitudeController.text) ?? 0.0;
-    final longitude = double.tryParse(_longitudeController.text) ?? 0.0;
     final capacity = int.tryParse(_capacityController.text) ?? 100;
-    final pricePerHour = double.tryParse(_pricePerHourController.text) ?? 0.0;
 
     final dto = VenueDto(
       id: widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -86,17 +63,10 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
       address: _addressController.text,
       city: _cityController.text,
       state: _stateController.text,
-      zip_code: _zipCodeController.text,
-      latitude: latitude,
-      longitude: longitude,
       capacity: capacity,
-      price_per_hour: pricePerHour,
       facilities: widget.initial?.facilities ?? [],
       rating: widget.initial?.rating ?? 0.0,
       total_reviews: widget.initial?.total_reviews ?? 0,
-      is_verified: _isVerified,
-      website_url: _websiteController.text.isEmpty ? null : _websiteController.text,
-      phone_number: _phoneController.text.isEmpty ? null : _phoneController.text,
       created_at: widget.initial?.created_at ?? DateTime.now().toIso8601String(),
       updated_at: DateTime.now().toIso8601String(),
     );
@@ -153,91 +123,12 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: _zipCodeController,
+              controller: _capacityController,
               decoration: const InputDecoration(
-                labelText: 'CEP',
+                labelText: 'Capacidade',
                 border: OutlineInputBorder(),
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _latitudeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Latitude',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _longitudeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Longitude',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _capacityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Capacidade',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    controller: _pricePerHourController,
-                    decoration: const InputDecoration(
-                      labelText: 'Preço/Hora',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Telefone',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _websiteController,
-              decoration: const InputDecoration(
-                labelText: 'Website',
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.url,
-            ),
-            const SizedBox(height: 12),
-            CheckboxListTile(
-              title: const Text('Verificado'),
-              value: _isVerified,
-              onChanged: (value) {
-                setState(() {
-                  _isVerified = value ?? false;
-                });
-              },
+              keyboardType: TextInputType.number,
             ),
           ],
         ),

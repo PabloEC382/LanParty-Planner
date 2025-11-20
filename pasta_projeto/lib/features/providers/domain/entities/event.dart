@@ -1,46 +1,56 @@
 class Event {
   final String id;
   final String name;
-  final DateTime eventDate;
-  final Map<String, bool> checklist;
-  final List<String> attendees;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String description;
+  final String startTime; // formato HH:mm
+  final String endTime; // formato HH:mm
+  final String? venueId; // referência ao local (nullable)
+  final DateTime createdAt;
   final DateTime updatedAt;
 
   Event({
     required this.id,
     required this.name,
-    required this.eventDate,
-    Map<String, bool>? checklist,
-    List<String>? attendees,
+    required this.startDate,
+    required this.endDate,
+    required this.description,
+    required this.startTime,
+    required this.endTime,
+    this.venueId,
+    required this.createdAt,
     required this.updatedAt,
-  })  : checklist = {...?checklist},
-        attendees = [...?attendees];
+  });
 
-  String get summary {
-    final taskCount = checklist.length;
-    final completedCount = checklist.values.where((done) => done).length;
-    return '$name • $completedCount/$taskCount tarefas';
-  }
-
-  bool get isComplete => checklist.isNotEmpty && 
-                         checklist.values.every((done) => done);
-
-  int get attendeeCount => attendees.length;
+  // Getters úteis
+  String get venueName => venueId ?? 'Local não definido';
+  
+  String get fullDateTime => 
+      '$startDate às $startTime até $endTime';
 
   Event copyWith({
     String? id,
     String? name,
-    DateTime? eventDate,
-    Map<String, bool>? checklist,
-    List<String>? attendees,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? description,
+    String? startTime,
+    String? endTime,
+    String? venueId,
+    DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Event(
       id: id ?? this.id,
       name: name ?? this.name,
-      eventDate: eventDate ?? this.eventDate,
-      checklist: checklist ?? this.checklist,
-      attendees: attendees ?? this.attendees,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      description: description ?? this.description,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      venueId: venueId ?? this.venueId,
+      createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }

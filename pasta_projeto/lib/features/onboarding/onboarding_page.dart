@@ -71,8 +71,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 right: 8,
                 child: TextButton(
                   onPressed: _skipToMarketing,
-                  child: const Text('Pular'),
                   style: TextButton.styleFrom(foregroundColor: cyan),
+                  child: const Text('Pular'),
                 ),
               ),
           ],
