@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../splashscreen/splashscreen_page.dart';
 import '../onboarding/onboarding_page.dart';
-import '../home/home_page.dart';
-import '../home/profile_page.dart';
+import '../home/presentation/pages/home_page.dart';
+import '../home/presentation/pages/profile_page.dart';
 
 class LanPartyPlannerApp extends StatelessWidget {
   const LanPartyPlannerApp({super.key});

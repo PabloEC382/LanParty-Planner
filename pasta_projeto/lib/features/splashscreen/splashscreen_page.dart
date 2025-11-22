@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme.dart';
 import '../onboarding/onboarding_page.dart';
-import '../home/home_page.dart';
+import '../home/presentation/pages/home_page.dart';
 
 class SplashscreenPage extends StatefulWidget {
   static const routeName = '/';

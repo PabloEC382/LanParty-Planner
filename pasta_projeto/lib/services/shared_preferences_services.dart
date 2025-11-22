@@ -65,4 +65,14 @@ class SharedPreferencesService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('privacy_policy_all_read', read);
   }
+
+  static Future<bool> getTooltipShown(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('tooltip_$key') ?? false;
+  }
+
+  static Future<void> setTooltipShown(String key, bool shown) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('tooltip_$key', shown);
+  }
 }

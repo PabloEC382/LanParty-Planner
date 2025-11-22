@@ -1,0 +1,236 @@
+Analyzing pasta_projeto...                                      
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\core\theme.dart:54:22 - deprecated_member_use
+   info - The variable name 'start_date' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:4:16 - non_constant_identifier_names
+   info - The variable name 'end_date' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:5:16 - non_constant_identifier_names
+   info - The variable name 'start_time' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:7:16 - non_constant_identifier_names
+   info - The variable name 'end_time' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:8:16 - non_constant_identifier_names
+   info - The variable name 'venue_id' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:9:17 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:11:16 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:12:16 - non_constant_identifier_names
+   info - The variable name 'start_date' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:17:19 - non_constant_identifier_names
+   info - The variable name 'end_date' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:18:19 - non_constant_identifier_names
+   info - The variable name 'start_time' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:20:19 - non_constant_identifier_names
+   info - The variable name 'end_time' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:21:19 - non_constant_identifier_names
+   info - The variable name 'venue_id' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:22:10 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:24:19 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\events\infrastructure\dtos\event_dto.dart:25:19 - non_constant_identifier_names
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\dialogs\event_actions_dialog.dart:148:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\event_detail_screen.dart:178:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\event_detail_screen.dart:180:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\event_detail_screen.dart:218:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\event_detail_screen.dart:220:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\event_detail_screen.dart:249:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\event_detail_screen.dart:261:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\events_list_screen.dart:284:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\upcoming_events_screen.dart:167:50 - deprecated_member_use
+   info - Unnecessary use of 'toList' in a spread - lib\features\events\presentation\pages\upcoming_events_screen.dart:210:24 - unnecessary_to_list_in_spreads
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\upcoming_events_screen.dart:299:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\events\presentation\pages\upcoming_events_screen.dart:326:47 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\features\events\presentation\pages\upcoming_events_screen.dart:356:23 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\events\presentation\pages\upcoming_events_screen.dart:367:23 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\events\presentation\pages\upcoming_events_screen.dart:381:23 - prefer_const_constructors
+   info - The variable name 'cover_image_url' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:5:17 - non_constant_identifier_names
+   info - The variable name 'min_players' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:7:13 - non_constant_identifier_names
+   info - The variable name 'max_players' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:8:13 - non_constant_identifier_names
+   info - The variable name 'average_rating' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:10:16 - non_constant_identifier_names
+   info - The variable name 'total_matches' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:11:13 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:12:16 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:13:16 - non_constant_identifier_names
+   info - The variable name 'cover_image_url' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:19:10 - non_constant_identifier_names
+   info - The variable name 'min_players' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:21:19 - non_constant_identifier_names
+   info - The variable name 'max_players' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:22:19 - non_constant_identifier_names
+   info - The variable name 'average_rating' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:24:19 - non_constant_identifier_names
+   info - The variable name 'total_matches' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:25:19 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:26:19 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\games\infrastructure\dtos\game_dto.dart:27:19 - non_constant_identifier_names
+warning - The method doesn't override an inherited method - lib\features\games\infrastructure\repositories\games_repository_impl.dart:94:22 - override_on_non_overriding_member
+warning - The method doesn't override an inherited method - lib\features\games\infrastructure\repositories\games_repository_impl.dart:105:22 - override_on_non_overriding_member
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\dialogs\game_actions_dialog.dart:138:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\game_detail_screen.dart:137:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\game_detail_screen.dart:151:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\game_detail_screen.dart:214:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\game_detail_screen.dart:216:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\game_detail_screen.dart:258:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\game_detail_screen.dart:291:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\game_detail_screen.dart:303:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\games_list_screen.dart:280:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\games_list_screen.dart:295:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\games_list_screen.dart:307:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\games\presentation\pages\games_list_screen.dart:345:37 - deprecated_member_use
+  error - Target of URI doesn't exist: '../home/home_page.dart' - lib\features\onboarding\onboarding_page.dart:9:8 - uri_does_not_exist
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - lib\features\onboarding\onboarding_page.dart:53:22 - use_build_context_synchronously
+  error - Undefined name 'MyHomePage' - lib\features\onboarding\onboarding_page.dart:53:52 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\onboarding\pages\marketing_consent_page.dart:62:44 - deprecated_member_use
+   info - The variable name 'avatar_url' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:5:17 - non_constant_identifier_names
+   info - The variable name 'skill_level' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:7:13 - non_constant_identifier_names
+   info - The variable name 'preferred_games' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:8:23 - non_constant_identifier_names
+   info - The variable name 'is_premium' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:9:14 - non_constant_identifier_names
+   info - The variable name 'registered_at' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:10:16 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:11:16 - non_constant_identifier_names
+   info - The variable name 'avatar_url' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:17:10 - non_constant_identifier_names
+   info - The variable name 'skill_level' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:19:19 - non_constant_identifier_names
+   info - The variable name 'preferred_games' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:20:10 - non_constant_identifier_names
+   info - The variable name 'is_premium' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:21:19 - non_constant_identifier_names
+   info - The variable name 'registered_at' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:22:19 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\participants\infrastructure\dtos\participant_dto.dart:23:19 - non_constant_identifier_names
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/domain/entities/participant.dart' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:1:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/domain/repositories/participants_repository.dart' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/infrastructure/mappers/participant_mapper.dart' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:3:8 - uri_does_not_exist
+  error - Classes and mixins can only implement other classes and mixins - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:6:45 - implements_non_class
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:13:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:13:23 - override_on_non_overriding_member
+  error - Undefined class 'Participant' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:13:30 - undefined_class
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:15:19 - undefined_identifier
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:26:16 - override_on_non_overriding_member
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:37:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:37:24 - override_on_non_overriding_member
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:40:28 - undefined_identifier
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:47:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:47:24 - override_on_non_overriding_member
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:54:14 - undefined_identifier
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:61:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:61:24 - override_on_non_overriding_member
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:68:14 - undefined_identifier
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:75:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:75:29 - override_on_non_overriding_member
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:78:32 - undefined_identifier
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:85:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:85:23 - override_on_non_overriding_member
+  error - Undefined class 'Participant' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:85:30 - undefined_class
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:87:19 - undefined_identifier
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:103:16 - override_on_non_overriding_member
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:113:16 - override_on_non_overriding_member
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:122:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:122:29 - override_on_non_overriding_member
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:126:36 - undefined_identifier
+  error - The name 'Participant' isn't a type, so it can't be used as a type argument - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:133:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:133:29 - override_on_non_overriding_member
+  error - Undefined name 'ParticipantMapper' - lib\features\participants\infrastructure\repositories\participants_repository_impl.dart:137:36 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\dialogs\participant_actions_dialog.dart:138:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participant_detail_screen.dart:132:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participant_detail_screen.dart:172:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participant_detail_screen.dart:191:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participant_detail_screen.dart:193:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participant_detail_screen.dart:245:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participant_detail_screen.dart:276:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participant_detail_screen.dart:288:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participants_list_screen.dart:226:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\participants\presentation\pages\participants_list_screen.dart:232:32 - deprecated_member_use
+  error - Target of URI doesn't exist: '../home/home_page.dart' - lib\features\splashscreen\splashscreen_page.dart:6:8 - uri_does_not_exist
+  error - Undefined name 'MyHomePage' - lib\features\splashscreen\splashscreen_page.dart:29:52 - undefined_identifier
+   info - The variable name 'game_id' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:6:16 - non_constant_identifier_names
+   info - The variable name 'max_participants' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:9:13 - non_constant_identifier_names
+   info - The variable name 'current_participants' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:10:13 - non_constant_identifier_names
+   info - The variable name 'prize_pool' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:11:16 - non_constant_identifier_names
+   info - The variable name 'start_date' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:12:16 - non_constant_identifier_names
+   info - The variable name 'end_date' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:13:17 - non_constant_identifier_names
+   info - The variable name 'organizer_ids' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:14:23 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:16:16 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:17:16 - non_constant_identifier_names
+   info - The variable name 'game_id' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:23:19 - non_constant_identifier_names
+   info - The variable name 'max_participants' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:26:19 - non_constant_identifier_names
+   info - The variable name 'current_participants' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:27:19 - non_constant_identifier_names
+   info - The variable name 'prize_pool' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:28:19 - non_constant_identifier_names
+   info - The variable name 'start_date' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:29:19 - non_constant_identifier_names
+   info - The variable name 'end_date' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:30:10 - non_constant_identifier_names
+   info - The variable name 'organizer_ids' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:31:10 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:33:19 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\tournaments\infrastructure\dtos\tournament_dto.dart:34:19 - non_constant_identifier_names
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/domain/entities/tournament.dart' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:1:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/domain/repositories/tournaments_repository.dart' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/infrastructure/mappers/tournament_mapper.dart' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:3:8 - uri_does_not_exist
+  error - Classes and mixins can only implement other classes and mixins - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:6:44 - implements_non_class
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:13:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:13:22 - override_on_non_overriding_member
+  error - Undefined class 'Tournament' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:13:29 - undefined_class
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:15:19 - undefined_identifier
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:26:16 - override_on_non_overriding_member
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:37:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:37:23 - override_on_non_overriding_member
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:40:28 - undefined_identifier
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:47:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:47:28 - override_on_non_overriding_member
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:50:32 - undefined_identifier
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:57:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:57:22 - override_on_non_overriding_member
+  error - Undefined class 'Tournament' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:57:29 - undefined_class
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:59:19 - undefined_identifier
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:75:16 - override_on_non_overriding_member
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:85:16 - override_on_non_overriding_member
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:94:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:94:28 - override_on_non_overriding_member
+  error - Undefined class 'TournamentStatus' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:94:41 - undefined_class
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:99:36 - undefined_identifier
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:106:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:106:28 - override_on_non_overriding_member
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:110:36 - undefined_identifier
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:117:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:117:28 - override_on_non_overriding_member
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:121:36 - undefined_identifier
+  error - The name 'Tournament' isn't a type, so it can't be used as a type argument - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:128:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:128:28 - override_on_non_overriding_member
+  error - Undefined name 'TournamentMapper' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:132:36 - undefined_identifier
+  error - The body might complete normally, causing 'null' to be returned, but the return type, 'String', is a potentially non-nullable type - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:138:10 - body_might_complete_normally
+  error - Undefined class 'TournamentStatus' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:138:26 - undefined_class
+  error - Undefined name 'TournamentStatus' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:140:12 - undefined_identifier
+  error - Undefined name 'TournamentStatus' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:141:12 - undefined_identifier
+  error - Undefined name 'TournamentStatus' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:142:12 - undefined_identifier
+  error - Undefined name 'TournamentStatus' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:143:12 - undefined_identifier
+  error - Undefined name 'TournamentStatus' - lib\features\tournaments\infrastructure\repositories\tournaments_repository_impl.dart:144:12 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\tournaments\presentation\dialogs\tournament_actions_dialog.dart:138:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\tournaments\presentation\pages\tournament_detail_screen.dart:177:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\tournaments\presentation\pages\tournament_detail_screen.dart:179:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\tournaments\presentation\pages\tournament_detail_screen.dart:265:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\tournaments\presentation\pages\tournament_detail_screen.dart:277:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\tournaments\presentation\pages\tournaments_list_screen.dart:223:28 - deprecated_member_use
+   info - The variable name 'total_reviews' isn't a lowerCamelCase identifier - lib\features\venues\infrastructure\dtos\venue_dto.dart:10:13 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\venues\infrastructure\dtos\venue_dto.dart:11:16 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\venues\infrastructure\dtos\venue_dto.dart:12:16 - non_constant_identifier_names
+   info - The variable name 'total_reviews' isn't a lowerCamelCase identifier - lib\features\venues\infrastructure\dtos\venue_dto.dart:23:19 - non_constant_identifier_names
+   info - The variable name 'created_at' isn't a lowerCamelCase identifier - lib\features\venues\infrastructure\dtos\venue_dto.dart:24:19 - non_constant_identifier_names
+   info - The variable name 'updated_at' isn't a lowerCamelCase identifier - lib\features\venues\infrastructure\dtos\venue_dto.dart:25:19 - non_constant_identifier_names
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/domain/entities/venue.dart' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:1:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/domain/repositories/venues_repository.dart' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:2:8 - uri_does_not_exist
+  error - Target of URI doesn't exist: 'package:lan_party_planner/features/providers/infrastructure/mappers/venue_mapper.dart' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:3:8 - uri_does_not_exist
+  error - Classes and mixins can only implement other classes and mixins - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:6:39 - implements_non_class
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:13:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:13:17 - override_on_non_overriding_member
+  error - Undefined class 'Venue' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:13:24 - undefined_class
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:15:19 - undefined_identifier
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:26:16 - override_on_non_overriding_member
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:37:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:37:18 - override_on_non_overriding_member
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:40:28 - undefined_identifier
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:47:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:47:23 - override_on_non_overriding_member
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:50:32 - undefined_identifier
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:57:10 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:57:17 - override_on_non_overriding_member
+  error - Undefined class 'Venue' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:57:24 - undefined_class
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:59:19 - undefined_identifier
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:75:16 - override_on_non_overriding_member
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:85:16 - override_on_non_overriding_member
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:94:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:94:23 - override_on_non_overriding_member
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:98:36 - undefined_identifier
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:105:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:105:23 - override_on_non_overriding_member
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:109:36 - undefined_identifier
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:116:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:116:23 - override_on_non_overriding_member
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:126:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:126:23 - override_on_non_overriding_member
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:130:36 - undefined_identifier
+  error - The name 'Venue' isn't a type, so it can't be used as a type argument - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:137:15 - non_type_as_type_argument
+warning - The method doesn't override an inherited method - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:137:23 - override_on_non_overriding_member
+  error - Undefined name 'VenueMapper' - lib\features\venues\infrastructure\repositories\venues_repository_impl.dart:143:36 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\venues\presentation\dialogs\venue_actions_dialog.dart:138:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\venues\presentation\pages\venue_detail_screen.dart:177:31 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\venues\presentation\pages\venue_detail_screen.dart:179:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\venues\presentation\pages\venue_detail_screen.dart:227:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\venues\presentation\pages\venue_detail_screen.dart:258:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\venues\presentation\pages\venue_detail_screen.dart:270:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\venues\presentation\pages\venues_list_screen.dart:220:30 - deprecated_member_use
+
+232 issues found. (ran in 1.4s)

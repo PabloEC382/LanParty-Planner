@@ -6,7 +6,7 @@ import 'pages/how_it_works_ob_page.dart';
 import 'pages/ready_ob_page.dart';
 import 'pages/marketing_consent_page.dart';
 import 'pages/go_to_access_page_ob_page.dart';
-import '../home/home_page.dart';
+import '../home/presentation/pages/home_page.dart';
 import 'widgets/dots_indicator.dart';
 
 class OnboardingPage extends StatefulWidget {
