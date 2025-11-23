@@ -59,7 +59,7 @@ class _MarketingConsentPageState extends State<MarketingConsentPage> {
                     value: _marketing,
                     onChanged: (v) => setState(() => _marketing = v),
                     activeThumbColor: purple,
-                    activeTrackColor: cyan.withOpacity(0.4),
+                    activeTrackColor: cyan.withValues(alpha: 0.4),
                   ),
                 ],
               ),

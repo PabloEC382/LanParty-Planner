@@ -277,7 +277,7 @@ class _GameCard extends StatelessWidget {
         ),
         onTap: onTap,
         child: Card(
-          color: slate.withOpacity(0.5),
+          color: slate.withValues(alpha: 0.5),
           margin: const EdgeInsets.only(bottom: 12),
           child: ListTile(
           contentPadding: const EdgeInsets.all(16),
@@ -292,7 +292,7 @@ class _GameCard extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(
                       width: 60,
                       height: 60,
-                      color: purple.withOpacity(0.3),
+                      color: purple.withValues(alpha: 0.3),
                       child: const Icon(
                         Icons.sports_esports,
                         color: Colors.white,
@@ -304,7 +304,7 @@ class _GameCard extends StatelessWidget {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: purple.withOpacity(0.3),
+                    color: purple.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.sports_esports, color: Colors.white),
@@ -342,7 +342,7 @@ class _GameCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: cyan.withOpacity(0.2),
+                        color: cyan.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(

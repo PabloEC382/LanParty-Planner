@@ -134,7 +134,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                   errorBuilder: (_, __, ___) => Container(
                     width: double.infinity,
                     height: 300,
-                    color: purple.withOpacity(0.3),
+                    color: purple.withValues(alpha: 0.3),
                     child: const Icon(
                       Icons.sports_esports,
                       size: 80,
@@ -148,7 +148,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 width: double.infinity,
                 height: 300,
                 decoration: BoxDecoration(
-                  color: purple.withOpacity(0.3),
+                  color: purple.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -211,9 +211,9 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: purple.withOpacity(0.2),
+                color: purple.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: cyan.withOpacity(0.3)),
+                border: Border.all(color: cyan.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +255,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: cyan.withOpacity(0.2),
+                            color: cyan.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
@@ -300,7 +300,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.withOpacity(0.6),
+                      backgroundColor: Colors.grey.withValues(alpha: 0.6),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: () => Navigator.pop(context),

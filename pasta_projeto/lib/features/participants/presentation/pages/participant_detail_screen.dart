@@ -129,7 +129,7 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
                   radius: 48,
                   backgroundColor: _participant.isPremium
                       ? cyan
-                      : purple.withOpacity(0.3),
+                      : purple.withValues(alpha: 0.3),
                   child: Text(
                     _participant.nickname[0].toUpperCase(),
                     style: const TextStyle(
@@ -169,7 +169,7 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: cyan.withOpacity(0.2),
+                            color: cyan.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
@@ -188,9 +188,9 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: purple.withOpacity(0.2),
+                color: purple.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: cyan.withOpacity(0.3)),
+                border: Border.all(color: cyan.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +242,7 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
                               .map(
                                 (game) => Chip(
                                   label: Text(game),
-                                  backgroundColor: cyan.withOpacity(0.2),
+                                  backgroundColor: cyan.withValues(alpha: 0.2),
                                   labelStyle: const TextStyle(color: cyan),
                                 ),
                               )
@@ -273,7 +273,7 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.withOpacity(0.8),
+                      backgroundColor: Colors.red.withValues(alpha: 0.8),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: _showDeleteConfirmation,
@@ -285,7 +285,7 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.withOpacity(0.6),
+                      backgroundColor: Colors.grey.withValues(alpha: 0.6),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: () => Navigator.pop(context),

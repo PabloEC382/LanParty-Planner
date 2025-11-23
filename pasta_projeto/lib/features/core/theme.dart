@@ -51,7 +51,7 @@ final ThemeData appTheme = ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: slate.withOpacity(0.12),
+    fillColor: slate.withValues(alpha: 0.12),
     hintStyle: const TextStyle(color: Colors.white54),
     labelStyle: const TextStyle(color: Colors.white70),
     enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: cyan)),

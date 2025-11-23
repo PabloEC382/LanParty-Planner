@@ -90,7 +90,6 @@ class VenuesRepositoryImpl implements VenuesRepository {
     }
   }
 
-  @override
   Future<List<Venue>> findByCity(String city) async {
     try {
       final dtos = await _localDao.listAll();
@@ -101,7 +100,6 @@ class VenuesRepositoryImpl implements VenuesRepository {
     }
   }
 
-  @override
   Future<List<Venue>> findByState(String state) async {
     try {
       final dtos = await _localDao.listAll();
@@ -112,7 +110,6 @@ class VenuesRepositoryImpl implements VenuesRepository {
     }
   }
 
-  @override
   Future<List<Venue>> findVerified() async {
     try {
       // Método removido - campo 'is_verified' foi removido do modelo
@@ -122,7 +119,6 @@ class VenuesRepositoryImpl implements VenuesRepository {
     }
   }
 
-  @override
   Future<List<Venue>> findByMinCapacity(int minCapacity) async {
     try {
       final dtos = await _localDao.listAll();
@@ -133,7 +129,6 @@ class VenuesRepositoryImpl implements VenuesRepository {
     }
   }
 
-  @override
   Future<List<Venue>> findTopRated({int limit = 10}) async {
     try {
       final dtos = await _localDao.listAll();

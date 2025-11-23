@@ -135,7 +135,7 @@ class _GameActionsDialog extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.withOpacity(0.8),
+                  backgroundColor: Colors.red.withValues(alpha: 0.8),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

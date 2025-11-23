@@ -217,7 +217,7 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
                 ),
               ),
               child: Card(
-                color: slate.withOpacity(0.5),
+                color: slate.withValues(alpha: 0.5),
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                 leading: const Icon(

@@ -90,7 +90,6 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
     }
   }
 
-  @override
   Future<List<Tournament>> findByStatus(TournamentStatus status) async {
     try {
       final dtos = await _localDao.listAll();
@@ -102,7 +101,6 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
     }
   }
 
-  @override
   Future<List<Tournament>> findByGame(String gameId) async {
     try {
       final dtos = await _localDao.listAll();
@@ -113,7 +111,6 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
     }
   }
 
-  @override
   Future<List<Tournament>> findOpenForRegistration() async {
     try {
       final dtos = await _localDao.listAll();
@@ -124,7 +121,6 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
     }
   }
 
-  @override
   Future<List<Tournament>> findInProgress() async {
     try {
       final dtos = await _localDao.listAll();

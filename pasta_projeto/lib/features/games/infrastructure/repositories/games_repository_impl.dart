@@ -90,7 +90,6 @@ class GamesRepositoryImpl implements GamesRepository {
     }
   }
 
-  @override
   Future<List<Game>> findByGenre(String genre) async {
     try {
       final dtos = await _localDao.listAll();
@@ -101,7 +100,6 @@ class GamesRepositoryImpl implements GamesRepository {
     }
   }
 
-  @override
   Future<List<Game>> findPopular({int limit = 10}) async {
     try {
       final dtos = await _localDao.listAll();

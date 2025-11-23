@@ -223,13 +223,13 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
                 ),
               ),
               child: Card(
-              color: slate.withOpacity(0.5),
+              color: slate.withValues(alpha: 0.5),
               margin: const EdgeInsets.only(bottom: 12),
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: participant.isPremium
                       ? cyan
-                      : purple.withOpacity(0.3),
+                      : purple.withValues(alpha: 0.3),
                   child: Text(
                     participant.nickname[0].toUpperCase(),
                     style: const TextStyle(color: Colors.white),

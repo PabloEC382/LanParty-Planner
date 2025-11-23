@@ -164,7 +164,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                               _applyFilters();
                             });
                           },
-                          backgroundColor: slate.withOpacity(0.5),
+                          backgroundColor: slate.withValues(alpha: 0.5),
                           selectedColor: cyan,
                           labelStyle: TextStyle(
                             color: isSelected ? Colors.black : Colors.white,
@@ -207,7 +207,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                           style: const TextStyle(color: Colors.white),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -296,7 +296,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
               event.startDate.isBefore(DateTime.now());
 
           return Card(
-            color: slate.withOpacity(0.7),
+            color: slate.withValues(alpha: 0.7),
             margin: const EdgeInsets.only(bottom: 12),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -323,7 +323,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.3),
+                            color: Colors.red.withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
@@ -353,7 +353,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                     ),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today,
+                      const Icon(Icons.calendar_today,
                           size: 16, color: cyan),
                       const SizedBox(width: 8),
                       Text(
@@ -364,7 +364,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Icon(Icons.access_time, size: 16, color: cyan),
+                      const Icon(Icons.access_time, size: 16, color: cyan),
                       const SizedBox(width: 8),
                       Text(
                         event.startTime,
@@ -378,7 +378,7 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 16, color: cyan),
+                      const Icon(Icons.location_on, size: 16, color: cyan),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(

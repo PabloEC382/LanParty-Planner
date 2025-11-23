@@ -174,9 +174,9 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: purple.withOpacity(0.2),
+                color: purple.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: cyan.withOpacity(0.3)),
+                border: Border.all(color: cyan.withValues(alpha: 0.3)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -224,7 +224,7 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
                               .map(
                                 (facility) => Chip(
                                   label: Text(facility),
-                                  backgroundColor: cyan.withOpacity(0.2),
+                                  backgroundColor: cyan.withValues(alpha: 0.2),
                                   labelStyle: const TextStyle(color: cyan),
                                 ),
                               )
@@ -255,7 +255,7 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.withOpacity(0.8),
+                      backgroundColor: Colors.red.withValues(alpha: 0.8),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: _showDeleteConfirmation,
@@ -267,7 +267,7 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.withOpacity(0.6),
+                      backgroundColor: Colors.grey.withValues(alpha: 0.6),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: () => Navigator.pop(context),

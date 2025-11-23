@@ -43,7 +43,6 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
     }
   }
 
-  @override
   Future<Participant?> getByEmail(String email) async {
     try {
       final dtos = await _localDao.listAll();
@@ -57,7 +56,6 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
     }
   }
 
-  @override
   Future<Participant?> getByNickname(String nickname) async {
     try {
       final dtos = await _localDao.listAll();
@@ -118,7 +116,6 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
     }
   }
 
-  @override
   Future<List<Participant>> findPremium() async {
     try {
       final dtos = await _localDao.listAll();
@@ -129,7 +126,6 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
     }
   }
 
-  @override
   Future<List<Participant>> findBySkillLevel(int skillLevel) async {
     try {
       final dtos = await _localDao.listAll();
