@@ -162,25 +162,6 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             // Upcoming Events Widget
             UpcomingEventsWidget(),
-            
-            // Welcome message
-            Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Bem-vindo!',
-                    style: TextStyle(fontSize: 24, color: Colors.white),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Use o menu para navegar.',
-                    style: TextStyle(fontSize: 16, color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

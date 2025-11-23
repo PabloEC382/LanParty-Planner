@@ -73,31 +73,19 @@ class _UpcomingEventsWidgetState extends State<UpcomingEventsWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Padding(
-            padding: const EdgeInsets.all(16),
+          const Padding(
+            padding: EdgeInsets.all(16),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
-                  children: [
-                    Icon(Icons.calendar_today, color: Colors.purple),
-                    SizedBox(width: 8),
-                    Text(
-                      'Próximos Eventos',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Não vai mais para uma tela separada
-                    // Os próximos eventos ficam no Home
-                  },
-                  child: const Text('Ver Tudo'),
+                Icon(Icons.calendar_today, color: Colors.purple),
+                SizedBox(width: 8),
+                Text(
+                  'Próximos Eventos',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),
@@ -112,20 +100,20 @@ class _UpcomingEventsWidgetState extends State<UpcomingEventsWidget> {
               ),
             )
           else if (_upcomingEvents.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16),
+            const Padding(
+              padding: EdgeInsets.all(16),
               child: Center(
                 child: Column(
                   children: [
                     Icon(
                       Icons.event_busy,
                       size: 48,
-                      color: Colors.grey[600],
+                      color: Colors.grey,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Nenhum evento próximo',
-                      style: TextStyle(color: Colors.grey[400]),
+                      style: TextStyle(color: Colors.grey),
                     ),
                   ],
                 ),
