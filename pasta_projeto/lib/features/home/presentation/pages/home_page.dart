@@ -10,6 +10,8 @@ import '../../../games/presentation/pages/games_list_screen.dart';
 import '../../../tournaments/presentation/pages/tournaments_list_screen.dart';
 import '../../../venues/presentation/pages/venues_list_screen.dart';
 import '../../../participants/presentation/pages/participants_list_screen.dart';
+import '../widgets/tutorial_popup.dart';
+import '../widgets/upcoming_events_widget.dart';
 
 class MyHomePage extends StatefulWidget {
   static const routeName = '/home';
@@ -143,21 +145,41 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('📚 Tutorial'),
+              onTap: () {
+                Navigator.pop(context); // Fecha o drawer
+                TutorialPopup.show(context);
+              },
+            ),
           ],
         ),
       ),
-      body: const Center(
+      body: const SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Bem-vindo!',
-              style: TextStyle(fontSize: 24, color: Colors.white),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Use o menu para navegar.',
-              style: TextStyle(fontSize: 16, color: Colors.white70),
+            // Upcoming Events Widget
+            UpcomingEventsWidget(),
+            
+            // Welcome message
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Bem-vindo!',
+                    style: TextStyle(fontSize: 24, color: Colors.white),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Use o menu para navegar.',
+                    style: TextStyle(fontSize: 16, color: Colors.white70),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

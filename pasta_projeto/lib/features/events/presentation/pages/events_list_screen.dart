@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../../domain/entities/event.dart';
 import '../../infrastructure/dtos/event_dto.dart';
 import '../../infrastructure/repositories/events_repository_impl.dart';
@@ -177,13 +179,14 @@ class _EventsListScreenState extends State<EventsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Eventos'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Eventos',
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadEvents),
         ],
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddEventDialog,

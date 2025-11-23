@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../../domain/entities/tournament.dart';
 import '../../infrastructure/repositories/tournaments_repository_impl.dart';
 import '../../infrastructure/local/tournaments_local_dao_shared_prefs.dart';
@@ -115,9 +117,9 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Torneios'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Torneios',
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -125,6 +127,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
           ),
         ],
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: cyan,

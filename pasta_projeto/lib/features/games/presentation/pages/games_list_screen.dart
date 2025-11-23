@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../../domain/entities/game.dart';
 import '../../infrastructure/repositories/games_repository_impl.dart';
 import '../../infrastructure/local/games_local_dao_shared_prefs.dart';
@@ -115,13 +117,14 @@ class _GamesListScreenState extends State<GamesListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Jogos Disponíveis'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Jogos',
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadGames),
         ],
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: cyan,

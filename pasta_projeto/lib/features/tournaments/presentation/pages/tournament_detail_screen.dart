@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/tournament.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../dialogs/tournament_form_dialog.dart';
 import '../../infrastructure/repositories/tournaments_repository_impl.dart';
 import '../../infrastructure/local/tournaments_local_dao_shared_prefs.dart';
@@ -113,10 +115,11 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Detalhes do Torneio'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Detalhes do Torneio',
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

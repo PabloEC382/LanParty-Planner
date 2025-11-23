@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/game.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../dialogs/game_form_dialog.dart';
 import '../../infrastructure/repositories/games_repository_impl.dart';
 import '../../infrastructure/local/games_local_dao_shared_prefs.dart';
@@ -113,10 +115,11 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Detalhes do Jogo'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Detalhes do Jogo',
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -288,7 +291,7 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red.withOpacity(0.8),
+                      backgroundColor: Colors.red.withValues(alpha: 0.8),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: _showDeleteConfirmation,

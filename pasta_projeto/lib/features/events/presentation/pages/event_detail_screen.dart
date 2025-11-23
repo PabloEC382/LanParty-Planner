@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/event.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../dialogs/event_form_dialog.dart';
 import '../../infrastructure/repositories/events_repository_impl.dart';
 import '../../infrastructure/local/events_local_dao_shared_prefs.dart';
@@ -113,10 +115,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Detalhes do Evento'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Detalhes do Evento',
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

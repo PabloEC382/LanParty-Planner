@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../../domain/entities/venue.dart';
 import '../../infrastructure/repositories/venues_repository_impl.dart';
 import '../../infrastructure/local/venues_local_dao_shared_prefs.dart';
@@ -115,13 +117,14 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Locais'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Locais',
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadVenues),
         ],
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: cyan,

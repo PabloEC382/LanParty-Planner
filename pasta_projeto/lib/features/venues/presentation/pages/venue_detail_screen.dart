@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/venue.dart';
 import '../../../core/theme.dart';
+import '../../../home/presentation/widgets/app_bar_helper.dart';
+import '../../../home/presentation/widgets/drawer_helper.dart';
 import '../dialogs/venue_form_dialog.dart';
 import '../../infrastructure/repositories/venues_repository_impl.dart';
 import '../../infrastructure/local/venues_local_dao_shared_prefs.dart';
@@ -113,10 +115,11 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: slate,
-      appBar: AppBar(
-        backgroundColor: purple,
-        title: const Text('Detalhes do Local'),
+      appBar: buildAppBarWithHome(
+        context,
+        title: 'Detalhes do Local',
       ),
+      drawer: buildTutorialDrawer(context, children: const []),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
