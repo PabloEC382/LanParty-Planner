@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
-import '../../../home/presentation/widgets/drawer_helper.dart';
+import '../../../home/presentation/widgets/complete_drawer_helper.dart';
+import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/game.dart';
 import '../../infrastructure/repositories/games_repository_impl.dart';
 import '../../infrastructure/local/games_local_dao_shared_prefs.dart';
@@ -22,12 +23,29 @@ class _GamesListScreenState extends State<GamesListScreen> {
   bool _loading = true;
   String? _error;
   late GamesRepositoryImpl _repository;
+  String? _userName;
+  String? _userEmail;
+  String? _userPhotoPath;
 
   @override
   void initState() {
     super.initState();
     _repository = GamesRepositoryImpl(localDao: GamesLocalDaoSharedPrefs());
+    _loadUserData();
     _loadGames();
+  }
+
+  Future<void> _loadUserData() async {
+    final name = await SharedPreferencesService.getUserName();
+    final email = await SharedPreferencesService.getUserEmail();
+    final photo = await SharedPreferencesService.getUserPhotoPath();
+    if (mounted) {
+      setState(() {
+        _userName = name;
+        _userEmail = email;
+        _userPhotoPath = photo;
+      });
+    }
   }
 
   Future<void> _loadGames() async {
@@ -124,7 +142,13 @@ class _GamesListScreenState extends State<GamesListScreen> {
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadGames),
         ],
       ),
-      drawer: buildTutorialDrawer(context, children: const []),
+      drawer: buildCompleteDrawer(
+        context,
+        userName: _userName,
+        userEmail: _userEmail,
+        userPhotoPath: _userPhotoPath,
+        onUserDataUpdated: _loadUserData,
+      ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: cyan,

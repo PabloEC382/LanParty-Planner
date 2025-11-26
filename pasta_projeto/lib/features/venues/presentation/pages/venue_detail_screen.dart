@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../domain/entities/venue.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
-import '../../../home/presentation/widgets/drawer_helper.dart';
+import '../../../home/presentation/widgets/complete_drawer_helper.dart';
+import '../../../../services/shared_preferences_services.dart';
 import '../dialogs/venue_form_dialog.dart';
 import '../../infrastructure/repositories/venues_repository_impl.dart';
 import '../../infrastructure/local/venues_local_dao_shared_prefs.dart';
@@ -25,12 +26,29 @@ class VenueDetailScreen extends StatefulWidget {
 class _VenueDetailScreenState extends State<VenueDetailScreen> {
   late Venue _venue;
   late VenuesRepositoryImpl _repository;
+  String? _userName;
+  String? _userEmail;
+  String? _userPhotoPath;
 
   @override
   void initState() {
     super.initState();
     _venue = widget.venue;
     _repository = VenuesRepositoryImpl(localDao: VenuesLocalDaoSharedPrefs());
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final name = await SharedPreferencesService.getUserName();
+    final email = await SharedPreferencesService.getUserEmail();
+    final photo = await SharedPreferencesService.getUserPhotoPath();
+    if (mounted) {
+      setState(() {
+        _userName = name;
+        _userEmail = email;
+        _userPhotoPath = photo;
+      });
+    }
   }
 
   Future<void> _showEditDialog() async {
@@ -119,7 +137,13 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
         context,
         title: 'Detalhes do Local',
       ),
-      drawer: buildTutorialDrawer(context, children: const []),
+      drawer: buildCompleteDrawer(
+        context,
+        userName: _userName,
+        userEmail: _userEmail,
+        userPhotoPath: _userPhotoPath,
+        onUserDataUpdated: _loadUserData,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(

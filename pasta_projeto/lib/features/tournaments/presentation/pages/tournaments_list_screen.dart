@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
-import '../../../home/presentation/widgets/drawer_helper.dart';
+import '../../../home/presentation/widgets/complete_drawer_helper.dart';
+import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/tournament.dart';
 import '../../infrastructure/repositories/tournaments_repository_impl.dart';
 import '../../infrastructure/local/tournaments_local_dao_shared_prefs.dart';
@@ -22,12 +23,29 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
   bool _loading = true;
   String? _error;
   late TournamentsRepositoryImpl _repository;
+  String? _userName;
+  String? _userEmail;
+  String? _userPhotoPath;
 
   @override
   void initState() {
     super.initState();
     _repository = TournamentsRepositoryImpl(localDao: TournamentsLocalDaoSharedPrefs());
+    _loadUserData();
     _loadTournaments();
+  }
+
+  Future<void> _loadUserData() async {
+    final name = await SharedPreferencesService.getUserName();
+    final email = await SharedPreferencesService.getUserEmail();
+    final photo = await SharedPreferencesService.getUserPhotoPath();
+    if (mounted) {
+      setState(() {
+        _userName = name;
+        _userEmail = email;
+        _userPhotoPath = photo;
+      });
+    }
   }
 
   Future<void> _loadTournaments() async {
@@ -127,7 +145,13 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
           ),
         ],
       ),
-      drawer: buildTutorialDrawer(context, children: const []),
+      drawer: buildCompleteDrawer(
+        context,
+        userName: _userName,
+        userEmail: _userEmail,
+        userPhotoPath: _userPhotoPath,
+        onUserDataUpdated: _loadUserData,
+      ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         backgroundColor: cyan,

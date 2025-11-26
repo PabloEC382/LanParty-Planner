@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
-import '../../../home/presentation/widgets/drawer_helper.dart';
+import '../../../home/presentation/widgets/complete_drawer_helper.dart';
+import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/event.dart';
 import '../../infrastructure/dtos/event_dto.dart';
 import '../../infrastructure/repositories/events_repository_impl.dart';
@@ -23,12 +24,29 @@ class _EventsListScreenState extends State<EventsListScreen> {
   bool _loading = true;
   String? _error;
   late EventsRepositoryImpl _repository;
+  String? _userName;
+  String? _userEmail;
+  String? _userPhotoPath;
 
   @override
   void initState() {
     super.initState();
     _repository = EventsRepositoryImpl(localDao: EventsLocalDaoSharedPrefs());
     _loadEvents();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final name = await SharedPreferencesService.getUserName();
+    final email = await SharedPreferencesService.getUserEmail();
+    final photo = await SharedPreferencesService.getUserPhotoPath();
+    if (mounted) {
+      setState(() {
+        _userName = name;
+        _userEmail = email;
+        _userPhotoPath = photo;
+      });
+    }
   }
 
   Future<void> _loadEvents() async {
@@ -186,7 +204,13 @@ class _EventsListScreenState extends State<EventsListScreen> {
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadEvents),
         ],
       ),
-      drawer: buildTutorialDrawer(context, children: const []),
+      drawer: buildCompleteDrawer(
+        context,
+        userName: _userName,
+        userEmail: _userEmail,
+        userPhotoPath: _userPhotoPath,
+        onUserDataUpdated: _loadUserData,
+      ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddEventDialog,
