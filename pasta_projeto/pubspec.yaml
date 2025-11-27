@@ -49,3 +49,7 @@ flutter_icons:
   android: true
   ios: true
   image_path: "assets/PNGs/logoIA.png"
+
+# iOS specific configuration
+platforms:
+  ios: "11.0"
