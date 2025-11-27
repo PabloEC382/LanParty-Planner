@@ -26,6 +26,10 @@ dependencies:
   
   flutter_launcher_icons: ^0.14.4
   
+  # Supabase
+  supabase_flutter: ^2.10.3
+  flutter_dotenv: ^5.1.0
+  
 dev_dependencies:
     flutter_test:
       sdk: flutter
@@ -39,6 +43,7 @@ flutter:
     - assets/PNGs/logoIA.png
     - assets/privacidade.md
     - assets/termos.md
+    - .env
 
 flutter_icons:
   android: true
