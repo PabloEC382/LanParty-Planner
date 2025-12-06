@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../infrastructure/dtos/game_dto.dart';
+import '../../domain/entities/game.dart';
 
-Future<GameDto?> showGameFormDialog(
+Future<Game?> showGameFormDialog(
   BuildContext context, {
-  GameDto? initial,
+  Game? initial,
 }) {
-  return showDialog<GameDto>(
+  return showDialog<Game>(
     context: context,
     builder: (context) => _GameFormDialog(initial: initial),
   );
 }
 
 class _GameFormDialog extends StatefulWidget {
-  final GameDto? initial;
+  final Game? initial;
 
   const _GameFormDialog({this.initial});
 
@@ -31,12 +31,13 @@ class _GameFormDialogState extends State<_GameFormDialog> {
   @override
   void initState() {
     super.initState();
+    // Comentário: Convertem valores da entidade para campos de texto
     _titleController = TextEditingController(text: widget.initial?.title ?? '');
     _descriptionController = TextEditingController(text: widget.initial?.description ?? '');
     _genreController = TextEditingController(text: widget.initial?.genre ?? '');
-    _minPlayersController = TextEditingController(text: widget.initial?.min_players.toString() ?? '1');
-    _maxPlayersController = TextEditingController(text: widget.initial?.max_players.toString() ?? '2');
-    _imageUrlController = TextEditingController(text: widget.initial?.cover_image_url ?? '');
+    _minPlayersController = TextEditingController(text: widget.initial?.minPlayers.toString() ?? '1');
+    _maxPlayersController = TextEditingController(text: widget.initial?.maxPlayers.toString() ?? '2');
+    _imageUrlController = TextEditingController(text: widget.initial?.coverImageUri?.toString() ?? '');
   }
 
   @override
@@ -68,22 +69,24 @@ class _GameFormDialogState extends State<_GameFormDialog> {
       return;
     }
 
-    final dto = GameDto(
+    // Comentário: Criamos a entidade de domínio, não o DTO
+    // A conversão para DTO ocorre apenas na fronteira de persistência
+    final game = Game(
       id: widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: _titleController.text,
       description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-      cover_image_url: _imageUrlController.text.isEmpty ? null : _imageUrlController.text,
+      coverImageUri: _imageUrlController.text.isEmpty ? null : Uri.tryParse(_imageUrlController.text),
       genre: _genreController.text,
-      min_players: minPlayers,
-      max_players: maxPlayers,
-      platforms: widget.initial?.platforms ?? [],
-      average_rating: widget.initial?.average_rating ?? 0.0,
-      total_matches: widget.initial?.total_matches ?? 0,
-      created_at: widget.initial?.created_at ?? DateTime.now().toIso8601String(),
-      updated_at: DateTime.now().toIso8601String(),
+      minPlayers: minPlayers,
+      maxPlayers: maxPlayers,
+      platforms: widget.initial?.platforms ?? {},
+      averageRating: widget.initial?.averageRating ?? 0.0,
+      totalMatches: widget.initial?.totalMatches ?? 0,
+      createdAt: widget.initial?.createdAt ?? DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
-    Navigator.of(context).pop(dto);
+    Navigator.of(context).pop(game);
   }
 
   @override

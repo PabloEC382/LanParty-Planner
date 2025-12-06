@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../infrastructure/dtos/venue_dto.dart';
+import '../../domain/entities/venue.dart';
 
-Future<VenueDto?> showVenueFormDialog(
+Future<Venue?> showVenueFormDialog(
   BuildContext context, {
-  VenueDto? initial,
+  Venue? initial,
 }) {
-  return showDialog<VenueDto>(
+  return showDialog<Venue>(
     context: context,
     builder: (context) => _VenueFormDialog(initial: initial),
   );
 }
 
 class _VenueFormDialog extends StatefulWidget {
-  final VenueDto? initial;
+  final Venue? initial;
 
   const _VenueFormDialog({this.initial});
 
@@ -30,6 +30,7 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
   @override
   void initState() {
     super.initState();
+    // Comentário: Converte valores da entidade para campos de texto
     _nameController = TextEditingController(text: widget.initial?.name ?? '');
     _addressController = TextEditingController(text: widget.initial?.address ?? '');
     _cityController = TextEditingController(text: widget.initial?.city ?? '');
@@ -57,21 +58,23 @@ class _VenueFormDialogState extends State<_VenueFormDialog> {
 
     final capacity = int.tryParse(_capacityController.text) ?? 100;
 
-    final dto = VenueDto(
+    // Comentário: Criamos a entidade de domínio, não o DTO
+    // A conversão para DTO ocorre apenas na fronteira de persistência
+    final venue = Venue(
       id: widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       name: _nameController.text,
       address: _addressController.text,
       city: _cityController.text,
       state: _stateController.text,
       capacity: capacity,
-      facilities: widget.initial?.facilities ?? [],
+      facilities: widget.initial?.facilities ?? {},
       rating: widget.initial?.rating ?? 0.0,
-      total_reviews: widget.initial?.total_reviews ?? 0,
-      created_at: widget.initial?.created_at ?? DateTime.now().toIso8601String(),
-      updated_at: DateTime.now().toIso8601String(),
+      totalReviews: widget.initial?.totalReviews ?? 0,
+      createdAt: widget.initial?.createdAt ?? DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
-    Navigator.of(context).pop(dto);
+    Navigator.of(context).pop(venue);
   }
 
   @override

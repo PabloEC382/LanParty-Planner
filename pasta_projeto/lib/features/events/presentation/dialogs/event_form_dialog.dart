@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import '../../infrastructure/dtos/event_dto.dart';
+import '../../domain/entities/event.dart';
 import '../../../core/theme.dart';
 
-Future<EventDto?> showEventFormDialog(
+Future<Event?> showEventFormDialog(
   BuildContext context, {
-  EventDto? initial,
+  Event? initial,
 }) {
-  return showDialog<EventDto>(
+  return showDialog<Event>(
     context: context,
     builder: (_) => _EventFormDialog(initial: initial),
   );
 }
 
 class _EventFormDialog extends StatefulWidget {
-  final EventDto? initial;
+  final Event? initial;
 
   const _EventFormDialog({this.initial});
 
@@ -34,14 +34,15 @@ class _EventFormDialogState extends State<_EventFormDialog> {
   @override
   void initState() {
     super.initState();
+    // Comentário: Converte valores da entidade para campos de texto
     final initial = widget.initial;
     _nameController = TextEditingController(text: initial?.name ?? '');
     _descriptionController = TextEditingController(text: initial?.description ?? '');
-    _startDateController = TextEditingController(text: initial?.start_date.split('T')[0] ?? '');
-    _endDateController = TextEditingController(text: initial?.end_date.split('T')[0] ?? '');
-    _startTimeController = TextEditingController(text: initial?.start_time ?? '');
-    _endTimeController = TextEditingController(text: initial?.end_time ?? '');
-    _venueIdController = TextEditingController(text: initial?.venue_id ?? '');
+    _startDateController = TextEditingController(text: initial?.startDate.toIso8601String().split('T')[0] ?? '');
+    _endDateController = TextEditingController(text: initial?.endDate.toIso8601String().split('T')[0] ?? '');
+    _startTimeController = TextEditingController(text: initial?.startTime ?? '');
+    _endTimeController = TextEditingController(text: initial?.endTime ?? '');
+    _venueIdController = TextEditingController(text: initial?.venueId ?? '');
     _stateController = TextEditingController(text: initial?.state ?? '');
   }
 
@@ -124,23 +125,25 @@ class _EventFormDialogState extends State<_EventFormDialog> {
     if (!_validateForm()) return;
 
     final id = widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString();
-    final now = DateTime.now().toIso8601String();
+    final now = DateTime.now();
 
-    final dto = EventDto(
+    // Comentário: Criamos a entidade de domínio, não o DTO
+    // A conversão para DTO ocorre apenas na fronteira de persistência
+    final event = Event(
       id: id,
       name: _nameController.text,
-      start_date: _startDateController.text,
-      end_date: _endDateController.text,
+      startDate: DateTime.parse(_startDateController.text),
+      endDate: DateTime.parse(_endDateController.text),
       description: _descriptionController.text,
-      start_time: _startTimeController.text,
-      end_time: _endTimeController.text,
-      venue_id: _venueIdController.text.isEmpty ? null : _venueIdController.text,
+      startTime: _startTimeController.text,
+      endTime: _endTimeController.text,
+      venueId: _venueIdController.text.isEmpty ? null : _venueIdController.text,
       state: _stateController.text.isEmpty ? null : _stateController.text,
-      created_at: widget.initial?.created_at ?? now,
-      updated_at: now,
+      createdAt: widget.initial?.createdAt ?? now,
+      updatedAt: now,
     );
 
-    Navigator.pop(context, dto);
+    Navigator.pop(context, event);
   }
 
   @override

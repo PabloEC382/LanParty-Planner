@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../infrastructure/dtos/tournament_dto.dart';
+import '../../domain/entities/tournament.dart';
 
-Future<TournamentDto?> showTournamentFormDialog(
+Future<Tournament?> showTournamentFormDialog(
   BuildContext context, {
-  TournamentDto? initial,
+  Tournament? initial,
 }) {
-  return showDialog<TournamentDto>(
+  return showDialog<Tournament>(
     context: context,
     builder: (context) => _TournamentFormDialog(initial: initial),
   );
 }
 
 class _TournamentFormDialog extends StatefulWidget {
-  final TournamentDto? initial;
+  final Tournament? initial;
 
   const _TournamentFormDialog({this.initial});
 
@@ -27,20 +27,21 @@ class _TournamentFormDialogState extends State<_TournamentFormDialog> {
   late TextEditingController _maxParticipantsController;
   late TextEditingController _prizePoolController;
   late TextEditingController _startDateController;
-  late String _format;
-  late String _status;
+  late TournamentFormat _format;
+  late TournamentStatus _status;
 
   @override
   void initState() {
     super.initState();
+    // Comentário: Converte valores da entidade para campos de texto
     _nameController = TextEditingController(text: widget.initial?.name ?? '');
     _descriptionController = TextEditingController(text: widget.initial?.description ?? '');
-    _gameIdController = TextEditingController(text: widget.initial?.game_id ?? '');
-    _maxParticipantsController = TextEditingController(text: widget.initial?.max_participants.toString() ?? '32');
-    _prizePoolController = TextEditingController(text: widget.initial?.prize_pool.toString() ?? '0.0');
-    _startDateController = TextEditingController(text: widget.initial?.start_date ?? DateTime.now().toIso8601String().split('T')[0]);
-    _format = widget.initial?.format ?? 'single_elimination';
-    _status = widget.initial?.status ?? 'draft';
+    _gameIdController = TextEditingController(text: widget.initial?.gameId ?? '');
+    _maxParticipantsController = TextEditingController(text: widget.initial?.maxParticipants.toString() ?? '32');
+    _prizePoolController = TextEditingController(text: widget.initial?.prizePool.toString() ?? '0.0');
+    _startDateController = TextEditingController(text: widget.initial?.startDate.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0]);
+    _format = widget.initial?.format ?? TournamentFormat.singleElimination;
+    _status = widget.initial?.status ?? TournamentStatus.draft;
   }
 
   @override
@@ -65,25 +66,27 @@ class _TournamentFormDialogState extends State<_TournamentFormDialog> {
     final maxParticipants = int.tryParse(_maxParticipantsController.text) ?? 32;
     final prizePool = double.tryParse(_prizePoolController.text) ?? 0.0;
 
-    final dto = TournamentDto(
+    // Comentário: Criamos a entidade de domínio, não o DTO
+    // A conversão para DTO ocorre apenas na fronteira de persistência
+    final tournament = Tournament(
       id: widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       name: _nameController.text,
       description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-      game_id: _gameIdController.text,
+      gameId: _gameIdController.text,
       format: _format,
       status: _status,
-      max_participants: maxParticipants,
-      current_participants: widget.initial?.current_participants ?? 0,
-      prize_pool: prizePool,
-      start_date: _startDateController.text,
-      end_date: widget.initial?.end_date,
-      organizer_ids: widget.initial?.organizer_ids,
+      maxParticipants: maxParticipants,
+      currentParticipants: widget.initial?.currentParticipants ?? 0,
+      prizePool: prizePool,
+      startDate: DateTime.parse(_startDateController.text),
+      endDate: widget.initial?.endDate,
+      organizerIds: widget.initial?.organizerIds,
       rules: widget.initial?.rules,
-      created_at: widget.initial?.created_at ?? DateTime.now().toIso8601String(),
-      updated_at: DateTime.now().toIso8601String(),
+      createdAt: widget.initial?.createdAt ?? DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
-    Navigator.of(context).pop(dto);
+    Navigator.of(context).pop(tournament);
   }
 
   @override
@@ -119,41 +122,41 @@ class _TournamentFormDialogState extends State<_TournamentFormDialog> {
               maxLines: 2,
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<TournamentFormat>(
               initialValue: _format,
               decoration: const InputDecoration(
                 labelText: 'Formato',
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'single_elimination', child: Text('Eliminação Simples')),
-                DropdownMenuItem(value: 'double_elimination', child: Text('Eliminação Dupla')),
-                DropdownMenuItem(value: 'round_robin', child: Text('Round Robin')),
-                DropdownMenuItem(value: 'swiss', child: Text('Swiss')),
+                DropdownMenuItem(value: TournamentFormat.singleElimination, child: Text('Eliminação Simples')),
+                DropdownMenuItem(value: TournamentFormat.doubleElimination, child: Text('Eliminação Dupla')),
+                DropdownMenuItem(value: TournamentFormat.roundRobin, child: Text('Round Robin')),
+                DropdownMenuItem(value: TournamentFormat.swiss, child: Text('Swiss')),
               ],
               onChanged: (value) {
                 setState(() {
-                  _format = value ?? 'single_elimination';
+                  _format = value ?? TournamentFormat.singleElimination;
                 });
               },
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
+            DropdownButtonFormField<TournamentStatus>(
               initialValue: _status,
               decoration: const InputDecoration(
                 labelText: 'Status',
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: 'draft', child: Text('Rascunho')),
-                DropdownMenuItem(value: 'registration', child: Text('Inscrição')),
-                DropdownMenuItem(value: 'in_progress', child: Text('Em Andamento')),
-                DropdownMenuItem(value: 'finished', child: Text('Finalizado')),
-                DropdownMenuItem(value: 'cancelled', child: Text('Cancelado')),
+                DropdownMenuItem(value: TournamentStatus.draft, child: Text('Rascunho')),
+                DropdownMenuItem(value: TournamentStatus.registration, child: Text('Inscrição')),
+                DropdownMenuItem(value: TournamentStatus.inProgress, child: Text('Em Andamento')),
+                DropdownMenuItem(value: TournamentStatus.finished, child: Text('Finalizado')),
+                DropdownMenuItem(value: TournamentStatus.cancelled, child: Text('Cancelado')),
               ],
               onChanged: (value) {
                 setState(() {
-                  _status = value ?? 'draft';
+                  _status = value ?? TournamentStatus.draft;
                 });
               },
             ),

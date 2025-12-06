@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../infrastructure/dtos/participant_dto.dart';
+import '../../domain/entities/participant.dart';
 
-Future<ParticipantDto?> showParticipantFormDialog(
+Future<Participant?> showParticipantFormDialog(
   BuildContext context, {
-  ParticipantDto? initial,
+  Participant? initial,
 }) {
-  return showDialog<ParticipantDto>(
+  return showDialog<Participant>(
     context: context,
     builder: (context) => _ParticipantFormDialog(initial: initial),
   );
 }
 
 class _ParticipantFormDialog extends StatefulWidget {
-  final ParticipantDto? initial;
+  final Participant? initial;
 
   const _ParticipantFormDialog({this.initial});
 
@@ -31,12 +31,13 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
   @override
   void initState() {
     super.initState();
+    // Comentário: Converte valores da entidade para campos de texto
     _nameController = TextEditingController(text: widget.initial?.name ?? '');
     _emailController = TextEditingController(text: widget.initial?.email ?? '');
     _nicknameController = TextEditingController(text: widget.initial?.nickname ?? '');
-    _skillLevelController = TextEditingController(text: widget.initial?.skill_level.toString() ?? '1');
-    _avatarUrlController = TextEditingController(text: widget.initial?.avatar_url ?? '');
-    _isPremium = widget.initial?.is_premium ?? false;
+    _skillLevelController = TextEditingController(text: widget.initial?.skillLevel.toString() ?? '1');
+    _avatarUrlController = TextEditingController(text: widget.initial?.avatarUri?.toString() ?? '');
+    _isPremium = widget.initial?.isPremium ?? false;
   }
 
   @override
@@ -66,20 +67,22 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
       return;
     }
 
-    final dto = ParticipantDto(
+    // Comentário: Criamos a entidade de domínio, não o DTO
+    // A conversão para DTO ocorre apenas na fronteira de persistência
+    final participant = Participant(
       id: widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       name: _nameController.text,
       email: _emailController.text,
       nickname: _nicknameController.text,
-      skill_level: skillLevel,
-      avatar_url: _avatarUrlController.text.isEmpty ? null : _avatarUrlController.text,
-      is_premium: _isPremium,
-      preferred_games: widget.initial?.preferred_games ?? [],
-      registered_at: widget.initial?.registered_at ?? DateTime.now().toIso8601String(),
-      updated_at: DateTime.now().toIso8601String(),
+      skillLevel: skillLevel,
+      avatarUri: _avatarUrlController.text.isEmpty ? null : Uri.tryParse(_avatarUrlController.text),
+      isPremium: _isPremium,
+      preferredGames: widget.initial?.preferredGames ?? {},
+      registeredAt: widget.initial?.registeredAt ?? DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
-    Navigator.of(context).pop(dto);
+    Navigator.of(context).pop(participant);
   }
 
   @override
