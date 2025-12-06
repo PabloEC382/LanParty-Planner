@@ -51,10 +51,36 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
     try {
       if (kDebugMode) {
         developer.log(
-          'ParticipantsRepositoryImpl.syncFromServer: iniciando sincronização',
+          'ParticipantsRepositoryImpl.syncFromServer: iniciando sincronização (push então pull)',
           name: 'ParticipantsRepositoryImpl',
         );
       }
+
+      // ===== ETAPA 1: PUSH =====
+      // Comentário: Enviar dados locais para o servidor (melhor esforço)
+      try {
+        final localDtos = await _localDao.listAll();
+        if (localDtos.isNotEmpty) {
+          final pushed = await _remoteApi.upsertParticipants(localDtos);
+          if (kDebugMode) {
+            developer.log(
+              'ParticipantsRepositoryImpl.syncFromServer: pushed $pushed items ao remoto',
+              name: 'ParticipantsRepositoryImpl',
+            );
+          }
+        }
+      } catch (pushError) {
+        // Comentário: Falha de push não bloqueia o pull
+        if (kDebugMode) {
+          developer.log(
+            'ParticipantsRepositoryImpl.syncFromServer: erro ao fazer push (continuando com pull): $pushError',
+            name: 'ParticipantsRepositoryImpl',
+            error: pushError,
+          );
+        }
+      }
+
+      // ===== ETAPA 2: PULL =====
       final prefs = await _prefs;
       final lastSyncIso = prefs.getString(_lastSyncKeyV1);
       DateTime? since;

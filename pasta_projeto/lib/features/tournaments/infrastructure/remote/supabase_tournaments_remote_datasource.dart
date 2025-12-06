@@ -114,4 +114,64 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
       next: hasMore ? nextOffset.toString() : null,
     );
   }
+
+  @override
+  Future<int> upsertTournaments(List<TournamentDto> dtos) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseTournamentsRemoteDatasource.upsertTournaments: cliente Supabase não inicializado',
+            name: 'SupabaseTournamentsRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      if (dtos.isEmpty) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseTournamentsRemoteDatasource.upsertTournaments: nenhum item para upsert',
+            name: 'SupabaseTournamentsRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      // Comentário: Converter DTOs para mapas para envio ao Supabase
+      final maps = dtos.map((dto) => dto.toMap()).toList();
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseTournamentsRemoteDatasource.upsertTournaments: enviando ${dtos.length} items ao Supabase',
+          name: 'SupabaseTournamentsRemoteDatasource',
+        );
+      }
+
+      // Comentário: Usar upsert para insert-or-update
+      final response = await client.from('tournaments').upsert(
+        maps,
+        onConflict: 'id',
+      );
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseTournamentsRemoteDatasource.upsertTournaments: upsert response length = ${response.length}',
+          name: 'SupabaseTournamentsRemoteDatasource',
+        );
+      }
+
+      return response.length;
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao fazer upsert de tournaments: $e',
+          name: 'SupabaseTournamentsRemoteDatasource',
+          error: e,
+        );
+      }
+      return 0;
+    }
+  }
 }

@@ -114,4 +114,64 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
       next: hasMore ? nextOffset.toString() : null,
     );
   }
+
+  @override
+  Future<int> upsertParticipants(List<ParticipantDto> dtos) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseParticipantsRemoteDatasource.upsertParticipants: cliente Supabase não inicializado',
+            name: 'SupabaseParticipantsRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      if (dtos.isEmpty) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseParticipantsRemoteDatasource.upsertParticipants: nenhum item para upsert',
+            name: 'SupabaseParticipantsRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      // Comentário: Converter DTOs para mapas para envio ao Supabase
+      final maps = dtos.map((dto) => dto.toMap()).toList();
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseParticipantsRemoteDatasource.upsertParticipants: enviando ${dtos.length} items ao Supabase',
+          name: 'SupabaseParticipantsRemoteDatasource',
+        );
+      }
+
+      // Comentário: Usar upsert para insert-or-update
+      final response = await client.from('participants').upsert(
+        maps,
+        onConflict: 'id',
+      );
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseParticipantsRemoteDatasource.upsertParticipants: upsert response length = ${response.length}',
+          name: 'SupabaseParticipantsRemoteDatasource',
+        );
+      }
+
+      return response.length;
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao fazer upsert de participants: $e',
+          name: 'SupabaseParticipantsRemoteDatasource',
+          error: e,
+        );
+      }
+      return 0;
+    }
+  }
 }

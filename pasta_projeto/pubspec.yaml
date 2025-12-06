@@ -25,6 +25,7 @@ dependencies:
   http: ^1.2.1
   
   flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.0
   
   supabase_flutter: ^2.10.3
   flutter_dotenv: ^5.1.0

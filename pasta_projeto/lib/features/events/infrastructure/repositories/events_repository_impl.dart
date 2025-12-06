@@ -51,10 +51,36 @@ class EventsRepositoryImpl implements EventsRepository {
     try {
       if (kDebugMode) {
         developer.log(
-          'EventsRepositoryImpl.syncFromServer: iniciando sincronização',
+          'EventsRepositoryImpl.syncFromServer: iniciando sincronização (push então pull)',
           name: 'EventsRepositoryImpl',
         );
       }
+
+      // ===== ETAPA 1: PUSH =====
+      // Comentário: Enviar dados locais para o servidor (melhor esforço)
+      try {
+        final localDtos = await _localDao.listAll();
+        if (localDtos.isNotEmpty) {
+          final pushed = await _remoteApi.upsertEvents(localDtos);
+          if (kDebugMode) {
+            developer.log(
+              'EventsRepositoryImpl.syncFromServer: pushed $pushed items ao remoto',
+              name: 'EventsRepositoryImpl',
+            );
+          }
+        }
+      } catch (pushError) {
+        // Comentário: Falha de push não bloqueia o pull
+        if (kDebugMode) {
+          developer.log(
+            'EventsRepositoryImpl.syncFromServer: erro ao fazer push (continuando com pull): $pushError',
+            name: 'EventsRepositoryImpl',
+            error: pushError,
+          );
+        }
+      }
+
+      // ===== ETAPA 2: PULL =====
       final prefs = await _prefs;
       final lastSyncIso = prefs.getString(_lastSyncKeyV1);
       DateTime? since;

@@ -51,10 +51,36 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
     try {
       if (kDebugMode) {
         developer.log(
-          'TournamentsRepositoryImpl.syncFromServer: iniciando sincronização',
+          'TournamentsRepositoryImpl.syncFromServer: iniciando sincronização (push então pull)',
           name: 'TournamentsRepositoryImpl',
         );
       }
+
+      // ===== ETAPA 1: PUSH =====
+      // Comentário: Enviar dados locais para o servidor (melhor esforço)
+      try {
+        final localDtos = await _localDao.listAll();
+        if (localDtos.isNotEmpty) {
+          final pushed = await _remoteApi.upsertTournaments(localDtos);
+          if (kDebugMode) {
+            developer.log(
+              'TournamentsRepositoryImpl.syncFromServer: pushed $pushed items ao remoto',
+              name: 'TournamentsRepositoryImpl',
+            );
+          }
+        }
+      } catch (pushError) {
+        // Comentário: Falha de push não bloqueia o pull
+        if (kDebugMode) {
+          developer.log(
+            'TournamentsRepositoryImpl.syncFromServer: erro ao fazer push (continuando com pull): $pushError',
+            name: 'TournamentsRepositoryImpl',
+            error: pushError,
+          );
+        }
+      }
+
+      // ===== ETAPA 2: PULL =====
       final prefs = await _prefs;
       final lastSyncIso = prefs.getString(_lastSyncKeyV1);
       DateTime? since;

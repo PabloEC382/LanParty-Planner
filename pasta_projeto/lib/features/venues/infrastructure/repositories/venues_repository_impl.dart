@@ -51,10 +51,36 @@ class VenuesRepositoryImpl implements VenuesRepository {
     try {
       if (kDebugMode) {
         developer.log(
-          'VenuesRepositoryImpl.syncFromServer: iniciando sincronização',
+          'VenuesRepositoryImpl.syncFromServer: iniciando sincronização (push então pull)',
           name: 'VenuesRepositoryImpl',
         );
       }
+
+      // ===== ETAPA 1: PUSH =====
+      // Comentário: Enviar dados locais para o servidor (melhor esforço)
+      try {
+        final localDtos = await _localDao.listAll();
+        if (localDtos.isNotEmpty) {
+          final pushed = await _remoteApi.upsertVenues(localDtos);
+          if (kDebugMode) {
+            developer.log(
+              'VenuesRepositoryImpl.syncFromServer: pushed $pushed items ao remoto',
+              name: 'VenuesRepositoryImpl',
+            );
+          }
+        }
+      } catch (pushError) {
+        // Comentário: Falha de push não bloqueia o pull
+        if (kDebugMode) {
+          developer.log(
+            'VenuesRepositoryImpl.syncFromServer: erro ao fazer push (continuando com pull): $pushError',
+            name: 'VenuesRepositoryImpl',
+            error: pushError,
+          );
+        }
+      }
+
+      // ===== ETAPA 2: PULL =====
       final prefs = await _prefs;
       final lastSyncIso = prefs.getString(_lastSyncKeyV1);
       DateTime? since;

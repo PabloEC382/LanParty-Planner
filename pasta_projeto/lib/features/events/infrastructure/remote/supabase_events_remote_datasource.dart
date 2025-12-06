@@ -114,4 +114,64 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
       next: hasMore ? nextOffset.toString() : null,
     );
   }
+
+  @override
+  Future<int> upsertEvents(List<EventDto> dtos) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseEventsRemoteDatasource.upsertEvents: cliente Supabase não inicializado',
+            name: 'SupabaseEventsRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      if (dtos.isEmpty) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseEventsRemoteDatasource.upsertEvents: nenhum item para upsert',
+            name: 'SupabaseEventsRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      // Comentário: Converter DTOs para mapas para envio ao Supabase
+      final maps = dtos.map((dto) => dto.toMap()).toList();
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseEventsRemoteDatasource.upsertEvents: enviando ${dtos.length} items ao Supabase',
+          name: 'SupabaseEventsRemoteDatasource',
+        );
+      }
+
+      // Comentário: Usar upsert para insert-or-update
+      final response = await client.from('events').upsert(
+        maps,
+        onConflict: 'id',
+      );
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseEventsRemoteDatasource.upsertEvents: upsert response length = ${response.length}',
+          name: 'SupabaseEventsRemoteDatasource',
+        );
+      }
+
+      return response.length;
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao fazer upsert de events: $e',
+          name: 'SupabaseEventsRemoteDatasource',
+          error: e,
+        );
+      }
+      return 0;
+    }
+  }
 }

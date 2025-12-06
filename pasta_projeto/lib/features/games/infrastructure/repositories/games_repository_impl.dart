@@ -102,11 +102,39 @@ class GamesRepositoryImpl implements GamesRepository {
     try {
       if (kDebugMode) {
         developer.log(
-          'GamesRepositoryImpl.syncFromServer: iniciando sincronização',
+          'GamesRepositoryImpl.syncFromServer: iniciando sincronização (push então pull)',
           name: 'GamesRepositoryImpl',
         );
       }
 
+      // ===== ETAPA 1: PUSH =====
+      // Comentário: Enviar dados locais para o servidor (melhor esforço)
+      // Falhas aqui não bloqueiam o pull, permitindo sincronização robusta em redes fracas
+      try {
+        final localDtos = await _localDao.listAll();
+        if (localDtos.isNotEmpty) {
+          final pushed = await _remoteApi.upsertGames(localDtos);
+          if (kDebugMode) {
+            developer.log(
+              'GamesRepositoryImpl.syncFromServer: pushed $pushed items ao remoto',
+              name: 'GamesRepositoryImpl',
+            );
+          }
+        }
+      } catch (pushError) {
+        // Comentário: Falha de push não bloqueia o pull
+        // Será tentado novamente no próximo sync
+        if (kDebugMode) {
+          developer.log(
+            'GamesRepositoryImpl.syncFromServer: erro ao fazer push (continuando com pull): $pushError',
+            name: 'GamesRepositoryImpl',
+            error: pushError,
+          );
+        }
+      }
+
+      // ===== ETAPA 2: PULL =====
+      // Comentário: Buscar atualizações remotas desde última sincronização
       // Obter timestamp da última sincronização
       final prefs = await _prefs;
       final lastSyncIso = prefs.getString(_lastSyncKeyV1);

@@ -33,6 +33,20 @@ abstract class GamesRemoteApi {
     int limit = 500,
     int offset = 0,
   });
+
+  /// Faz upsert (insert ou update) de games no servidor Supabase.
+  /// 
+  /// [dtos] lista de GameDtos para sincronizar com o servidor.
+  /// 
+  /// Retorna o número de linhas reconhecidas pelo servidor (melhor esforço).
+  /// Em caso de erro (network, auth, RLS), retorna 0 e registra o erro.
+  /// 
+  /// Boas práticas:
+  /// - Use para push de mudanças locais para o servidor (sync bidirecional).
+  /// - Falhas de rede não devem bloquear o pull (pull sempre tenta executar).
+  /// - Registre erros em kDebugMode para diagnóstico.
+  /// - Consulte supabase_rls_remediation.md para problemas de permissão.
+  Future<int> upsertGames(List<GameDto> dtos);
 }
 
 /*

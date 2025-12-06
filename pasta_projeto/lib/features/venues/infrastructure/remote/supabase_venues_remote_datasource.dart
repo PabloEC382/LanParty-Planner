@@ -114,4 +114,64 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
       next: hasMore ? nextOffset.toString() : null,
     );
   }
+
+  @override
+  Future<int> upsertVenues(List<VenueDto> dtos) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseVenuesRemoteDatasource.upsertVenues: cliente Supabase não inicializado',
+            name: 'SupabaseVenuesRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      if (dtos.isEmpty) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseVenuesRemoteDatasource.upsertVenues: nenhum item para upsert',
+            name: 'SupabaseVenuesRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      // Comentário: Converter DTOs para mapas para envio ao Supabase
+      final maps = dtos.map((dto) => dto.toMap()).toList();
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseVenuesRemoteDatasource.upsertVenues: enviando ${dtos.length} items ao Supabase',
+          name: 'SupabaseVenuesRemoteDatasource',
+        );
+      }
+
+      // Comentário: Usar upsert para insert-or-update
+      final response = await client.from('venues').upsert(
+        maps,
+        onConflict: 'id',
+      );
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseVenuesRemoteDatasource.upsertVenues: upsert response length = ${response.length}',
+          name: 'SupabaseVenuesRemoteDatasource',
+        );
+      }
+
+      return response.length;
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao fazer upsert de venues: $e',
+          name: 'SupabaseVenuesRemoteDatasource',
+          error: e,
+        );
+      }
+      return 0;
+    }
+  }
 }

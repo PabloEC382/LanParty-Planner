@@ -146,6 +146,68 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
       next: hasMore ? nextOffset.toString() : null,
     );
   }
+
+  @override
+  Future<int> upsertGames(List<GameDto> dtos) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseGamesRemoteDatasource.upsertGames: cliente Supabase não inicializado',
+            name: 'SupabaseGamesRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      if (dtos.isEmpty) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseGamesRemoteDatasource.upsertGames: nenhum item para upsert',
+            name: 'SupabaseGamesRemoteDatasource',
+          );
+        }
+        return 0;
+      }
+
+      // Comentário: Converter DTOs para mapas para envio ao Supabase
+      final maps = dtos.map((dto) => dto.toMap()).toList();
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.upsertGames: enviando ${dtos.length} items ao Supabase',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+
+      // Comentário: Usar upsert para insert-or-update
+      // Isto requer que a tabela tenha unique constraints no campo 'id'
+      final response = await client.from(_tableName).upsert(
+        maps,
+        onConflict: 'id', // Assume que 'id' é unique
+      );
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.upsertGames: upsert response length = ${response.length}',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+
+      // Retorna quantidade de linhas processadas (melhor esforço)
+      return response.length;
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao fazer upsert de games: $e',
+          name: 'SupabaseGamesRemoteDatasource',
+          error: e,
+        );
+      }
+      return 0;
+    }
+  }
 }
 
 /*

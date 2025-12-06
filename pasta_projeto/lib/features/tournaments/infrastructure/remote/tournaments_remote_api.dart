@@ -13,4 +13,12 @@ abstract class TournamentsRemoteApi {
     int limit = 500,
     int offset = 0,
   });
+
+  /// Faz upsert (insert ou update) de tournaments no servidor Supabase.
+  /// 
+  /// [dtos] lista de TournamentDtos para sincronizar com o servidor.
+  /// 
+  /// Retorna o número de linhas reconhecidas pelo servidor (melhor esforço).
+  /// Em caso de erro (network, auth, RLS), retorna 0 e registra o erro.
+  Future<int> upsertTournaments(List<TournamentDto> dtos);
 }
