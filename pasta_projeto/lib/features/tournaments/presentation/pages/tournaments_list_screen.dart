@@ -8,6 +8,7 @@ import '../../domain/entities/tournament.dart';
 import '../../infrastructure/repositories/tournaments_repository_impl.dart';
 import '../../infrastructure/local/tournaments_local_dao_shared_prefs.dart';
 import '../../infrastructure/remote/supabase_tournaments_remote_datasource.dart';
+import '../dialogs/tournament_form_dialog.dart';
 import 'tournament_detail_screen.dart';
 
 class TournamentsListScreen extends StatefulWidget {
@@ -105,30 +106,110 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
   }
 
   Future<void> _showAddTournamentDialog() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Criação de torneios é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showTournamentFormDialog(context);
+    if (result != null) {
+      try {
+        await _repository.createTournament(result);
+        await _loadTournaments();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Torneio criado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao criar torneio: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao criar tournament: $e');
+      }
+    }
   }
 
   Future<void> _showEditTournamentDialog(Tournament tournament) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edição de torneios é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showTournamentFormDialog(context, initial: tournament);
+    if (result != null) {
+      try {
+        await _repository.updateTournament(result);
+        await _loadTournaments();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Torneio atualizado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar torneio: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao atualizar tournament: $e');
+      }
+    }
   }
 
   Future<void> _deleteTournament(String tournamentId) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Deleção de torneios é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Tem certeza que deseja deletar este torneio?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
+    
+    if (confirmed == true) {
+      try {
+        await _repository.deleteTournament(tournamentId);
+        await _loadTournaments();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Torneio deletado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao deletar torneio: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao deletar tournament: $e');
+      }
+    }
   }
 
   @override

@@ -212,4 +212,57 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
     return newest;
   }
 
+  Future<Tournament> createTournament(Tournament tournament) async {
+    try {
+      final dto = TournamentMapper.toDto(tournament);
+      final createdDto = await _remoteApi.createTournament(dto);
+      await _localDao.upsertAll([createdDto]);
+      if (kDebugMode) {
+        developer.log('TournamentsRepositoryImpl.createTournament: criado ${tournament.id}', name: 'TournamentsRepositoryImpl');
+      }
+      return TournamentMapper.toEntity(createdDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao criar tournament: $e', name: 'TournamentsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Tournament> updateTournament(Tournament tournament) async {
+    try {
+      final dto = TournamentMapper.toDto(tournament);
+      final updatedDto = await _remoteApi.updateTournament(tournament.id, dto);
+      await _localDao.upsertAll([updatedDto]);
+      if (kDebugMode) {
+        developer.log('TournamentsRepositoryImpl.updateTournament: atualizado ${tournament.id}', name: 'TournamentsRepositoryImpl');
+      }
+      return TournamentMapper.toEntity(updatedDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao atualizar tournament: $e', name: 'TournamentsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> deleteTournament(String id) async {
+    try {
+      await _remoteApi.deleteTournament(id);
+      final allTournaments = await _localDao.listAll();
+      final filtered = allTournaments.where((dto) => dto.id != id).toList();
+      await _localDao.clear();
+      if (filtered.isNotEmpty) {
+        await _localDao.upsertAll(filtered);
+      }
+      if (kDebugMode) {
+        developer.log('TournamentsRepositoryImpl.deleteTournament: deletado $id', name: 'TournamentsRepositoryImpl');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao deletar tournament: $e', name: 'TournamentsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
 }

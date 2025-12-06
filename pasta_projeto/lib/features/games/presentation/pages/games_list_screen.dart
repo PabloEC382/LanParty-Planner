@@ -8,6 +8,7 @@ import '../../domain/entities/game.dart';
 import '../../infrastructure/repositories/games_repository_impl.dart';
 import '../../infrastructure/local/games_local_dao_shared_prefs.dart';
 import '../../infrastructure/remote/supabase_games_remote_datasource.dart';
+import '../dialogs/game_form_dialog.dart';
 import 'game_detail_screen.dart';
 
 class GamesListScreen extends StatefulWidget {
@@ -110,30 +111,110 @@ class _GamesListScreenState extends State<GamesListScreen> {
   }
 
   Future<void> _showAddGameDialog() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Criação de jogos é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showGameFormDialog(context);
+    if (result != null) {
+      try {
+        await _repository.createGame(result);
+        await _loadGames();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Jogo criado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao criar jogo: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao criar game: $e');
+      }
+    }
   }
 
   Future<void> _showEditGameDialog(Game game) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edição de jogos é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showGameFormDialog(context, initial: game);
+    if (result != null) {
+      try {
+        await _repository.updateGame(result);
+        await _loadGames();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Jogo atualizado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar jogo: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao atualizar game: $e');
+      }
+    }
   }
 
   Future<void> _deleteGame(String gameId) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Deleção de jogos é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Tem certeza que deseja deletar este jogo?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
+    
+    if (confirmed == true) {
+      try {
+        await _repository.deleteGame(gameId);
+        await _loadGames();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Jogo deletado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao deletar jogo: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao deletar game: $e');
+      }
+    }
   }
 
   @override

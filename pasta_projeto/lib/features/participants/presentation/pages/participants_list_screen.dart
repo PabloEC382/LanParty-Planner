@@ -8,6 +8,7 @@ import '../../domain/entities/participant.dart';
 import '../../infrastructure/repositories/participants_repository_impl.dart';
 import '../../infrastructure/local/participants_local_dao_shared_prefs.dart';
 import '../../infrastructure/remote/supabase_participants_remote_datasource.dart';
+import '../dialogs/participant_form_dialog.dart';
 import 'participant_detail_screen.dart';
 
 class ParticipantsListScreen extends StatefulWidget {
@@ -105,30 +106,110 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
   }
 
   Future<void> _showAddParticipantDialog() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Criação de participantes é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showParticipantFormDialog(context);
+    if (result != null) {
+      try {
+        await _repository.createParticipant(result);
+        await _loadParticipants();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Participante criado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao criar participante: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao criar participant: $e');
+      }
+    }
   }
 
   Future<void> _showEditParticipantDialog(Participant participant) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edição de participantes é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showParticipantFormDialog(context, initial: participant);
+    if (result != null) {
+      try {
+        await _repository.updateParticipant(result);
+        await _loadParticipants();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Participante atualizado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar participante: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao atualizar participant: $e');
+      }
+    }
   }
 
   Future<void> _deleteParticipant(String participantId) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Deleção de participantes é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Tem certeza que deseja deletar este participante?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
+    
+    if (confirmed == true) {
+      try {
+        await _repository.deleteParticipant(participantId);
+        await _loadParticipants();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Participante deletado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao deletar participante: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao deletar participant: $e');
+      }
+    }
   }
 
   @override

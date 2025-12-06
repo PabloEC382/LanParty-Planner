@@ -19,4 +19,13 @@ abstract class ParticipantsRemoteApi {
   /// Retorna o número de linhas reconhecidas pelo servidor (melhor esforço).
   /// Em caso de erro (network, auth, RLS), retorna 0 e registra o erro.
   Future<int> upsertParticipants(List<ParticipantDto> dtos);
+
+  /// Cria um novo participant no servidor Supabase.
+  Future<ParticipantDto> createParticipant(ParticipantDto dto);
+
+  /// Atualiza um participant existente no servidor Supabase.
+  Future<ParticipantDto> updateParticipant(String id, ParticipantDto dto);
+
+  /// Deleta um participant do servidor Supabase.
+  Future<void> deleteParticipant(String id);
 }

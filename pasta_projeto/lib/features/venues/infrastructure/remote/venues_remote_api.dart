@@ -19,4 +19,13 @@ abstract class VenuesRemoteApi {
   /// Retorna o número de linhas reconhecidas pelo servidor (melhor esforço).
   /// Em caso de erro (network, auth, RLS), retorna 0 e registra o erro.
   Future<int> upsertVenues(List<VenueDto> dtos);
+
+  /// Cria um novo venue no servidor Supabase.
+  Future<VenueDto> createVenue(VenueDto dto);
+
+  /// Atualiza um venue existente no servidor Supabase.
+  Future<VenueDto> updateVenue(String id, VenueDto dto);
+
+  /// Deleta um venue do servidor Supabase.
+  Future<void> deleteVenue(String id);
 }

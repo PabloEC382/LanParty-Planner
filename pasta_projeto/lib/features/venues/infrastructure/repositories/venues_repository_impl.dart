@@ -208,4 +208,58 @@ class VenuesRepositoryImpl implements VenuesRepository {
     }
     return newest;
   }
+
+  Future<Venue> createVenue(Venue venue) async {
+    try {
+      final dto = VenueMapper.toDto(venue);
+      final createdDto = await _remoteApi.createVenue(dto);
+      await _localDao.upsertAll([createdDto]);
+      if (kDebugMode) {
+        developer.log('VenuesRepositoryImpl.createVenue: criado ${venue.id}', name: 'VenuesRepositoryImpl');
+      }
+      return VenueMapper.toEntity(createdDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao criar venue: $e', name: 'VenuesRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Venue> updateVenue(Venue venue) async {
+    try {
+      final dto = VenueMapper.toDto(venue);
+      final updatedDto = await _remoteApi.updateVenue(venue.id, dto);
+      await _localDao.upsertAll([updatedDto]);
+      if (kDebugMode) {
+        developer.log('VenuesRepositoryImpl.updateVenue: atualizado ${venue.id}', name: 'VenuesRepositoryImpl');
+      }
+      return VenueMapper.toEntity(updatedDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao atualizar venue: $e', name: 'VenuesRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> deleteVenue(String id) async {
+    try {
+      await _remoteApi.deleteVenue(id);
+      final allVenues = await _localDao.listAll();
+      final filtered = allVenues.where((dto) => dto.id != id).toList();
+      await _localDao.clear();
+      if (filtered.isNotEmpty) {
+        await _localDao.upsertAll(filtered);
+      }
+      if (kDebugMode) {
+        developer.log('VenuesRepositoryImpl.deleteVenue: deletado $id', name: 'VenuesRepositoryImpl');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao deletar venue: $e', name: 'VenuesRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
 }

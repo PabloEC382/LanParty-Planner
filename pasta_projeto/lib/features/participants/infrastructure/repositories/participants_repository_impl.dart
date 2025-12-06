@@ -208,4 +208,58 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
     }
     return newest;
   }
+
+  Future<Participant> createParticipant(Participant participant) async {
+    try {
+      final dto = ParticipantMapper.toDto(participant);
+      final createdDto = await _remoteApi.createParticipant(dto);
+      await _localDao.upsertAll([createdDto]);
+      if (kDebugMode) {
+        developer.log('ParticipantsRepositoryImpl.createParticipant: criado ${participant.id}', name: 'ParticipantsRepositoryImpl');
+      }
+      return ParticipantMapper.toEntity(createdDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao criar participant: $e', name: 'ParticipantsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Participant> updateParticipant(Participant participant) async {
+    try {
+      final dto = ParticipantMapper.toDto(participant);
+      final updatedDto = await _remoteApi.updateParticipant(participant.id, dto);
+      await _localDao.upsertAll([updatedDto]);
+      if (kDebugMode) {
+        developer.log('ParticipantsRepositoryImpl.updateParticipant: atualizado ${participant.id}', name: 'ParticipantsRepositoryImpl');
+      }
+      return ParticipantMapper.toEntity(updatedDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao atualizar participant: $e', name: 'ParticipantsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> deleteParticipant(String id) async {
+    try {
+      await _remoteApi.deleteParticipant(id);
+      final allParticipants = await _localDao.listAll();
+      final filtered = allParticipants.where((dto) => dto.id != id).toList();
+      await _localDao.clear();
+      if (filtered.isNotEmpty) {
+        await _localDao.upsertAll(filtered);
+      }
+      if (kDebugMode) {
+        developer.log('ParticipantsRepositoryImpl.deleteParticipant: deletado $id', name: 'ParticipantsRepositoryImpl');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao deletar participant: $e', name: 'ParticipantsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
 }

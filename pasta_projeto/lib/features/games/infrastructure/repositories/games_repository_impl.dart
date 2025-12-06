@@ -351,7 +351,90 @@ class GamesRepositoryImpl implements GamesRepository {
 
     return newest;
   }
-}
+
+  /// Cria um novo game no servidor e cache local.
+  Future<Game> createGame(Game game) async {
+    try {
+      final dto = GameMapper.toDto(game);
+      final createdDto = await _remoteApi.createGame(dto);
+      await _localDao.upsertAll([createdDto]);
+      
+      if (kDebugMode) {
+        developer.log(
+          'GamesRepositoryImpl.createGame: game criado com sucesso: ${game.id}',
+          name: 'GamesRepositoryImpl',
+        );
+      }
+      
+      return GameMapper.toEntity(createdDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao criar game: $e',
+          name: 'GamesRepositoryImpl',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  /// Atualiza um game no servidor e cache local.
+  Future<Game> updateGame(Game game) async {
+    try {
+      final dto = GameMapper.toDto(game);
+      final updatedDto = await _remoteApi.updateGame(game.id, dto);
+      await _localDao.upsertAll([updatedDto]);
+      
+      if (kDebugMode) {
+        developer.log(
+          'GamesRepositoryImpl.updateGame: game atualizado com sucesso: ${game.id}',
+          name: 'GamesRepositoryImpl',
+        );
+      }
+      
+      return GameMapper.toEntity(updatedDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao atualizar game: $e',
+          name: 'GamesRepositoryImpl',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  /// Deleta um game do servidor e cache local.
+  Future<void> deleteGame(String id) async {
+    try {
+      await _remoteApi.deleteGame(id);
+      // Remove do cache local
+      final allGames = await _localDao.listAll();
+      final filtered = allGames.where((dto) => dto.id != id).toList();
+      await _localDao.clear();
+      if (filtered.isNotEmpty) {
+        await _localDao.upsertAll(filtered);
+      }
+      
+      if (kDebugMode) {
+        developer.log(
+          'GamesRepositoryImpl.deleteGame: game deletado com sucesso: $id',
+          name: 'GamesRepositoryImpl',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao deletar game: $e',
+          name: 'GamesRepositoryImpl',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
 
 /*
 // Exemplo de uso:
@@ -399,3 +482,4 @@ final allGames = await repo.listAll();
 // - supabase_init_debug_prompt.md
 // - supabase_rls_remediation.md
 */
+}

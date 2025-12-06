@@ -174,4 +174,94 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
       return 0;
     }
   }
+
+  @override
+  Future<ParticipantDto> createParticipant(ParticipantDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseParticipantsRemoteDatasource.createParticipant: criando novo participant',
+          name: 'SupabaseParticipantsRemoteDatasource',
+        );
+      }
+
+      final response = await client.from('participants').insert([dto.toMap()]);
+      return ParticipantDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao criar participant: $e',
+          name: 'SupabaseParticipantsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ParticipantDto> updateParticipant(String id, ParticipantDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseParticipantsRemoteDatasource.updateParticipant: atualizando participant $id',
+          name: 'SupabaseParticipantsRemoteDatasource',
+        );
+      }
+
+      final response = await client
+          .from('participants')
+          .update(dto.toMap())
+          .eq('id', id);
+
+      return ParticipantDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao atualizar participant: $e',
+          name: 'SupabaseParticipantsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteParticipant(String id) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseParticipantsRemoteDatasource.deleteParticipant: deletando participant $id',
+          name: 'SupabaseParticipantsRemoteDatasource',
+        );
+      }
+
+      await client.from('participants').delete().eq('id', id);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao deletar participant: $e',
+          name: 'SupabaseParticipantsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
 }

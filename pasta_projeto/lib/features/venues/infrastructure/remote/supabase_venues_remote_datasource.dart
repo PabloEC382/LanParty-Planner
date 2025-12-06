@@ -174,4 +174,94 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
       return 0;
     }
   }
+
+  @override
+  Future<VenueDto> createVenue(VenueDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseVenuesRemoteDatasource.createVenue: criando novo venue',
+          name: 'SupabaseVenuesRemoteDatasource',
+        );
+      }
+
+      final response = await client.from('venues').insert([dto.toMap()]);
+      return VenueDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao criar venue: $e',
+          name: 'SupabaseVenuesRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<VenueDto> updateVenue(String id, VenueDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseVenuesRemoteDatasource.updateVenue: atualizando venue $id',
+          name: 'SupabaseVenuesRemoteDatasource',
+        );
+      }
+
+      final response = await client
+          .from('venues')
+          .update(dto.toMap())
+          .eq('id', id);
+
+      return VenueDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao atualizar venue: $e',
+          name: 'SupabaseVenuesRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteVenue(String id) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseVenuesRemoteDatasource.deleteVenue: deletando venue $id',
+          name: 'SupabaseVenuesRemoteDatasource',
+        );
+      }
+
+      await client.from('venues').delete().eq('id', id);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao deletar venue: $e',
+          name: 'SupabaseVenuesRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
 }

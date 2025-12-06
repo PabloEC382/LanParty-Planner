@@ -208,6 +208,136 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
       return 0;
     }
   }
+
+  @override
+  Future<GameDto> createGame(GameDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseGamesRemoteDatasource.createGame: cliente Supabase não inicializado',
+            name: 'SupabaseGamesRemoteDatasource',
+          );
+        }
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.createGame: criando novo game',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+
+      final response = await client.from(_tableName).insert([dto.toMap()]);
+      
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.createGame: game criado com sucesso',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+
+      return GameDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao criar game: $e',
+          name: 'SupabaseGamesRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<GameDto> updateGame(String id, GameDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseGamesRemoteDatasource.updateGame: cliente Supabase não inicializado',
+            name: 'SupabaseGamesRemoteDatasource',
+          );
+        }
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.updateGame: atualizando game $id',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+
+      final response = await client
+          .from(_tableName)
+          .update(dto.toMap())
+          .eq('id', id);
+      
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.updateGame: game $id atualizado com sucesso',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+
+      return GameDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao atualizar game: $e',
+          name: 'SupabaseGamesRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteGame(String id) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        if (kDebugMode) {
+          developer.log(
+            'SupabaseGamesRemoteDatasource.deleteGame: cliente Supabase não inicializado',
+            name: 'SupabaseGamesRemoteDatasource',
+          );
+        }
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.deleteGame: deletando game $id',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+
+      await client.from(_tableName).delete().eq('id', id);
+      
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseGamesRemoteDatasource.deleteGame: game $id deletado com sucesso',
+          name: 'SupabaseGamesRemoteDatasource',
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao deletar game: $e',
+          name: 'SupabaseGamesRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
 }
 
 /*

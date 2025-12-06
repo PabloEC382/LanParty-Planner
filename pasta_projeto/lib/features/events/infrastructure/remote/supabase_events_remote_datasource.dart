@@ -174,4 +174,94 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
       return 0;
     }
   }
+
+  @override
+  Future<EventDto> createEvent(EventDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseEventsRemoteDatasource.createEvent: criando novo event',
+          name: 'SupabaseEventsRemoteDatasource',
+        );
+      }
+
+      final response = await client.from('events').insert([dto.toMap()]);
+      return EventDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao criar event: $e',
+          name: 'SupabaseEventsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<EventDto> updateEvent(String id, EventDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseEventsRemoteDatasource.updateEvent: atualizando event $id',
+          name: 'SupabaseEventsRemoteDatasource',
+        );
+      }
+
+      final response = await client
+          .from('events')
+          .update(dto.toMap())
+          .eq('id', id);
+
+      return EventDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao atualizar event: $e',
+          name: 'SupabaseEventsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteEvent(String id) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseEventsRemoteDatasource.deleteEvent: deletando event $id',
+          name: 'SupabaseEventsRemoteDatasource',
+        );
+      }
+
+      await client.from('events').delete().eq('id', id);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao deletar event: $e',
+          name: 'SupabaseEventsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
 }

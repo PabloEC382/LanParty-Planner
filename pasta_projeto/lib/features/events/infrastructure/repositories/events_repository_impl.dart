@@ -208,4 +208,58 @@ class EventsRepositoryImpl implements EventsRepository {
     }
     return newest;
   }
+
+  Future<Event> createEvent(Event event) async {
+    try {
+      final dto = EventMapper.toDto(event);
+      final createdDto = await _remoteApi.createEvent(dto);
+      await _localDao.upsertAll([createdDto]);
+      if (kDebugMode) {
+        developer.log('EventsRepositoryImpl.createEvent: criado ${event.id}', name: 'EventsRepositoryImpl');
+      }
+      return EventMapper.toEntity(createdDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao criar event: $e', name: 'EventsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<Event> updateEvent(Event event) async {
+    try {
+      final dto = EventMapper.toDto(event);
+      final updatedDto = await _remoteApi.updateEvent(event.id, dto);
+      await _localDao.upsertAll([updatedDto]);
+      if (kDebugMode) {
+        developer.log('EventsRepositoryImpl.updateEvent: atualizado ${event.id}', name: 'EventsRepositoryImpl');
+      }
+      return EventMapper.toEntity(updatedDto);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao atualizar event: $e', name: 'EventsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> deleteEvent(String id) async {
+    try {
+      await _remoteApi.deleteEvent(id);
+      final allEvents = await _localDao.listAll();
+      final filtered = allEvents.where((dto) => dto.id != id).toList();
+      await _localDao.clear();
+      if (filtered.isNotEmpty) {
+        await _localDao.upsertAll(filtered);
+      }
+      if (kDebugMode) {
+        developer.log('EventsRepositoryImpl.deleteEvent: deletado $id', name: 'EventsRepositoryImpl');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log('Erro ao deletar event: $e', name: 'EventsRepositoryImpl', error: e);
+      }
+      rethrow;
+    }
+  }
 }

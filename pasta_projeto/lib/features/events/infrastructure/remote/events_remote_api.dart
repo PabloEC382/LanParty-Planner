@@ -19,4 +19,13 @@ abstract class EventsRemoteApi {
   /// Retorna o número de linhas reconhecidas pelo servidor (melhor esforço).
   /// Em caso de erro (network, auth, RLS), retorna 0 e registra o erro.
   Future<int> upsertEvents(List<EventDto> dtos);
+
+  /// Cria um novo event no servidor Supabase.
+  Future<EventDto> createEvent(EventDto dto);
+
+  /// Atualiza um event existente no servidor Supabase.
+  Future<EventDto> updateEvent(String id, EventDto dto);
+
+  /// Deleta um event do servidor Supabase.
+  Future<void> deleteEvent(String id);
 }

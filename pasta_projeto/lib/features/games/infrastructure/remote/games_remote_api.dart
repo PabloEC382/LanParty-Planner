@@ -47,6 +47,45 @@ abstract class GamesRemoteApi {
   /// - Registre erros em kDebugMode para diagnóstico.
   /// - Consulte supabase_rls_remediation.md para problemas de permissão.
   Future<int> upsertGames(List<GameDto> dtos);
+
+  /// Cria um novo game no servidor Supabase.
+  /// 
+  /// [dto] GameDto com os dados do novo game.
+  /// 
+  /// Retorna o GameDto criado com ID confirmado do servidor.
+  /// Lança exceção em caso de erro (network, auth, validação).
+  /// 
+  /// Boas práticas:
+  /// - Sempre chame syncFromServer após criar para confirmar sincronização.
+  /// - IDs devem ser gerados localmente ou pelo servidor (conforme RLS).
+  /// - Registre erros em kDebugMode para diagnóstico.
+  Future<GameDto> createGame(GameDto dto);
+
+  /// Atualiza um game existente no servidor Supabase.
+  /// 
+  /// [id] ID do game a atualizar.
+  /// [dto] GameDto com os dados atualizados.
+  /// 
+  /// Retorna o GameDto atualizado do servidor.
+  /// Lança exceção em caso de erro (network, auth, game não encontrado).
+  /// 
+  /// Boas práticas:
+  /// - Sempre use o ID correto do game a atualizar.
+  /// - Não modifique created_at e updated_at manualmente.
+  /// - Registre erros em kDebugMode para diagnóstico.
+  Future<GameDto> updateGame(String id, GameDto dto);
+
+  /// Deleta um game do servidor Supabase.
+  /// 
+  /// [id] ID do game a deletar.
+  /// 
+  /// Em caso de erro (network, auth, game não encontrado), lança exceção.
+  /// 
+  /// Boas práticas:
+  /// - Sempre confirme com o usuário antes de deletar.
+  /// - Após deletar, remova também do cache local (DAO).
+  /// - Registre deletions para auditoria se necessário.
+  Future<void> deleteGame(String id);
 }
 
 /*

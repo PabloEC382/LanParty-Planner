@@ -21,4 +21,13 @@ abstract class TournamentsRemoteApi {
   /// Retorna o número de linhas reconhecidas pelo servidor (melhor esforço).
   /// Em caso de erro (network, auth, RLS), retorna 0 e registra o erro.
   Future<int> upsertTournaments(List<TournamentDto> dtos);
+
+  /// Cria um novo tournament no servidor Supabase.
+  Future<TournamentDto> createTournament(TournamentDto dto);
+
+  /// Atualiza um tournament existente no servidor Supabase.
+  Future<TournamentDto> updateTournament(String id, TournamentDto dto);
+
+  /// Deleta um tournament do servidor Supabase.
+  Future<void> deleteTournament(String id);
 }

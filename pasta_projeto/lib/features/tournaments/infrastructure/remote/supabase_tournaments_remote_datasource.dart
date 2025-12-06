@@ -174,4 +174,94 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
       return 0;
     }
   }
+
+  @override
+  Future<TournamentDto> createTournament(TournamentDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseTournamentsRemoteDatasource.createTournament: criando novo tournament',
+          name: 'SupabaseTournamentsRemoteDatasource',
+        );
+      }
+
+      final response = await client.from('tournaments').insert([dto.toMap()]);
+      return TournamentDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao criar tournament: $e',
+          name: 'SupabaseTournamentsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<TournamentDto> updateTournament(String id, TournamentDto dto) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseTournamentsRemoteDatasource.updateTournament: atualizando tournament $id',
+          name: 'SupabaseTournamentsRemoteDatasource',
+        );
+      }
+
+      final response = await client
+          .from('tournaments')
+          .update(dto.toMap())
+          .eq('id', id);
+
+      return TournamentDto.fromMap(response[0] as Map<String, dynamic>);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao atualizar tournament: $e',
+          name: 'SupabaseTournamentsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteTournament(String id) async {
+    try {
+      final client = _client;
+      if (client == null) {
+        throw Exception('Supabase client not initialized');
+      }
+
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseTournamentsRemoteDatasource.deleteTournament: deletando tournament $id',
+          name: 'SupabaseTournamentsRemoteDatasource',
+        );
+      }
+
+      await client.from('tournaments').delete().eq('id', id);
+    } catch (e) {
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao deletar tournament: $e',
+          name: 'SupabaseTournamentsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
+    }
+  }
 }
