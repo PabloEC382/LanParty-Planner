@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
 import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/event.dart';
-import '../../infrastructure/dtos/event_dto.dart';
 import '../../infrastructure/repositories/events_repository_impl.dart';
 import '../../infrastructure/local/events_local_dao_shared_prefs.dart';
-import '../dialogs/event_form_dialog.dart';
-import '../dialogs/event_actions_dialog.dart';
+import '../../infrastructure/remote/supabase_events_remote_datasource.dart';
 import 'event_detail_screen.dart';
 
 class EventsListScreen extends StatefulWidget {
@@ -31,7 +30,10 @@ class _EventsListScreenState extends State<EventsListScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = EventsRepositoryImpl(localDao: EventsLocalDaoSharedPrefs());
+    _repository = EventsRepositoryImpl(
+      remoteApi: SupabaseEventsRemoteDatasource(),
+      localDao: EventsLocalDaoSharedPrefs(),
+    );
     _loadEvents();
     _loadUserData();
   }
@@ -48,7 +50,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
       });
     }
   }
-
   Future<void> _loadEvents() async {
     setState(() {
       _loading = true;
@@ -56,141 +57,79 @@ class _EventsListScreenState extends State<EventsListScreen> {
     });
 
     try {
-      final events = await _repository.listAll();
-      setState(() {
-        _events = events;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
-    }
-  }
-
-  EventDto _convertEventToDto(Event event) {
-    return EventDto(
-      id: event.id,
-      name: event.name,
-      start_date: event.startDate.toIso8601String(),
-      end_date: event.endDate.toIso8601String(),
-      description: event.description,
-      start_time: event.startTime,
-      end_time: event.endTime,
-      venue_id: event.venueId,
-      created_at: event.createdAt.toIso8601String(),
-      updated_at: event.updatedAt.toIso8601String(),
-    );
-  }
-
-  Future<void> _showAddEventDialog() async {
-    final result = await showEventFormDialog(context);
-    if (result != null) {
-      try {
-        final newEvent = Event(
-          id: result.id,
-          name: result.name,
-          startDate: DateTime.parse(result.start_date),
-          endDate: DateTime.parse(result.end_date),
-          description: result.description,
-          startTime: result.start_time,
-          endTime: result.end_time,
-          venueId: result.venue_id,
-          createdAt: DateTime.parse(result.created_at),
-          updatedAt: DateTime.parse(result.updated_at),
-        );
-        
-        await _repository.create(newEvent);
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Evento adicionado com sucesso!')),
-          );
-          _loadEvents();
+      // 1. Carregar dados do cache local primeiro
+      if (kDebugMode) {
+        print('EventsListScreen._loadEvents: carregando dados do cache local...');
+      }
+      final cachedEvents = await _repository.loadFromCache();
+      
+      // 2. Se o cache estiver vazio, sincronizar com o servidor
+      if (cachedEvents.isEmpty) {
+        if (kDebugMode) {
+          print('EventsListScreen._loadEvents: cache vazio, sincronizando com servidor...');
         }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar evento: $e')),
-          );
+        try {
+          final syncedCount = await _repository.syncFromServer();
+          if (kDebugMode) {
+            print('EventsListScreen._loadEvents: sincronização concluída, $syncedCount registros aplicados');
+          }
+        } catch (syncError) {
+          if (kDebugMode) {
+            print('EventsListScreen._loadEvents: erro ao sincronizar - $syncError');
+          }
+        }
+      }
+      
+      // 3. Recarregar dados do cache
+      final events = await _repository.listAll();
+      if (mounted) {
+        setState(() {
+          _events = events;
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('EventsListScreen._loadEvents: UI atualizada com ${events.length} eventos');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('EventsListScreen._loadEvents: erro ao carregar - $e');
         }
       }
     }
+  }
+
+
+  Future<void> _showAddEventDialog() async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Criação de eventos é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showEditEventDialog(Event event) async {
-    final eventDto = _convertEventToDto(event);
-    final result = await showEventFormDialog(context, initial: eventDto);
-    if (result != null) {
-      try {
-        final updatedEvent = Event(
-          id: result.id,
-          name: result.name,
-          startDate: DateTime.parse(result.start_date),
-          endDate: DateTime.parse(result.end_date),
-          description: result.description,
-          startTime: result.start_time,
-          endTime: result.end_time,
-          venueId: result.venue_id,
-          createdAt: DateTime.parse(result.created_at),
-          updatedAt: DateTime.parse(result.updated_at),
-        );
-        
-        await _repository.update(updatedEvent);
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Evento atualizado com sucesso!')),
-          );
-          _loadEvents();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar evento: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição de eventos é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _deleteEvent(String eventId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirmar exclusão'),
-        content: const Text('Tem certeza que deseja deletar este evento?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
-          ),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção de eventos é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
       ),
     );
-
-    if (confirmed == true) {
-      try {
-        await _repository.delete(eventId);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Evento deletado com sucesso!')),
-          );
-          _loadEvents();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar evento: $e')),
-          );
-        }
-      }
-    }
   }
 
   @override
@@ -292,12 +231,14 @@ class _EventsListScreenState extends State<EventsListScreen> {
             },
             onDismissed: (_) => _deleteEvent(event.id),
             child: GestureDetector(
-              onLongPress: () => showEventActionsDialog(
-                context,
-                event: event,
-                onEdit: () => _showEditEventDialog(event),
-                onDelete: () => _deleteEvent(event.id),
-              ),
+              onLongPress: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Gerenciamento de eventos é feito pelo servidor'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

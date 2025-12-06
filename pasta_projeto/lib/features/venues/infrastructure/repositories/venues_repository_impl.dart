@@ -1,143 +1,185 @@
+import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/venue.dart';
 import '../../domain/repositories/venues_repository.dart';
 import '../mappers/venue_mapper.dart';
 import '../local/venues_local_dao_shared_prefs.dart';
+import '../remote/venues_remote_api.dart';
 
+/// Implementação concreta do [VenuesRepository] usando estratégia de cache local com sincronização remota.
 class VenuesRepositoryImpl implements VenuesRepository {
+  static const String _lastSyncKeyV1 = 'venues_last_sync_v1';
+
+  final VenuesRemoteApi _remoteApi;
   final VenuesLocalDaoSharedPrefs _localDao;
+  late final Future<SharedPreferences> _prefs;
 
-  VenuesRepositoryImpl({required VenuesLocalDaoSharedPrefs localDao})
-      : _localDao = localDao;
+  VenuesRepositoryImpl({
+    required VenuesRemoteApi remoteApi,
+    required VenuesLocalDaoSharedPrefs localDao,
+  })  : _remoteApi = remoteApi,
+        _localDao = localDao {
+    _prefs = SharedPreferences.getInstance();
+  }
 
   @override
-  Future<Venue> create(Venue venue) async {
+  Future<List<Venue>> loadFromCache() async {
     try {
-      final dto = VenueMapper.toDto(venue);
-      final currentList = await _localDao.listAll();
-      currentList.add(dto);
-      await _localDao.upsertAll(currentList);
-      return venue;
+      if (kDebugMode) {
+        developer.log(
+          'VenuesRepositoryImpl.loadFromCache: carregando do cache',
+          name: 'VenuesRepositoryImpl',
+        );
+      }
+      final dtos = await _localDao.listAll();
+      return dtos.map((dto) => VenueMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao criar local: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao carregar cache de venues: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
   @override
-  Future<void> delete(String id) async {
+  Future<int> syncFromServer() async {
     try {
-      final currentList = await _localDao.listAll();
-      currentList.removeWhere((dto) => dto.id == id);
-      await _localDao.upsertAll(currentList);
+      if (kDebugMode) {
+        developer.log(
+          'VenuesRepositoryImpl.syncFromServer: iniciando sincronização',
+          name: 'VenuesRepositoryImpl',
+        );
+      }
+      final prefs = await _prefs;
+      final lastSyncIso = prefs.getString(_lastSyncKeyV1);
+      DateTime? since;
+      if (lastSyncIso != null && lastSyncIso.isNotEmpty) {
+        try {
+          since = DateTime.parse(lastSyncIso);
+        } catch (e) {
+          if (kDebugMode) {
+            developer.log(
+              'Erro ao parsear lastSync de venues: $e',
+              name: 'VenuesRepositoryImpl',
+              error: e,
+            );
+          }
+        }
+      }
+      final page = await _remoteApi.fetchVenues(since: since, limit: 500);
+      if (page.isEmpty) {
+        return 0;
+      }
+      await _localDao.upsertAll(page.items);
+      final newestUpdatedAt = _computeNewestUpdatedAt(page.items);
+      await prefs.setString(_lastSyncKeyV1, newestUpdatedAt.toIso8601String());
+      if (kDebugMode) {
+        developer.log(
+          'VenuesRepositoryImpl.syncFromServer: ${page.items.length} venues sincronizados',
+          name: 'VenuesRepositoryImpl',
+        );
+      }
+      return page.items.length;
     } catch (e) {
-      throw Exception('Erro ao deletar local: $e');
-    }
-  }
-
-  @override
-  Future<Venue?> getById(String id) async {
-    try {
-      final dto = await _localDao.getById(id);
-      return dto != null ? VenueMapper.toEntity(dto) : null;
-    } catch (e) {
-      throw Exception('Erro ao buscar local: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao sincronizar venues: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
+      }
+      return 0;
     }
   }
 
   @override
   Future<List<Venue>> listAll() async {
     try {
+      if (kDebugMode) {
+        developer.log(
+          'VenuesRepositoryImpl.listAll: listando todos os venues',
+          name: 'VenuesRepositoryImpl',
+        );
+      }
       final dtos = await _localDao.listAll();
       return dtos.map((dto) => VenueMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao listar locais: $e');
-    }
-  }
-
-  @override
-  Future<Venue> update(Venue venue) async {
-    try {
-      final dto = VenueMapper.toDto(venue);
-      final currentList = await _localDao.listAll();
-      final index = currentList.indexWhere((e) => e.id == venue.id);
-      if (index >= 0) {
-        currentList[index] = dto;
-      } else {
-        currentList.add(dto);
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar venues: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
       }
-      await _localDao.upsertAll(currentList);
-      return venue;
-    } catch (e) {
-      throw Exception('Erro ao atualizar local: $e');
-    }
-  }
-
-  @override
-  Future<void> sync() async {
-    try {
-      // Sincronização local apenas - sem servidor
-      // Mantém compatibilidade com a interface
-    } catch (e) {
-      throw Exception('Erro ao sincronizar locais: $e');
-    }
-  }
-
-  @override
-  Future<void> clearCache() async {
-    try {
-      await _localDao.clear();
-    } catch (e) {
-      throw Exception('Erro ao limpar cache de locais: $e');
-    }
-  }
-
-  Future<List<Venue>> findByCity(String city) async {
-    try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.city.toLowerCase() == city.toLowerCase()).toList();
-      return filtered.map((dto) => VenueMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar locais por cidade: $e');
-    }
-  }
-
-  Future<List<Venue>> findByState(String state) async {
-    try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.state.toLowerCase() == state.toLowerCase()).toList();
-      return filtered.map((dto) => VenueMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar locais por estado: $e');
-    }
-  }
-
-  Future<List<Venue>> findVerified() async {
-    try {
-      // Método removido - campo 'is_verified' foi removido do modelo
       return [];
-    } catch (e) {
-      throw Exception('Erro ao buscar locais verificados: $e');
     }
   }
 
-  Future<List<Venue>> findByMinCapacity(int minCapacity) async {
+  @override
+  Future<List<Venue>> listFeatured() async {
     try {
+      if (kDebugMode) {
+        developer.log(
+          'VenuesRepositoryImpl.listFeatured: listando venues em destaque',
+          name: 'VenuesRepositoryImpl',
+        );
+      }
       final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.capacity >= minCapacity).toList();
-      return filtered.map((dto) => VenueMapper.toEntity(dto)).toList();
+      final featured = dtos.where((dto) => dto.rating >= 4.0).toList();
+      return featured.map((dto) => VenueMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao buscar locais por capacidade: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar venues em destaque: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
-  Future<List<Venue>> findTopRated({int limit = 10}) async {
+  @override
+  Future<Venue?> getById(int id) async {
     try {
-      final dtos = await _localDao.listAll();
-      final sorted = List<dynamic>.from(dtos);
-      sorted.sort((a, b) => (b.rating as double).compareTo(a.rating as double));
-      final topRated = sorted.take(limit).toList();
-      return topRated.map((dto) => VenueMapper.toEntity(dto as dynamic)).toList();
+      if (kDebugMode) {
+        developer.log(
+          'VenuesRepositoryImpl.getById: buscando venue com id=$id',
+          name: 'VenuesRepositoryImpl',
+        );
+      }
+      final dto = await _localDao.getById(id.toString());
+      return dto != null ? VenueMapper.toEntity(dto) : null;
     } catch (e) {
-      throw Exception('Erro ao buscar locais melhor avaliados: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao buscar venue por id: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
+      }
+      return null;
     }
+  }
+
+  DateTime _computeNewestUpdatedAt(List<dynamic> items) {
+    if (items.isEmpty) {
+      return DateTime.now().toUtc();
+    }
+    DateTime newest = DateTime.parse(items[0].updated_at as String);
+    for (final item in items) {
+      try {
+        final itemDate = DateTime.parse(item.updated_at as String);
+        if (itemDate.isAfter(newest)) {
+          newest = itemDate;
+        }
+      } catch (_) {}
+    }
+    return newest;
   }
 }

@@ -4,10 +4,6 @@ import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
 import '../../../../services/shared_preferences_services.dart';
-import '../dialogs/tournament_form_dialog.dart';
-import '../../infrastructure/repositories/tournaments_repository_impl.dart';
-import '../../infrastructure/local/tournaments_local_dao_shared_prefs.dart';
-import '../../infrastructure/mappers/tournament_mapper.dart';
 
 class TournamentDetailScreen extends StatefulWidget {
   final Tournament tournament;
@@ -25,7 +21,6 @@ class TournamentDetailScreen extends StatefulWidget {
 
 class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   late Tournament _tournament;
-  late TournamentsRepositoryImpl _repository;
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
@@ -34,7 +29,6 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   void initState() {
     super.initState();
     _tournament = widget.tournament;
-    _repository = TournamentsRepositoryImpl(localDao: TournamentsLocalDaoSharedPrefs());
     _loadUserData();
   }
 
@@ -52,81 +46,21 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    final dto = TournamentMapper.toDto(_tournament);
-    final result = await showTournamentFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedTournament = TournamentMapper.toEntity(result);
-        await _repository.update(updatedTournament);
-        setState(() {
-          _tournament = updatedTournament;
-        });
-        widget.onTournamentUpdated();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Torneio atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showDeleteConfirmation() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: slate,
-        title: const Text(
-          'Confirmar exclusão',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Tem certeza que deseja deletar "${_tournament.name}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Deletar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
       ),
     );
-
-    if (confirmed == true && mounted) {
-      try {
-        await _repository.delete(_tournament.id);
-        widget.onTournamentUpdated();
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Torneio deletado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar: $e')),
-          );
-        }
-      }
-    }
   }
 
   @override

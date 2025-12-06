@@ -4,10 +4,6 @@ import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
 import '../../../../services/shared_preferences_services.dart';
-import '../dialogs/event_form_dialog.dart';
-import '../../infrastructure/repositories/events_repository_impl.dart';
-import '../../infrastructure/local/events_local_dao_shared_prefs.dart';
-import '../../infrastructure/mappers/event_mapper.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final Event event;
@@ -25,7 +21,6 @@ class EventDetailScreen extends StatefulWidget {
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
   late Event _event;
-  late EventsRepositoryImpl _repository;
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
@@ -34,7 +29,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   void initState() {
     super.initState();
     _event = widget.event;
-    _repository = EventsRepositoryImpl(localDao: EventsLocalDaoSharedPrefs());
     _loadUserData();
   }
 
@@ -52,81 +46,21 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    final dto = EventMapper.toDto(_event);
-    final result = await showEventFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedEvent = EventMapper.toEntity(result);
-        await _repository.update(updatedEvent);
-        setState(() {
-          _event = updatedEvent;
-        });
-        widget.onEventUpdated();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Evento atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showDeleteConfirmation() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: slate,
-        title: const Text(
-          'Confirmar exclusão',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Tem certeza que deseja deletar "${_event.name}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Deletar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
       ),
     );
-
-    if (confirmed == true && mounted) {
-      try {
-        await _repository.delete(_event.id);
-        widget.onEventUpdated();
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Evento deletado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar: $e')),
-          );
-        }
-      }
-    }
   }
 
   @override

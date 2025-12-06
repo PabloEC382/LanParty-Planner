@@ -4,10 +4,6 @@ import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
 import '../../../../services/shared_preferences_services.dart';
-import '../dialogs/venue_form_dialog.dart';
-import '../../infrastructure/repositories/venues_repository_impl.dart';
-import '../../infrastructure/local/venues_local_dao_shared_prefs.dart';
-import '../../infrastructure/mappers/venue_mapper.dart';
 
 class VenueDetailScreen extends StatefulWidget {
   final Venue venue;
@@ -25,7 +21,6 @@ class VenueDetailScreen extends StatefulWidget {
 
 class _VenueDetailScreenState extends State<VenueDetailScreen> {
   late Venue _venue;
-  late VenuesRepositoryImpl _repository;
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
@@ -34,7 +29,6 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   void initState() {
     super.initState();
     _venue = widget.venue;
-    _repository = VenuesRepositoryImpl(localDao: VenuesLocalDaoSharedPrefs());
     _loadUserData();
   }
 
@@ -52,81 +46,21 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    final dto = VenueMapper.toDto(_venue);
-    final result = await showVenueFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedVenue = VenueMapper.toEntity(result);
-        await _repository.update(updatedVenue);
-        setState(() {
-          _venue = updatedVenue;
-        });
-        widget.onVenueUpdated();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Local atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showDeleteConfirmation() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: slate,
-        title: const Text(
-          'Confirmar exclusão',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Tem certeza que deseja deletar "${_venue.name}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Deletar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
       ),
     );
-
-    if (confirmed == true && mounted) {
-      try {
-        await _repository.delete(_venue.id);
-        widget.onVenueUpdated();
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Local deletado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar: $e')),
-          );
-        }
-      }
-    }
   }
 
   @override

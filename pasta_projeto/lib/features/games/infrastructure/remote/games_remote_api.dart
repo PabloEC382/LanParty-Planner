@@ -1,0 +1,64 @@
+import '../dtos/game_dto.dart';
+import '../../../../core/models/remote_page.dart';
+
+/// Interface abstrata para operações remotas da entidade Game no Supabase.
+///
+/// Define o contrato para sincronização de dados com o servidor remoto.
+/// Implementações concretas devem gerenciar a comunicação com Supabase,
+/// tratamento de erros de rede e conversão de dados.
+///
+/// ⚠️ Dicas práticas para evitar erros comuns:
+/// - Sempre verifique se os dados retornados possuem os campos esperados antes de processar.
+/// - Use timestamps em formato ISO8601 para sincronização incremental confiável.
+/// - Implemente retry-logic para falhas de rede temporárias.
+/// - Nunca exponha secrets em prints/logs (use kDebugMode para logs sensíveis).
+/// - Consulte supabase_rls_remediation.md para problemas de autenticação/autorização.
+abstract class GamesRemoteApi {
+  /// Busca games do servidor Supabase com paginação e filtro por data de atualização.
+  /// 
+  /// [since] filtra apenas registros atualizados após esta data.
+  /// [limit] define o número máximo de resultados (padrão: 500).
+  /// [offset] define o deslocamento para paginação (padrão: 0).
+  /// 
+  /// Retorna uma [RemotePage<GameDto>] contendo a lista de games e cursor para próxima página.
+  /// Em caso de erro (network, auth, etc), retorna página vazia ([RemotePage(items: [])]).
+  /// 
+  /// Boas práticas:
+  /// - Use [since] para sincronização incremental (apenas registros novos/atualizados).
+  /// - Sempre chame este método com um [limit] adequado para evitar timeout (ex: 500 registros).
+  /// - Verifique [RemotePage.hasMore] para determinar se há mais dados a sincronizar.
+  /// - Trate exceções graciosamente sem expor detalhes sensíveis.
+  Future<RemotePage<GameDto>> fetchGames({
+    DateTime? since,
+    int limit = 500,
+    int offset = 0,
+  });
+}
+
+/*
+// Exemplo de uso:
+final remoteApi = SupabaseGamesRemoteDatasource();
+final page = await remoteApi.fetchGames(
+  since: DateTime(2024, 1, 1),
+  limit: 500,
+);
+if (page.isNotEmpty) {
+  print('Recebidos ${page.length} games');
+}
+
+// Dica: combine com o DAO local para implementar sincronização completa:
+// 1. Carregar last sync de SharedPreferences
+// 2. Chamar fetchGames(since: lastSync)
+// 3. Fazer upsert dos DTOs no DAO local
+// 4. Atualizar last sync timestamp
+
+// Checklist de erros comuns e como evitar:
+// - Erro de conexão: implemente exponential backoff e retry.
+// - Dados incompletos: valide que todos os campos obrigatórios estão presentes.
+// - Problemas RLS: consulte supabase_rls_remediation.md para permissões corretas.
+// - Parsing de data inválido: trate DateTime.parse() em try/catch.
+
+// Referências úteis:
+// - supabase_rls_remediation.md
+// - supabase_init_debug_prompt.md
+*/

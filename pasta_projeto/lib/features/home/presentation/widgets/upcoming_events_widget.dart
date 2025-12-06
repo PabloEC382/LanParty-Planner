@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../events/domain/entities/event.dart';
 import '../../../events/presentation/pages/event_detail_screen.dart';
 import '../../../events/infrastructure/repositories/events_repository_impl.dart';
 import '../../../events/infrastructure/local/events_local_dao_shared_prefs.dart';
+import '../../../events/infrastructure/remote/supabase_events_remote_datasource.dart';
 
 class UpcomingEventsWidget extends StatefulWidget {
   const UpcomingEventsWidget({super.key}) : super();
@@ -20,6 +22,7 @@ class _UpcomingEventsWidgetState extends State<UpcomingEventsWidget> {
   void initState() {
     super.initState();
     _repository = EventsRepositoryImpl(
+      remoteApi: SupabaseEventsRemoteDatasource(),
       localDao: EventsLocalDaoSharedPrefs(),
     );
     _loadUpcomingEvents();
@@ -31,9 +34,32 @@ class _UpcomingEventsWidgetState extends State<UpcomingEventsWidget> {
     });
     
     try {
+      // 1. Carregar dados do cache local primeiro
+      if (kDebugMode) {
+        print('UpcomingEventsWidget._loadUpcomingEvents: carregando dados do cache...');
+      }
+      final cachedEvents = await _repository.loadFromCache();
+      
+      // 2. Se o cache estiver vazio, sincronizar com o servidor
+      if (cachedEvents.isEmpty) {
+        if (kDebugMode) {
+          print('UpcomingEventsWidget._loadUpcomingEvents: cache vazio, sincronizando...');
+        }
+        try {
+          final syncedCount = await _repository.syncFromServer();
+          if (kDebugMode) {
+            print('UpcomingEventsWidget._loadUpcomingEvents: sync concluído, $syncedCount registros');
+          }
+        } catch (syncError) {
+          if (kDebugMode) {
+            print('UpcomingEventsWidget._loadUpcomingEvents: erro ao sincronizar - $syncError');
+          }
+        }
+      }
+      
+      // 3. Recarregar dados do cache e filtrar próxima semana
       final allEvents = await _repository.listAll();
       
-      // Filtrar eventos da próxima semana
       final now = DateTime.now();
       final nextWeek = now.add(const Duration(days: 7));
       
@@ -50,12 +76,18 @@ class _UpcomingEventsWidgetState extends State<UpcomingEventsWidget> {
           _upcomingEvents = upcoming;
           _isLoading = false;
         });
+        if (kDebugMode) {
+          print('UpcomingEventsWidget._loadUpcomingEvents: UI atualizada com ${upcoming.length} eventos para próxima semana');
+        }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
+        if (kDebugMode) {
+          print('UpcomingEventsWidget._loadUpcomingEvents: erro ao carregar - $e');
+        }
       }
     }
   }

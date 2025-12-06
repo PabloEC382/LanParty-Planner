@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
@@ -6,9 +7,7 @@ import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/tournament.dart';
 import '../../infrastructure/repositories/tournaments_repository_impl.dart';
 import '../../infrastructure/local/tournaments_local_dao_shared_prefs.dart';
-import '../dialogs/tournament_form_dialog.dart';
-import '../dialogs/tournament_actions_dialog.dart';
-import '../../infrastructure/mappers/tournament_mapper.dart';
+import '../../infrastructure/remote/supabase_tournaments_remote_datasource.dart';
 import 'tournament_detail_screen.dart';
 
 class TournamentsListScreen extends StatefulWidget {
@@ -30,7 +29,10 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = TournamentsRepositoryImpl(localDao: TournamentsLocalDaoSharedPrefs());
+    _repository = TournamentsRepositoryImpl(
+      remoteApi: SupabaseTournamentsRemoteDatasource(),
+      localDao: TournamentsLocalDaoSharedPrefs(),
+    );
     _loadUserData();
     _loadTournaments();
   }
@@ -55,80 +57,78 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
     });
 
     try {
+      // 1. Carregar dados do cache local primeiro
+      if (kDebugMode) {
+        print('TournamentsListScreen._loadTournaments: carregando dados do cache local...');
+      }
+      final cachedTournaments = await _repository.loadFromCache();
+      
+      // 2. Se o cache estiver vazio, sincronizar com o servidor
+      if (cachedTournaments.isEmpty) {
+        if (kDebugMode) {
+          print('TournamentsListScreen._loadTournaments: cache vazio, sincronizando com servidor...');
+        }
+        try {
+          final syncedCount = await _repository.syncFromServer();
+          if (kDebugMode) {
+            print('TournamentsListScreen._loadTournaments: sincronização concluída, $syncedCount registros aplicados');
+          }
+        } catch (syncError) {
+          if (kDebugMode) {
+            print('TournamentsListScreen._loadTournaments: erro ao sincronizar - $syncError');
+          }
+        }
+      }
+      
+      // 3. Recarregar dados do cache
       final tournaments = await _repository.listAll();
-      setState(() {
-        _tournaments = tournaments;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _tournaments = tournaments;
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('TournamentsListScreen._loadTournaments: UI atualizada com ${tournaments.length} torneios');
+        }
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('TournamentsListScreen._loadTournaments: erro ao carregar - $e');
+        }
+      }
     }
   }
 
   Future<void> _showAddTournamentDialog() async {
-    final result = await showTournamentFormDialog(context);
-    if (result != null && mounted) {
-      try {
-        final tournament = TournamentMapper.toEntity(result);
-        await _repository.create(tournament);
-        await _loadTournaments();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Torneio adicionado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Criação de torneios é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showEditTournamentDialog(Tournament tournament) async {
-    final dto = TournamentMapper.toDto(tournament);
-    final result = await showTournamentFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedTournament = TournamentMapper.toEntity(result);
-        await _repository.update(updatedTournament);
-        await _loadTournaments();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Torneio atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição de torneios é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _deleteTournament(String tournamentId) async {
-    try {
-      await _repository.delete(tournamentId);
-      await _loadTournaments();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Torneio deletado com sucesso!')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao deletar: $e')),
-        );
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção de torneios é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -231,12 +231,14 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
             },
             onDismissed: (_) => _deleteTournament(tournament.id),
             child: GestureDetector(
-              onLongPress: () => showTournamentActionsDialog(
-                context,
-                tournament: tournament,
-                onEdit: () => _showEditTournamentDialog(tournament),
-                onDelete: () => _deleteTournament(tournament.id),
-              ),
+              onLongPress: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Gerenciamento de torneios é feito pelo servidor'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

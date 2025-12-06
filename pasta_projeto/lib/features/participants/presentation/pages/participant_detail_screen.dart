@@ -4,10 +4,6 @@ import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
 import '../../../../services/shared_preferences_services.dart';
-import '../dialogs/participant_form_dialog.dart';
-import '../../infrastructure/repositories/participants_repository_impl.dart';
-import '../../infrastructure/local/participants_local_dao_shared_prefs.dart';
-import '../../infrastructure/mappers/participant_mapper.dart';
 
 class ParticipantDetailScreen extends StatefulWidget {
   final Participant participant;
@@ -25,7 +21,6 @@ class ParticipantDetailScreen extends StatefulWidget {
 
 class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
   late Participant _participant;
-  late ParticipantsRepositoryImpl _repository;
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
@@ -34,7 +29,6 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
   void initState() {
     super.initState();
     _participant = widget.participant;
-    _repository = ParticipantsRepositoryImpl(localDao: ParticipantsLocalDaoSharedPrefs());
     _loadUserData();
   }
 
@@ -52,81 +46,21 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    final dto = ParticipantMapper.toDto(_participant);
-    final result = await showParticipantFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedParticipant = ParticipantMapper.toEntity(result);
-        await _repository.update(updatedParticipant);
-        setState(() {
-          _participant = updatedParticipant;
-        });
-        widget.onParticipantUpdated();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Participante atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showDeleteConfirmation() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: slate,
-        title: const Text(
-          'Confirmar exclusão',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Tem certeza que deseja deletar "${_participant.displayName}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Deletar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
       ),
     );
-
-    if (confirmed == true && mounted) {
-      try {
-        await _repository.delete(_participant.id);
-        widget.onParticipantUpdated();
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Participante deletado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar: $e')),
-          );
-        }
-      }
-    }
   }
 
   @override

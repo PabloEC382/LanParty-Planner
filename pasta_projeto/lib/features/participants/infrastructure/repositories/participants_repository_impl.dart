@@ -1,138 +1,185 @@
+import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/participant.dart';
 import '../../domain/repositories/participants_repository.dart';
 import '../mappers/participant_mapper.dart';
 import '../local/participants_local_dao_shared_prefs.dart';
+import '../remote/participants_remote_api.dart';
 
+/// Implementação concreta do [ParticipantsRepository] usando estratégia de cache local com sincronização remota.
 class ParticipantsRepositoryImpl implements ParticipantsRepository {
+  static const String _lastSyncKeyV1 = 'participants_last_sync_v1';
+
+  final ParticipantsRemoteApi _remoteApi;
   final ParticipantsLocalDaoSharedPrefs _localDao;
+  late final Future<SharedPreferences> _prefs;
 
-  ParticipantsRepositoryImpl({required ParticipantsLocalDaoSharedPrefs localDao})
-      : _localDao = localDao;
-
-  @override
-  Future<Participant> create(Participant participant) async {
-    try {
-      final dto = ParticipantMapper.toDto(participant);
-      final currentList = await _localDao.listAll();
-      currentList.add(dto);
-      await _localDao.upsertAll(currentList);
-      return participant;
-    } catch (e) {
-      throw Exception('Erro ao criar participante: $e');
-    }
+  ParticipantsRepositoryImpl({
+    required ParticipantsRemoteApi remoteApi,
+    required ParticipantsLocalDaoSharedPrefs localDao,
+  })  : _remoteApi = remoteApi,
+        _localDao = localDao {
+    _prefs = SharedPreferences.getInstance();
   }
 
   @override
-  Future<void> delete(String id) async {
+  Future<List<Participant>> loadFromCache() async {
     try {
-      final currentList = await _localDao.listAll();
-      currentList.removeWhere((dto) => dto.id == id);
-      await _localDao.upsertAll(currentList);
-    } catch (e) {
-      throw Exception('Erro ao deletar participante: $e');
-    }
-  }
-
-  @override
-  Future<Participant?> getById(String id) async {
-    try {
-      final dto = await _localDao.getById(id);
-      return dto != null ? ParticipantMapper.toEntity(dto) : null;
-    } catch (e) {
-      throw Exception('Erro ao buscar participante: $e');
-    }
-  }
-
-  Future<Participant?> getByEmail(String email) async {
-    try {
+      if (kDebugMode) {
+        developer.log(
+          'ParticipantsRepositoryImpl.loadFromCache: carregando do cache',
+          name: 'ParticipantsRepositoryImpl',
+        );
+      }
       final dtos = await _localDao.listAll();
-      final dto = dtos.firstWhere(
-        (p) => p.email.toLowerCase() == email.toLowerCase(),
-        orElse: () => throw Exception('Participante não encontrado'),
-      );
-      return ParticipantMapper.toEntity(dto);
+      return dtos.map((dto) => ParticipantMapper.toEntity(dto)).toList();
     } catch (e) {
-      return null;
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao carregar cache de participants: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
-  Future<Participant?> getByNickname(String nickname) async {
+  @override
+  Future<int> syncFromServer() async {
     try {
-      final dtos = await _localDao.listAll();
-      final dto = dtos.firstWhere(
-        (p) => p.nickname.toLowerCase() == nickname.toLowerCase(),
-        orElse: () => throw Exception('Participante não encontrado'),
-      );
-      return ParticipantMapper.toEntity(dto);
+      if (kDebugMode) {
+        developer.log(
+          'ParticipantsRepositoryImpl.syncFromServer: iniciando sincronização',
+          name: 'ParticipantsRepositoryImpl',
+        );
+      }
+      final prefs = await _prefs;
+      final lastSyncIso = prefs.getString(_lastSyncKeyV1);
+      DateTime? since;
+      if (lastSyncIso != null && lastSyncIso.isNotEmpty) {
+        try {
+          since = DateTime.parse(lastSyncIso);
+        } catch (e) {
+          if (kDebugMode) {
+            developer.log(
+              'Erro ao parsear lastSync de participants: $e',
+              name: 'ParticipantsRepositoryImpl',
+              error: e,
+            );
+          }
+        }
+      }
+      final page = await _remoteApi.fetchParticipants(since: since, limit: 500);
+      if (page.isEmpty) {
+        return 0;
+      }
+      await _localDao.upsertAll(page.items);
+      final newestUpdatedAt = _computeNewestUpdatedAt(page.items);
+      await prefs.setString(_lastSyncKeyV1, newestUpdatedAt.toIso8601String());
+      if (kDebugMode) {
+        developer.log(
+          'ParticipantsRepositoryImpl.syncFromServer: ${page.items.length} participants sincronizados',
+          name: 'ParticipantsRepositoryImpl',
+        );
+      }
+      return page.items.length;
     } catch (e) {
-      return null;
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao sincronizar participants: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
+      }
+      return 0;
     }
   }
 
   @override
   Future<List<Participant>> listAll() async {
     try {
+      if (kDebugMode) {
+        developer.log(
+          'ParticipantsRepositoryImpl.listAll: listando todos os participants',
+          name: 'ParticipantsRepositoryImpl',
+        );
+      }
       final dtos = await _localDao.listAll();
       return dtos.map((dto) => ParticipantMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao listar participantes: $e');
-    }
-  }
-
-  @override
-  Future<Participant> update(Participant participant) async {
-    try {
-      final dto = ParticipantMapper.toDto(participant);
-      final currentList = await _localDao.listAll();
-      final index = currentList.indexWhere((e) => e.id == participant.id);
-      if (index >= 0) {
-        currentList[index] = dto;
-      } else {
-        currentList.add(dto);
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar participants: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
       }
-      await _localDao.upsertAll(currentList);
-      return participant;
-    } catch (e) {
-      throw Exception('Erro ao atualizar participante: $e');
+      return [];
     }
   }
 
   @override
-  Future<void> sync() async {
+  Future<List<Participant>> listFeatured() async {
     try {
-      // Sincronização local apenas - sem servidor
-      // Mantém compatibilidade com a interface
+      if (kDebugMode) {
+        developer.log(
+          'ParticipantsRepositoryImpl.listFeatured: listando participants em destaque',
+          name: 'ParticipantsRepositoryImpl',
+        );
+      }
+      final dtos = await _localDao.listAll();
+      final featured = dtos.where((dto) => dto.is_premium || dto.skill_level >= 8).toList();
+      return featured.map((dto) => ParticipantMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao sincronizar participantes: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar participants em destaque: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
   @override
-  Future<void> clearCache() async {
+  Future<Participant?> getById(int id) async {
     try {
-      await _localDao.clear();
+      if (kDebugMode) {
+        developer.log(
+          'ParticipantsRepositoryImpl.getById: buscando participant com id=$id',
+          name: 'ParticipantsRepositoryImpl',
+        );
+      }
+      final dto = await _localDao.getById(id.toString());
+      return dto != null ? ParticipantMapper.toEntity(dto) : null;
     } catch (e) {
-      throw Exception('Erro ao limpar cache de participantes: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao buscar participant por id: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
+      }
+      return null;
     }
   }
 
-  Future<List<Participant>> findPremium() async {
-    try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.is_premium).toList();
-      return filtered.map((dto) => ParticipantMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar participantes premium: $e');
+  DateTime _computeNewestUpdatedAt(List<dynamic> items) {
+    if (items.isEmpty) {
+      return DateTime.now().toUtc();
     }
-  }
-
-  Future<List<Participant>> findBySkillLevel(int skillLevel) async {
-    try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.skill_level == skillLevel).toList();
-      return filtered.map((dto) => ParticipantMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar participantes por nível: $e');
+    DateTime newest = DateTime.parse(items[0].updated_at as String);
+    for (final item in items) {
+      try {
+        final itemDate = DateTime.parse(item.updated_at as String);
+        if (itemDate.isAfter(newest)) {
+          newest = itemDate;
+        }
+      } catch (_) {}
     }
+    return newest;
   }
 }

@@ -4,10 +4,6 @@ import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
 import '../../../../services/shared_preferences_services.dart';
-import '../dialogs/game_form_dialog.dart';
-import '../../infrastructure/repositories/games_repository_impl.dart';
-import '../../infrastructure/local/games_local_dao_shared_prefs.dart';
-import '../../infrastructure/mappers/game_mapper.dart';
 
 class GameDetailScreen extends StatefulWidget {
   final Game game;
@@ -25,7 +21,6 @@ class GameDetailScreen extends StatefulWidget {
 
 class _GameDetailScreenState extends State<GameDetailScreen> {
   late Game _game;
-  late GamesRepositoryImpl _repository;
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
@@ -34,7 +29,6 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   void initState() {
     super.initState();
     _game = widget.game;
-    _repository = GamesRepositoryImpl(localDao: GamesLocalDaoSharedPrefs());
     _loadUserData();
   }
 
@@ -52,81 +46,21 @@ class _GameDetailScreenState extends State<GameDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    final dto = GameMapper.toDto(_game);
-    final result = await showGameFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedGame = GameMapper.toEntity(result);
-        await _repository.update(updatedGame);
-        setState(() {
-          _game = updatedGame;
-        });
-        widget.onGameUpdated();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Jogo atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showDeleteConfirmation() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: slate,
-        title: const Text(
-          'Confirmar exclusão',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: Text(
-          'Tem certeza que deseja deletar "${_game.title}"?',
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Deletar',
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
       ),
     );
-
-    if (confirmed == true && mounted) {
-      try {
-        await _repository.delete(_game.id);
-        widget.onGameUpdated();
-        if (mounted) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Jogo deletado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao deletar: $e')),
-          );
-        }
-      }
-    }
   }
 
   @override

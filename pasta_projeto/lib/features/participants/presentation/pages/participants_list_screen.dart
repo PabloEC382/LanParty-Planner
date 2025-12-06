@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
@@ -6,9 +7,7 @@ import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/participant.dart';
 import '../../infrastructure/repositories/participants_repository_impl.dart';
 import '../../infrastructure/local/participants_local_dao_shared_prefs.dart';
-import '../dialogs/participant_form_dialog.dart';
-import '../dialogs/participant_actions_dialog.dart';
-import '../../infrastructure/mappers/participant_mapper.dart';
+import '../../infrastructure/remote/supabase_participants_remote_datasource.dart';
 import 'participant_detail_screen.dart';
 
 class ParticipantsListScreen extends StatefulWidget {
@@ -30,7 +29,10 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = ParticipantsRepositoryImpl(localDao: ParticipantsLocalDaoSharedPrefs());
+    _repository = ParticipantsRepositoryImpl(
+      remoteApi: SupabaseParticipantsRemoteDatasource(),
+      localDao: ParticipantsLocalDaoSharedPrefs(),
+    );
     _loadUserData();
     _loadParticipants();
   }
@@ -55,80 +57,78 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
     });
 
     try {
+      // 1. Carregar dados do cache local primeiro
+      if (kDebugMode) {
+        print('ParticipantsListScreen._loadParticipants: carregando dados do cache local...');
+      }
+      final cachedParticipants = await _repository.loadFromCache();
+      
+      // 2. Se o cache estiver vazio, sincronizar com o servidor
+      if (cachedParticipants.isEmpty) {
+        if (kDebugMode) {
+          print('ParticipantsListScreen._loadParticipants: cache vazio, sincronizando com servidor...');
+        }
+        try {
+          final syncedCount = await _repository.syncFromServer();
+          if (kDebugMode) {
+            print('ParticipantsListScreen._loadParticipants: sincronização concluída, $syncedCount registros aplicados');
+          }
+        } catch (syncError) {
+          if (kDebugMode) {
+            print('ParticipantsListScreen._loadParticipants: erro ao sincronizar - $syncError');
+          }
+        }
+      }
+      
+      // 3. Recarregar dados do cache
       final participants = await _repository.listAll();
-      setState(() {
-        _participants = participants;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _participants = participants;
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('ParticipantsListScreen._loadParticipants: UI atualizada com ${participants.length} participantes');
+        }
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('ParticipantsListScreen._loadParticipants: erro ao carregar - $e');
+        }
+      }
     }
   }
 
   Future<void> _showAddParticipantDialog() async {
-    final result = await showParticipantFormDialog(context);
-    if (result != null && mounted) {
-      try {
-        final participant = ParticipantMapper.toEntity(result);
-        await _repository.create(participant);
-        await _loadParticipants();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Participante adicionado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Criação de participantes é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showEditParticipantDialog(Participant participant) async {
-    final dto = ParticipantMapper.toDto(participant);
-    final result = await showParticipantFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedParticipant = ParticipantMapper.toEntity(result);
-        await _repository.update(updatedParticipant);
-        await _loadParticipants();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Participante atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição de participantes é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _deleteParticipant(String participantId) async {
-    try {
-      await _repository.delete(participantId);
-      await _loadParticipants();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Participante deletado com sucesso!')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao deletar: $e')),
-        );
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção de participantes é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -234,12 +234,14 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
             },
             onDismissed: (_) => _deleteParticipant(participant.id),
             child: GestureDetector(
-              onLongPress: () => showParticipantActionsDialog(
-                context,
-                participant: participant,
-                onEdit: () => _showEditParticipantDialog(participant),
-                onDelete: () => _deleteParticipant(participant.id),
-              ),
+              onLongPress: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Gerenciamento de participantes é feito pelo servidor'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

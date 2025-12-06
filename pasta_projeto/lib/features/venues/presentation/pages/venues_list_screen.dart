@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
@@ -6,9 +7,7 @@ import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/venue.dart';
 import '../../infrastructure/repositories/venues_repository_impl.dart';
 import '../../infrastructure/local/venues_local_dao_shared_prefs.dart';
-import '../dialogs/venue_form_dialog.dart';
-import '../dialogs/venue_actions_dialog.dart';
-import '../../infrastructure/mappers/venue_mapper.dart';
+import '../../infrastructure/remote/supabase_venues_remote_datasource.dart';
 import 'venue_detail_screen.dart';
 
 class VenuesListScreen extends StatefulWidget {
@@ -30,7 +29,10 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = VenuesRepositoryImpl(localDao: VenuesLocalDaoSharedPrefs());
+    _repository = VenuesRepositoryImpl(
+      remoteApi: SupabaseVenuesRemoteDatasource(),
+      localDao: VenuesLocalDaoSharedPrefs(),
+    );
     _loadUserData();
     _loadVenues();
   }
@@ -55,80 +57,78 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
     });
 
     try {
+      // 1. Carregar dados do cache local primeiro
+      if (kDebugMode) {
+        print('VenuesListScreen._loadVenues: carregando dados do cache local...');
+      }
+      final cachedVenues = await _repository.loadFromCache();
+      
+      // 2. Se o cache estiver vazio, sincronizar com o servidor
+      if (cachedVenues.isEmpty) {
+        if (kDebugMode) {
+          print('VenuesListScreen._loadVenues: cache vazio, sincronizando com servidor...');
+        }
+        try {
+          final syncedCount = await _repository.syncFromServer();
+          if (kDebugMode) {
+            print('VenuesListScreen._loadVenues: sincronização concluída, $syncedCount registros aplicados');
+          }
+        } catch (syncError) {
+          if (kDebugMode) {
+            print('VenuesListScreen._loadVenues: erro ao sincronizar - $syncError');
+          }
+        }
+      }
+      
+      // 3. Recarregar dados do cache
       final venues = await _repository.listAll();
-      setState(() {
-        _venues = venues;
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _venues = venues;
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('VenuesListScreen._loadVenues: UI atualizada com ${venues.length} locais');
+        }
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('VenuesListScreen._loadVenues: erro ao carregar - $e');
+        }
+      }
     }
   }
 
   Future<void> _showAddVenueDialog() async {
-    final result = await showVenueFormDialog(context);
-    if (result != null && mounted) {
-      try {
-        final venue = VenueMapper.toEntity(result);
-        await _repository.create(venue);
-        await _loadVenues();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Local adicionado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Criação de locais é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showEditVenueDialog(Venue venue) async {
-    final dto = VenueMapper.toDto(venue);
-    final result = await showVenueFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedVenue = VenueMapper.toEntity(result);
-        await _repository.update(updatedVenue);
-        await _loadVenues();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Local atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição de locais é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _deleteVenue(String venueId) async {
-    try {
-      await _repository.delete(venueId);
-      await _loadVenues();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Local deletado com sucesso!')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao deletar: $e')),
-        );
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção de locais é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -228,12 +228,14 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
             },
             onDismissed: (_) => _deleteVenue(venue.id),
             child: GestureDetector(
-              onLongPress: () => showVenueActionsDialog(
-                context,
-                venue: venue,
-                onEdit: () => _showEditVenueDialog(venue),
-                onDelete: () => _deleteVenue(venue.id),
-              ),
+              onLongPress: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Gerenciamento de locais é feito pelo servidor'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              },
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
@@ -6,9 +7,7 @@ import '../../../../services/shared_preferences_services.dart';
 import '../../domain/entities/game.dart';
 import '../../infrastructure/repositories/games_repository_impl.dart';
 import '../../infrastructure/local/games_local_dao_shared_prefs.dart';
-import '../dialogs/game_form_dialog.dart';
-import '../dialogs/game_actions_dialog.dart';
-import '../../infrastructure/mappers/game_mapper.dart';
+import '../../infrastructure/remote/supabase_games_remote_datasource.dart';
 import 'game_detail_screen.dart';
 
 class GamesListScreen extends StatefulWidget {
@@ -30,7 +29,10 @@ class _GamesListScreenState extends State<GamesListScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = GamesRepositoryImpl(localDao: GamesLocalDaoSharedPrefs());
+    _repository = GamesRepositoryImpl(
+      remoteApi: SupabaseGamesRemoteDatasource(),
+      localDao: GamesLocalDaoSharedPrefs(),
+    );
     _loadUserData();
     _loadGames();
   }
@@ -55,80 +57,83 @@ class _GamesListScreenState extends State<GamesListScreen> {
     });
 
     try {
+      // 1. Carregar dados do cache local primeiro (sempre mais rápido)
+      if (kDebugMode) {
+        print('GamesListScreen._loadGames: carregando dados do cache local...');
+      }
+      final cachedGames = await _repository.loadFromCache();
+      
+      // 2. Se o cache estiver vazio, sincronizar com o servidor
+      if (cachedGames.isEmpty) {
+        if (kDebugMode) {
+          print('GamesListScreen._loadGames: cache vazio, sincronizando com servidor...');
+        }
+        try {
+          final syncedCount = await _repository.syncFromServer();
+          if (kDebugMode) {
+            print('GamesListScreen._loadGames: sincronização concluída, $syncedCount registros aplicados');
+          }
+        } catch (syncError) {
+          if (kDebugMode) {
+            print('GamesListScreen._loadGames: erro ao sincronizar - $syncError');
+          }
+          // Continuar mesmo com erro de sync - pode ser conexão fraca
+        }
+      }
+      
+      // 3. Recarregar dados do cache (agora com dados do servidor se foi feito sync)
+      if (kDebugMode) {
+        print('GamesListScreen._loadGames: carregando dados atualizados do cache...');
+      }
       final games = await _repository.listAll();
-      setState(() {
-        _games = games;
-        _loading = false;
-      });
+      
+      if (mounted) {
+        setState(() {
+          _games = games;
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('GamesListScreen._loadGames: UI atualizada com ${games.length} jogos');
+        }
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('GamesListScreen._loadGames: erro ao carregar - $e');
+        }
+      }
     }
   }
 
   Future<void> _showAddGameDialog() async {
-    final result = await showGameFormDialog(context);
-    if (result != null && mounted) {
-      try {
-        final game = GameMapper.toEntity(result);
-        await _repository.create(game);
-        await _loadGames();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Jogo adicionado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao adicionar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Criação de jogos é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _showEditGameDialog(Game game) async {
-    final dto = GameMapper.toDto(game);
-    final result = await showGameFormDialog(context, initial: dto);
-    if (result != null && mounted) {
-      try {
-        final updatedGame = GameMapper.toEntity(result);
-        await _repository.update(updatedGame);
-        await _loadGames();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Jogo atualizado com sucesso!')),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erro ao atualizar: $e')),
-          );
-        }
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Edição de jogos é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   Future<void> _deleteGame(String gameId) async {
-    try {
-      await _repository.delete(gameId);
-      await _loadGames();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Jogo deletado com sucesso!')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao deletar: $e')),
-        );
-      }
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Deleção de jogos é gerenciada pelo servidor.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -296,12 +301,14 @@ class _GameCard extends StatelessWidget {
       },
       onDismissed: (_) => onDelete(),
       child: GestureDetector(
-        onLongPress: () => showGameActionsDialog(
-          context,
-          game: game,
-          onEdit: onEdit,
-          onDelete: onDelete,
-        ),
+        onLongPress: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Gerenciamento de jogos é feito pelo servidor'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        },
         onTap: onTap,
         child: Card(
           color: slate.withValues(alpha: 0.5),

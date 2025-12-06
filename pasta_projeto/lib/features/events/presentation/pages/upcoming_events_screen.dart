@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../../core/theme.dart';
 import '../../domain/entities/event.dart';
 import '../../infrastructure/repositories/events_repository_impl.dart';
 import '../../infrastructure/local/events_local_dao_shared_prefs.dart';
+import '../../infrastructure/remote/supabase_events_remote_datasource.dart';
 
 enum EventPeriodFilter {
   nextDays('Próximos 7 dias'),
@@ -37,7 +39,10 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = EventsRepositoryImpl(localDao: EventsLocalDaoSharedPrefs());
+    _repository = EventsRepositoryImpl(
+      remoteApi: SupabaseEventsRemoteDatasource(),
+      localDao: EventsLocalDaoSharedPrefs(),
+    );
     _loadEvents();
   }
 
@@ -48,20 +53,54 @@ class _UpcomingEventsScreenState extends State<UpcomingEventsScreen> {
     });
 
     try {
+      // 1. Carregar dados do cache local primeiro
+      if (kDebugMode) {
+        print('UpcomingEventsScreen._loadEvents: carregando dados do cache local...');
+      }
+      final cachedEvents = await _repository.loadFromCache();
+      
+      // 2. Se o cache estiver vazio, sincronizar com o servidor
+      if (cachedEvents.isEmpty) {
+        if (kDebugMode) {
+          print('UpcomingEventsScreen._loadEvents: cache vazio, sincronizando com servidor...');
+        }
+        try {
+          final syncedCount = await _repository.syncFromServer();
+          if (kDebugMode) {
+            print('UpcomingEventsScreen._loadEvents: sincronização concluída, $syncedCount registros aplicados');
+          }
+        } catch (syncError) {
+          if (kDebugMode) {
+            print('UpcomingEventsScreen._loadEvents: erro ao sincronizar - $syncError');
+          }
+        }
+      }
+      
+      // 3. Recarregar dados do cache
       final events = await _repository.listAll();
-      setState(() {
-        _allEvents = events;
-        _availableStates = events
-            .map((e) => e.state ?? 'Desconhecido')
-            .toSet();
-        _filteredEvents = _filterEvents(events);
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _allEvents = events;
+          _availableStates = events
+              .map((e) => e.state ?? 'Desconhecido')
+              .toSet();
+          _filteredEvents = _filterEvents(events);
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('UpcomingEventsScreen._loadEvents: UI atualizada com ${events.length} eventos');
+        }
+      }
     } catch (e) {
-      setState(() {
-        _error = e.toString();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _error = e.toString();
+          _loading = false;
+        });
+        if (kDebugMode) {
+          print('UpcomingEventsScreen._loadEvents: erro ao carregar - $e');
+        }
+      }
     }
   }
 

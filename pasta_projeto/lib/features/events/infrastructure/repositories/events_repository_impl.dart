@@ -1,92 +1,185 @@
+import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/event.dart';
 import '../../domain/repositories/events_repository.dart';
 import '../mappers/event_mapper.dart';
 import '../local/events_local_dao_shared_prefs.dart';
+import '../remote/events_remote_api.dart';
 
+/// Implementação concreta do [EventsRepository] usando estratégia de cache local com sincronização remota.
 class EventsRepositoryImpl implements EventsRepository {
+  static const String _lastSyncKeyV1 = 'events_last_sync_v1';
+
+  final EventsRemoteApi _remoteApi;
   final EventsLocalDaoSharedPrefs _localDao;
+  late final Future<SharedPreferences> _prefs;
 
-  EventsRepositoryImpl({required EventsLocalDaoSharedPrefs localDao})
-      : _localDao = localDao;
+  EventsRepositoryImpl({
+    required EventsRemoteApi remoteApi,
+    required EventsLocalDaoSharedPrefs localDao,
+  })  : _remoteApi = remoteApi,
+        _localDao = localDao {
+    _prefs = SharedPreferences.getInstance();
+  }
 
   @override
-  Future<Event> create(Event event) async {
+  Future<List<Event>> loadFromCache() async {
     try {
-      final dto = EventMapper.toDto(event);
-      final currentList = await _localDao.listAll();
-      currentList.add(dto);
-      await _localDao.upsertAll(currentList);
-      return event;
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.loadFromCache: carregando do cache',
+          name: 'EventsRepositoryImpl',
+        );
+      }
+      final dtos = await _localDao.listAll();
+      return dtos.map((dto) => EventMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao criar evento: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao carregar cache de events: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
   @override
-  Future<void> delete(String id) async {
+  Future<int> syncFromServer() async {
     try {
-      final currentList = await _localDao.listAll();
-      currentList.removeWhere((dto) => dto.id == id);
-      await _localDao.upsertAll(currentList);
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.syncFromServer: iniciando sincronização',
+          name: 'EventsRepositoryImpl',
+        );
+      }
+      final prefs = await _prefs;
+      final lastSyncIso = prefs.getString(_lastSyncKeyV1);
+      DateTime? since;
+      if (lastSyncIso != null && lastSyncIso.isNotEmpty) {
+        try {
+          since = DateTime.parse(lastSyncIso);
+        } catch (e) {
+          if (kDebugMode) {
+            developer.log(
+              'Erro ao parsear lastSync de events: $e',
+              name: 'EventsRepositoryImpl',
+              error: e,
+            );
+          }
+        }
+      }
+      final page = await _remoteApi.fetchEvents(since: since, limit: 500);
+      if (page.isEmpty) {
+        return 0;
+      }
+      await _localDao.upsertAll(page.items);
+      final newestUpdatedAt = _computeNewestUpdatedAt(page.items);
+      await prefs.setString(_lastSyncKeyV1, newestUpdatedAt.toIso8601String());
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.syncFromServer: ${page.items.length} events sincronizados',
+          name: 'EventsRepositoryImpl',
+        );
+      }
+      return page.items.length;
     } catch (e) {
-      throw Exception('Erro ao deletar evento: $e');
-    }
-  }
-
-  @override
-  Future<Event?> getById(String id) async {
-    try {
-      final dto = await _localDao.getById(id);
-      return dto != null ? EventMapper.toEntity(dto) : null;
-    } catch (e) {
-      throw Exception('Erro ao buscar evento: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao sincronizar events: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
+      }
+      return 0;
     }
   }
 
   @override
   Future<List<Event>> listAll() async {
     try {
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.listAll: listando todos os events',
+          name: 'EventsRepositoryImpl',
+        );
+      }
       final dtos = await _localDao.listAll();
       return dtos.map((dto) => EventMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao listar eventos: $e');
-    }
-  }
-
-  @override
-  Future<Event> update(Event event) async {
-    try {
-      final dto = EventMapper.toDto(event);
-      final currentList = await _localDao.listAll();
-      final index = currentList.indexWhere((e) => e.id == event.id);
-      if (index >= 0) {
-        currentList[index] = dto;
-      } else {
-        currentList.add(dto);
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar events: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
       }
-      await _localDao.upsertAll(currentList);
-      return event;
-    } catch (e) {
-      throw Exception('Erro ao atualizar evento: $e');
+      return [];
     }
   }
 
   @override
-  Future<void> sync() async {
+  Future<List<Event>> listFeatured() async {
     try {
-      // Sincronização local apenas - sem servidor
-      // Mantém compatibilidade com a interface
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.listFeatured: listando events em destaque',
+          name: 'EventsRepositoryImpl',
+        );
+      }
+      final dtos = await _localDao.listAll();
+      final featured = dtos.where((dto) => dto.state == 'published' || dto.state == 'ongoing').toList();
+      return featured.map((dto) => EventMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao sincronizar eventos: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar events em destaque: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
   @override
-  Future<void> clearCache() async {
+  Future<Event?> getById(int id) async {
     try {
-      await _localDao.clear();
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.getById: buscando event com id=$id',
+          name: 'EventsRepositoryImpl',
+        );
+      }
+      final dto = await _localDao.getById(id.toString());
+      return dto != null ? EventMapper.toEntity(dto) : null;
     } catch (e) {
-      throw Exception('Erro ao limpar cache de eventos: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao buscar event por id: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
+      }
+      return null;
     }
+  }
+
+  DateTime _computeNewestUpdatedAt(List<dynamic> items) {
+    if (items.isEmpty) {
+      return DateTime.now().toUtc();
+    }
+    DateTime newest = DateTime.parse(items[0].updated_at as String);
+    for (final item in items) {
+      try {
+        final itemDate = DateTime.parse(item.updated_at as String);
+        if (itemDate.isAfter(newest)) {
+          newest = itemDate;
+        }
+      } catch (_) {}
+    }
+    return newest;
   }
 }

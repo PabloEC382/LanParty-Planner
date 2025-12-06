@@ -1,143 +1,189 @@
+import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/tournament.dart';
 import '../../domain/repositories/tournaments_repository.dart';
 import '../mappers/tournament_mapper.dart';
 import '../local/tournaments_local_dao_shared_prefs.dart';
+import '../remote/tournaments_remote_api.dart';
 
+/// Implementação concreta do [TournamentsRepository] usando estratégia de cache local com sincronização remota.
 class TournamentsRepositoryImpl implements TournamentsRepository {
+  static const String _lastSyncKeyV1 = 'tournaments_last_sync_v1';
+
+  final TournamentsRemoteApi _remoteApi;
   final TournamentsLocalDaoSharedPrefs _localDao;
+  late final Future<SharedPreferences> _prefs;
 
-  TournamentsRepositoryImpl({required TournamentsLocalDaoSharedPrefs localDao})
-      : _localDao = localDao;
+  TournamentsRepositoryImpl({
+    required TournamentsRemoteApi remoteApi,
+    required TournamentsLocalDaoSharedPrefs localDao,
+  })  : _remoteApi = remoteApi,
+        _localDao = localDao {
+    _prefs = SharedPreferences.getInstance();
+  }
 
   @override
-  Future<Tournament> create(Tournament tournament) async {
+  Future<List<Tournament>> loadFromCache() async {
     try {
-      final dto = TournamentMapper.toDto(tournament);
-      final currentList = await _localDao.listAll();
-      currentList.add(dto);
-      await _localDao.upsertAll(currentList);
-      return tournament;
+      if (kDebugMode) {
+        developer.log(
+          'TournamentsRepositoryImpl.loadFromCache: carregando do cache',
+          name: 'TournamentsRepositoryImpl',
+        );
+      }
+      final dtos = await _localDao.listAll();
+      return dtos.map((dto) => TournamentMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao criar torneio: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao carregar cache de tournaments: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
   @override
-  Future<void> delete(String id) async {
+  Future<int> syncFromServer() async {
     try {
-      final currentList = await _localDao.listAll();
-      currentList.removeWhere((dto) => dto.id == id);
-      await _localDao.upsertAll(currentList);
+      if (kDebugMode) {
+        developer.log(
+          'TournamentsRepositoryImpl.syncFromServer: iniciando sincronização',
+          name: 'TournamentsRepositoryImpl',
+        );
+      }
+      final prefs = await _prefs;
+      final lastSyncIso = prefs.getString(_lastSyncKeyV1);
+      DateTime? since;
+      if (lastSyncIso != null && lastSyncIso.isNotEmpty) {
+        try {
+          since = DateTime.parse(lastSyncIso);
+        } catch (e) {
+          if (kDebugMode) {
+            developer.log(
+              'Erro ao parsear lastSync de tournaments: $e',
+              name: 'TournamentsRepositoryImpl',
+              error: e,
+            );
+          }
+        }
+      }
+      final page = await _remoteApi.fetchTournaments(since: since, limit: 500);
+      if (page.isEmpty) {
+        return 0;
+      }
+      await _localDao.upsertAll(page.items);
+      final newestUpdatedAt = _computeNewestUpdatedAt(page.items);
+      await prefs.setString(_lastSyncKeyV1, newestUpdatedAt.toIso8601String());
+      if (kDebugMode) {
+        developer.log(
+          'TournamentsRepositoryImpl.syncFromServer: ${page.items.length} tournaments sincronizados',
+          name: 'TournamentsRepositoryImpl',
+        );
+      }
+      return page.items.length;
     } catch (e) {
-      throw Exception('Erro ao deletar torneio: $e');
-    }
-  }
-
-  @override
-  Future<Tournament?> getById(String id) async {
-    try {
-      final dto = await _localDao.getById(id);
-      return dto != null ? TournamentMapper.toEntity(dto) : null;
-    } catch (e) {
-      throw Exception('Erro ao buscar torneio: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao sincronizar tournaments: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
+      }
+      return 0;
     }
   }
 
   @override
   Future<List<Tournament>> listAll() async {
     try {
+      if (kDebugMode) {
+        developer.log(
+          'TournamentsRepositoryImpl.listAll: listando todos os tournaments',
+          name: 'TournamentsRepositoryImpl',
+        );
+      }
       final dtos = await _localDao.listAll();
       return dtos.map((dto) => TournamentMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao listar torneios: $e');
-    }
-  }
-
-  @override
-  Future<Tournament> update(Tournament tournament) async {
-    try {
-      final dto = TournamentMapper.toDto(tournament);
-      final currentList = await _localDao.listAll();
-      final index = currentList.indexWhere((e) => e.id == tournament.id);
-      if (index >= 0) {
-        currentList[index] = dto;
-      } else {
-        currentList.add(dto);
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar tournaments: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
       }
-      await _localDao.upsertAll(currentList);
-      return tournament;
-    } catch (e) {
-      throw Exception('Erro ao atualizar torneio: $e');
+      return [];
     }
   }
 
   @override
-  Future<void> sync() async {
+  Future<List<Tournament>> listFeatured() async {
     try {
-      // Sincronização local apenas - sem servidor
-      // Mantém compatibilidade com a interface
+      if (kDebugMode) {
+        developer.log(
+          'TournamentsRepositoryImpl.listFeatured: listando tournaments em destaque',
+          name: 'TournamentsRepositoryImpl',
+        );
+      }
+      final dtos = await _localDao.listAll();
+      final featured = dtos.where((dto) {
+        // Filtrar por status registration ou in_progress como "featured"
+        return dto.status.toLowerCase() == 'registration' || dto.status.toLowerCase() == 'in_progress';
+      }).toList();
+      return featured.map((dto) => TournamentMapper.toEntity(dto)).toList();
     } catch (e) {
-      throw Exception('Erro ao sincronizar torneios: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao listar tournaments em destaque: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
+      }
+      return [];
     }
   }
 
   @override
-  Future<void> clearCache() async {
+  Future<Tournament?> getById(int id) async {
     try {
-      await _localDao.clear();
+      if (kDebugMode) {
+        developer.log(
+          'TournamentsRepositoryImpl.getById: buscando tournament com id=$id',
+          name: 'TournamentsRepositoryImpl',
+        );
+      }
+      final dto = await _localDao.getById(id.toString());
+      return dto != null ? TournamentMapper.toEntity(dto) : null;
     } catch (e) {
-      throw Exception('Erro ao limpar cache de torneios: $e');
+      if (kDebugMode) {
+        developer.log(
+          'Erro ao buscar tournament por id: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
+      }
+      return null;
     }
   }
 
-  Future<List<Tournament>> findByStatus(TournamentStatus status) async {
-    try {
-      final dtos = await _localDao.listAll();
-      final statusStr = _statusToString(status);
-      final filtered = dtos.where((dto) => dto.status.toLowerCase() == statusStr.toLowerCase()).toList();
-      return filtered.map((dto) => TournamentMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar torneios por status: $e');
+  DateTime _computeNewestUpdatedAt(List<dynamic> items) {
+    if (items.isEmpty) {
+      return DateTime.now().toUtc();
     }
+    DateTime newest = DateTime.parse(items[0].updated_at as String);
+    for (final item in items) {
+      try {
+        final itemDate = DateTime.parse(item.updated_at as String);
+        if (itemDate.isAfter(newest)) {
+          newest = itemDate;
+        }
+      } catch (_) {}
+    }
+    return newest;
   }
 
-  Future<List<Tournament>> findByGame(String gameId) async {
-    try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.game_id == gameId).toList();
-      return filtered.map((dto) => TournamentMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar torneios por jogo: $e');
-    }
-  }
-
-  Future<List<Tournament>> findOpenForRegistration() async {
-    try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.status.toLowerCase() == 'registration').toList();
-      return filtered.map((dto) => TournamentMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar torneios abertos: $e');
-    }
-  }
-
-  Future<List<Tournament>> findInProgress() async {
-    try {
-      final dtos = await _localDao.listAll();
-      final filtered = dtos.where((dto) => dto.status.toLowerCase() == 'in_progress').toList();
-      return filtered.map((dto) => TournamentMapper.toEntity(dto)).toList();
-    } catch (e) {
-      throw Exception('Erro ao buscar torneios em andamento: $e');
-    }
-  }
-
-  String _statusToString(TournamentStatus status) {
-    switch (status) {
-      case TournamentStatus.draft: return 'draft';
-      case TournamentStatus.registration: return 'registration';
-      case TournamentStatus.inProgress: return 'in_progress';
-      case TournamentStatus.finished: return 'finished';
-      case TournamentStatus.cancelled: return 'cancelled';
-    }
-  }
 }
