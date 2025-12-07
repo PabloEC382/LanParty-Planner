@@ -190,8 +190,11 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
         );
       }
 
-      final response = await client.from('venues').insert([dto.toMap()]);
-      return VenueDto.fromMap(response[0] as Map<String, dynamic>);
+      final response = await client.from('venues').insert([dto.toMap()]).select();
+      if (response.isEmpty) {
+        throw Exception('Create failed: no rows returned from Supabase');
+      }
+      return VenueDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -222,13 +225,14 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
       final response = await client
           .from('venues')
           .update(dto.toMap())
-          .eq('id', id);
+          .eq('id', id)
+          .select();
 
-      if (response == null || response.isEmpty) {
+      if (response.isEmpty) {
         throw Exception('Update failed: no rows returned from Supabase');
       }
 
-      return VenueDto.fromMap(response[0] as Map<String, dynamic>);
+      return VenueDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -251,12 +255,18 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
 
       if (kDebugMode) {
         developer.log(
-          'SupabaseVenuesRemoteDatasource.deleteVenue: deletando venue $id',
+          'SupabaseVenuesRemoteDatasource.deleteVenue: deletando venue id=$id (type=${id.runtimeType})',
           name: 'SupabaseVenuesRemoteDatasource',
         );
       }
 
-      await client.from('venues').delete().eq('id', id);
+      final response = await client.from('venues').delete().eq('id', id);
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseVenuesRemoteDatasource.deleteVenue: resposta=$response',
+          name: 'SupabaseVenuesRemoteDatasource',
+        );
+      }
     } catch (e) {
       if (kDebugMode) {
         developer.log(

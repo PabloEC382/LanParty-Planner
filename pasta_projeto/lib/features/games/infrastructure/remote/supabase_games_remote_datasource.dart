@@ -230,7 +230,11 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      final response = await client.from(_tableName).insert([dto.toMap()]);
+      final response = await client.from(_tableName).insert([dto.toMap()]).select();
+      
+      if (response.isEmpty) {
+        throw Exception('Create failed: no rows returned from Supabase');
+      }
       
       if (kDebugMode) {
         developer.log(
@@ -239,7 +243,7 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      return GameDto.fromMap(response[0] as Map<String, dynamic>);
+      return GameDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -276,9 +280,10 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
       final response = await client
           .from(_tableName)
           .update(dto.toMap())
-          .eq('id', id);
+          .eq('id', id)
+          .select();
       
-      if (response == null || response.isEmpty) {
+      if (response.isEmpty) {
         throw Exception('Update failed: no rows returned from Supabase');
       }
       
@@ -289,7 +294,7 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      return GameDto.fromMap(response[0] as Map<String, dynamic>);
+      return GameDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -318,16 +323,16 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
 
       if (kDebugMode) {
         developer.log(
-          'SupabaseGamesRemoteDatasource.deleteGame: deletando game $id',
+          'SupabaseGamesRemoteDatasource.deleteGame: deletando game id=$id (type=${id.runtimeType})',
           name: 'SupabaseGamesRemoteDatasource',
         );
       }
 
-      await client.from(_tableName).delete().eq('id', id);
+      final response = await client.from(_tableName).delete().eq('id', id);
       
       if (kDebugMode) {
         developer.log(
-          'SupabaseGamesRemoteDatasource.deleteGame: game $id deletado com sucesso',
+          'SupabaseGamesRemoteDatasource.deleteGame: resposta=$response',
           name: 'SupabaseGamesRemoteDatasource',
         );
       }

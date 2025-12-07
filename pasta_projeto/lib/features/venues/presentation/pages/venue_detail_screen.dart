@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../domain/entities/venue.dart';
+import '../../infrastructure/repositories/venues_repository_impl.dart';
+import '../../infrastructure/local/venues_local_dao_shared_prefs.dart';
+import '../../infrastructure/remote/supabase_venues_remote_datasource.dart';
+import '../dialogs/venue_form_dialog.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
@@ -21,6 +26,7 @@ class VenueDetailScreen extends StatefulWidget {
 
 class _VenueDetailScreenState extends State<VenueDetailScreen> {
   late Venue _venue;
+  late VenuesRepositoryImpl _repository;
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
@@ -29,6 +35,10 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   void initState() {
     super.initState();
     _venue = widget.venue;
+    _repository = VenuesRepositoryImpl(
+      remoteApi: SupabaseVenuesRemoteDatasource(),
+      localDao: VenuesLocalDaoSharedPrefs(),
+    );
     _loadUserData();
   }
 
@@ -46,21 +56,82 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edição é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showVenueFormDialog(context, initial: _venue);
+    if (result != null) {
+      try {
+        await _repository.updateVenue(result);
+        if (mounted) {
+          setState(() => _venue = result);
+          widget.onVenueUpdated();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Local atualizado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao atualizar venue: $e');
+      }
+    }
   }
 
   Future<void> _showDeleteConfirmation() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Deleção é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Tem certeza que deseja deletar este local?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
+    
+    if (confirmed == true) {
+      try {
+        await _repository.deleteVenue(_venue.id);
+        if (mounted) {
+          widget.onVenueUpdated();
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Local deletado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao deletar: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao deletar venue: $e');
+      }
+    }
   }
 
   @override

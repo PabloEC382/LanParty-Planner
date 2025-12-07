@@ -190,8 +190,11 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
         );
       }
 
-      final response = await client.from('participants').insert([dto.toMap()]);
-      return ParticipantDto.fromMap(response[0] as Map<String, dynamic>);
+      final response = await client.from('participants').insert([dto.toMap()]).select();
+      if (response.isEmpty) {
+        throw Exception('Create failed: no rows returned from Supabase');
+      }
+      return ParticipantDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -222,13 +225,14 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
       final response = await client
           .from('participants')
           .update(dto.toMap())
-          .eq('id', id);
+          .eq('id', id)
+          .select();
 
-      if (response == null || response.isEmpty) {
+      if (response.isEmpty) {
         throw Exception('Update failed: no rows returned from Supabase');
       }
 
-      return ParticipantDto.fromMap(response[0] as Map<String, dynamic>);
+      return ParticipantDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -251,12 +255,18 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
 
       if (kDebugMode) {
         developer.log(
-          'SupabaseParticipantsRemoteDatasource.deleteParticipant: deletando participant $id',
+          'SupabaseParticipantsRemoteDatasource.deleteParticipant: deletando participant id=$id (type=${id.runtimeType})',
           name: 'SupabaseParticipantsRemoteDatasource',
         );
       }
 
-      await client.from('participants').delete().eq('id', id);
+      final response = await client.from('participants').delete().eq('id', id);
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseParticipantsRemoteDatasource.deleteParticipant: resposta=$response',
+          name: 'SupabaseParticipantsRemoteDatasource',
+        );
+      }
     } catch (e) {
       if (kDebugMode) {
         developer.log(

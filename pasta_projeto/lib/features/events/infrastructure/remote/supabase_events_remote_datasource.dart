@@ -190,8 +190,11 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
         );
       }
 
-      final response = await client.from('events').insert([dto.toMap()]);
-      return EventDto.fromMap(response[0] as Map<String, dynamic>);
+      final response = await client.from('events').insert([dto.toMap()]).select();
+      if (response.isEmpty) {
+        throw Exception('Create failed: no rows returned from Supabase');
+      }
+      return EventDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -222,13 +225,14 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
       final response = await client
           .from('events')
           .update(dto.toMap())
-          .eq('id', id);
+          .eq('id', id)
+          .select();
 
-      if (response == null || response.isEmpty) {
+      if (response.isEmpty) {
         throw Exception('Update failed: no rows returned from Supabase');
       }
 
-      return EventDto.fromMap(response[0] as Map<String, dynamic>);
+      return EventDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -251,12 +255,19 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
 
       if (kDebugMode) {
         developer.log(
-          'SupabaseEventsRemoteDatasource.deleteEvent: deletando event $id',
+          'SupabaseEventsRemoteDatasource.deleteEvent: deletando event id=$id (type=${id.runtimeType})',
           name: 'SupabaseEventsRemoteDatasource',
         );
       }
 
-      await client.from('events').delete().eq('id', id);
+      final response = await client.from('events').delete().eq('id', id);
+      
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseEventsRemoteDatasource.deleteEvent: resposta=$response',
+          name: 'SupabaseEventsRemoteDatasource',
+        );
+      }
     } catch (e) {
       if (kDebugMode) {
         developer.log(

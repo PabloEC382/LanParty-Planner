@@ -190,8 +190,11 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
         );
       }
 
-      final response = await client.from('tournaments').insert([dto.toMap()]);
-      return TournamentDto.fromMap(response[0] as Map<String, dynamic>);
+      final response = await client.from('tournaments').insert([dto.toMap()]).select();
+      if (response.isEmpty) {
+        throw Exception('Create failed: no rows returned from Supabase');
+      }
+      return TournamentDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -222,13 +225,14 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
       final response = await client
           .from('tournaments')
           .update(dto.toMap())
-          .eq('id', id);
+          .eq('id', id)
+          .select();
 
-      if (response == null || response.isEmpty) {
+      if (response.isEmpty) {
         throw Exception('Update failed: no rows returned from Supabase');
       }
 
-      return TournamentDto.fromMap(response[0] as Map<String, dynamic>);
+      return TournamentDto.fromMap(response[0]);
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -251,12 +255,18 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
 
       if (kDebugMode) {
         developer.log(
-          'SupabaseTournamentsRemoteDatasource.deleteTournament: deletando tournament $id',
+          'SupabaseTournamentsRemoteDatasource.deleteTournament: deletando tournament id=$id (type=${id.runtimeType})',
           name: 'SupabaseTournamentsRemoteDatasource',
         );
       }
 
-      await client.from('tournaments').delete().eq('id', id);
+      final response = await client.from('tournaments').delete().eq('id', id);
+      if (kDebugMode) {
+        developer.log(
+          'SupabaseTournamentsRemoteDatasource.deleteTournament: resposta=$response',
+          name: 'SupabaseTournamentsRemoteDatasource',
+        );
+      }
     } catch (e) {
       if (kDebugMode) {
         developer.log(

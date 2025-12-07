@@ -4,6 +4,10 @@ import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
 import '../../../../services/shared_preferences_services.dart';
+import '../dialogs/event_form_dialog.dart';
+import '../../infrastructure/repositories/events_repository_impl.dart';
+import '../../infrastructure/local/events_local_dao_shared_prefs.dart';
+import '../../infrastructure/remote/supabase_events_remote_datasource.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final Event event;
@@ -24,11 +28,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
+  late EventsRepositoryImpl _repository;
 
   @override
   void initState() {
     super.initState();
     _event = widget.event;
+    _repository = EventsRepositoryImpl(
+      remoteApi: SupabaseEventsRemoteDatasource(),
+      localDao: EventsLocalDaoSharedPrefs(),
+    );
     _loadUserData();
   }
 
@@ -46,21 +55,82 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edição é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showEventFormDialog(context, initial: _event);
+    if (result != null) {
+      try {
+        await _repository.updateEvent(result);
+        if (mounted) {
+          setState(() {
+            _event = result;
+          });
+          widget.onEventUpdated();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Evento atualizado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar evento: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   Future<void> _showDeleteConfirmation() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Deleção é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Tem certeza que deseja deletar este evento?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
+    
+    if (confirmed == true) {
+      try {
+        await _repository.deleteEvent(_event.id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Evento deletado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+          widget.onEventUpdated();
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao deletar evento: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
