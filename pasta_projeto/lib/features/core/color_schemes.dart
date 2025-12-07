@@ -4,19 +4,19 @@ import 'package:flutter/material.dart';
 /// Cores principais utilizadas em ambos os temas
 
 const Color purple = Color(0xFF7C3AED);
-const Color cyan = Color(0xFF06B6D4);
+const Color yellow = Color(0xFFFBBF24);  // Amarelo bacana
 const Color slate = Color(0xFF0F172A);
 
 // Variações do roxo para uso em containers
 const Color purpleContainer = Color(0xFFEDE9FE);
 const Color onPurpleContainer = Color(0xFF3F0F7F);
 
-// Variações do cyan para uso em containers
-const Color cyanContainer = Color(0xFFCFFAFE);
-const Color onCyanContainer = Color(0xFF003638);
+// Variações do amarelo para uso em destaques
+const Color yellowContainer = Color(0xFFFEF3C7);
+const Color onYellowContainer = Color(0xFF78350F);
 
 // ==================== PALETA ESCURA ====================
-/// ColorScheme para tema escuro
+/// ColorScheme para tema escuro (atual)
 const ColorScheme darkColorScheme = ColorScheme(
   brightness: Brightness.dark,
   // Cores primárias (roxo)
@@ -24,11 +24,11 @@ const ColorScheme darkColorScheme = ColorScheme(
   onPrimary: Colors.white,
   primaryContainer: Color(0xFF5B21B6),
   onPrimaryContainer: Color(0xFFEDE9FE),
-  // Cores secundárias (cyan)
-  secondary: cyan,
-  onSecondary: Colors.white,
-  secondaryContainer: Color(0xFF004D50),
-  onSecondaryContainer: Color(0xFFCFFAFE),
+  // Cores secundárias (amarelo como acentuação)
+  secondary: yellow,
+  onSecondary: Color(0xFF000000),
+  secondaryContainer: Color(0xFFB45309),
+  onSecondaryContainer: Color(0xFFFEF3C7),
   // Cores terciárias
   tertiary: Color(0xFF818CF8),
   onTertiary: Colors.white,
@@ -56,7 +56,7 @@ const ColorScheme darkColorScheme = ColorScheme(
 );
 
 // ==================== PALETA CLARA ====================
-/// ColorScheme para tema claro personalizado
+/// ColorScheme para tema claro (branco + roxo + amarelo)
 const ColorScheme lightColorScheme = ColorScheme(
   brightness: Brightness.light,
   // Cores primárias (roxo)
@@ -64,18 +64,18 @@ const ColorScheme lightColorScheme = ColorScheme(
   onPrimary: Colors.white,
   primaryContainer: Color(0xFFEDE9FE),
   onPrimaryContainer: Color(0xFF3F0F7F),
-  // Cores secundárias (cyan)
-  secondary: Color(0xFF0891B2),
-  onSecondary: Colors.white,
-  secondaryContainer: Color(0xFFCFFAFE),
-  onSecondaryContainer: Color(0xFF003638),
+  // Cores secundárias (amarelo como destaque)
+  secondary: Color(0xFFFBBF24),
+  onSecondary: Color(0xFF000000),
+  secondaryContainer: Color(0xFFFEF3C7),
+  onSecondaryContainer: Color(0xFF78350F),
   // Cores terciárias
   tertiary: Color(0xFF6366F1),
   onTertiary: Colors.white,
   tertiaryContainer: Color(0xFFE0E7FF),
   onTertiaryContainer: Color(0xFF1E1B4B),
-  // Superfícies
-  surface: Color(0xFFFAFAFA),
+  // Superfícies (branco)
+  surface: Color(0xFFFFFFFF),
   onSurface: Color(0xFF1F2937),
   surfaceContainerHighest: Color(0xFFE5E7EB),
   onSurfaceVariant: Color(0xFF4B5563),
@@ -90,7 +90,7 @@ const ColorScheme lightColorScheme = ColorScheme(
   shadow: Color(0xFF000000),
   scrim: Color(0xFF000000),
   inverseSurface: Color(0xFF1F2937),
-  onInverseSurface: Color(0xFFFAFAFA),
+  onInverseSurface: Color(0xFFFFFFFF),
   inversePrimary: Color(0xFFC4B5FD),
   surfaceTint: Color(0xFF7C3AED),
 );

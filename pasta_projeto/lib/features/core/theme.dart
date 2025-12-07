@@ -34,7 +34,7 @@ final ThemeData darkAppTheme = ThemeData(
     ),
   ),
   textButtonTheme: TextButtonThemeData(
-    style: TextButton.styleFrom(foregroundColor: cyan),
+    style: TextButton.styleFrom(foregroundColor: yellow),
   ),
   iconTheme: const IconThemeData(color: Colors.white),
   textTheme: const TextTheme(
@@ -47,7 +47,7 @@ final ThemeData darkAppTheme = ThemeData(
     fillColor: slate.withValues(alpha: 0.12),
     hintStyle: const TextStyle(color: Colors.white54),
     labelStyle: const TextStyle(color: Colors.white70),
-    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: cyan)),
+    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: yellow)),
     focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: purple)),
   ),
 );
@@ -57,7 +57,7 @@ final ThemeData lightAppTheme = ThemeData(
   brightness: Brightness.light,
   useMaterial3: true,
   colorScheme: lightColorScheme,
-  scaffoldBackgroundColor: const Color(0xFFFAFAFA),
+  scaffoldBackgroundColor: const Color(0xFFFFFFFF),
   appBarTheme: const AppBarTheme(
     backgroundColor: Color(0xFF7C3AED),
     foregroundColor: Colors.white,
@@ -81,7 +81,7 @@ final ThemeData lightAppTheme = ThemeData(
     ),
   ),
   textButtonTheme: TextButtonThemeData(
-    style: TextButton.styleFrom(foregroundColor: const Color(0xFF0891B2)),
+    style: TextButton.styleFrom(foregroundColor: const Color(0xFFFBBF24)),
   ),
   iconTheme: const IconThemeData(color: Color(0xFF1F2937)),
   textTheme: const TextTheme(
@@ -94,7 +94,7 @@ final ThemeData lightAppTheme = ThemeData(
     fillColor: Color(0xFFF3F4F6),
     hintStyle: TextStyle(color: Color(0xFF9CA3AF)),
     labelStyle: TextStyle(color: Color(0xFF6B7280)),
-    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF0891B2))),
+    enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFFBBF24))),
     focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFF7C3AED))),
   ),
 );

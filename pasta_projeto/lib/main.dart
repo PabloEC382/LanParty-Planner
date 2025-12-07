@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:lan_party_planner/features/app/lan_party_planner_app.dart';
 import 'package:lan_party_planner/features/core/theme_controller.dart';
+import 'package:lan_party_planner/services/theme_service.dart';
 
 /// Custom LocalStorage implementation that avoids Hive migration issues
 /// and prevents TimeoutException that causes IDE pauses.
@@ -60,6 +61,9 @@ Future<void> main() async {
   // Criar e carregar o controlador de tema
   final themeController = ThemeController();
   await themeController.load();
+
+  // Inicializar o serviço de tema global
+  ThemeService.initialize(themeController);
 
   // Try loading dotenv from the packaged assets (pubspec.yaml includes .env)
   var loadedEnv = false;

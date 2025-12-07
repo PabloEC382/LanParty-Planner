@@ -2,22 +2,28 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../pages/home_page.dart';
 import '../../../core/theme.dart';
+import '../../../core/theme_controller.dart';
 import '../../../consent/consent_history_screen.dart';
 import '../../../events/presentation/pages/events_list_screen.dart';
 import '../../../games/presentation/pages/games_list_screen.dart';
 import '../../../tournaments/presentation/pages/tournaments_list_screen.dart';
 import '../../../venues/presentation/pages/venues_list_screen.dart';
 import '../../../participants/presentation/pages/participants_list_screen.dart';
+import '../../../../services/theme_service.dart';
 import 'tutorial_popup.dart';
 
-/// Constrói um Drawer completo com todas as opções de navegação
+/// Constrói um Drawer completo com todas as opções de navegação e toggle de tema
 Widget buildCompleteDrawer(
   BuildContext context, {
   required String? userName,
   required String? userEmail,
   required String? userPhotoPath,
   required VoidCallback onUserDataUpdated,
+  ThemeController? themeController,
 }) {
+  // Se não receber controller, usa o global
+  final controller = themeController ?? ThemeService.instance;
+
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -106,6 +112,9 @@ Widget buildCompleteDrawer(
           },
         ),
         const Divider(),
+        // ========== TOGGLE DE TEMA ==========
+        _buildThemeToggle(context, controller),
+        const Divider(),
         ListTile(
           leading: const Icon(Icons.help_outline),
           title: const Text('📚 Tutorial'),
@@ -116,6 +125,29 @@ Widget buildCompleteDrawer(
         ),
       ],
     ),
+  );
+}
+
+/// Constrói o widget de toggle de tema
+Widget _buildThemeToggle(BuildContext context, ThemeController themeController) {
+  final brightness = MediaQuery.platformBrightnessOf(context);
+  final isDark = themeController.mode == ThemeMode.dark ||
+      (themeController.mode == ThemeMode.system && brightness == Brightness.dark);
+
+  return SwitchListTile(
+    secondary: Icon(
+      isDark ? Icons.dark_mode : Icons.light_mode_outlined,
+    ),
+    title: const Text('Tema escuro'),
+    subtitle: Text(
+      themeController.isSystemMode
+          ? 'Seguindo o sistema'
+          : (isDark ? 'Ativado' : 'Desativado'),
+    ),
+    value: isDark,
+    onChanged: (value) async {
+      await themeController.toggle(brightness);
+    },
   );
 }
 
