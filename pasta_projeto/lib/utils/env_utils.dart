@@ -1,4 +1,5 @@
 /// Utility functions for environment variable handling
+library;
 
 /// Parse .env file content and return a map of key-value pairs
 Map<String, String> parseEnvContent(String content) {

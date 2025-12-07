@@ -165,7 +165,7 @@ Future<void> main() async {
   if (supabaseAnonKey == null || supabaseAnonKey.isEmpty) {
     if (supabaseServiceKey != null && supabaseServiceKey.isNotEmpty) {
       // Service key present but anon key missing -> refuse to use service key on client
-      final msg =
+      const msg =
           'Refusing to initialize Supabase client with a service/admin key. Provide SUPABASE_ANON_KEY for client builds.';
       if (kReleaseMode) {
         throw Exception(msg);

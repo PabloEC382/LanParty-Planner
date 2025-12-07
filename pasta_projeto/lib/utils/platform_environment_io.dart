@@ -1,5 +1,6 @@
 /// Real implementation of platform_environment using dart:io
 /// This is only imported on platforms that support dart:io (native, not web)
+library;
 
 import 'dart:io' show Platform;
 
