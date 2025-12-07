@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../../domain/entities/participant.dart';
+import '../../infrastructure/repositories/participants_repository_impl.dart';
+import '../../infrastructure/local/participants_local_dao_shared_prefs.dart';
+import '../../infrastructure/remote/supabase_participants_remote_datasource.dart';
+import '../dialogs/participant_form_dialog.dart';
 import '../../../core/theme.dart';
 import '../../../home/presentation/widgets/app_bar_helper.dart';
 import '../../../home/presentation/widgets/complete_drawer_helper.dart';
@@ -21,6 +26,7 @@ class ParticipantDetailScreen extends StatefulWidget {
 
 class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
   late Participant _participant;
+  late ParticipantsRepositoryImpl _repository;
   String? _userName;
   String? _userEmail;
   String? _userPhotoPath;
@@ -29,6 +35,10 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
   void initState() {
     super.initState();
     _participant = widget.participant;
+    _repository = ParticipantsRepositoryImpl(
+      remoteApi: SupabaseParticipantsRemoteDatasource(),
+      localDao: ParticipantsLocalDaoSharedPrefs(),
+    );
     _loadUserData();
   }
 
@@ -46,21 +56,82 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
   }
 
   Future<void> _showEditDialog() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Edição é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    final result = await showParticipantFormDialog(context, initial: _participant);
+    if (result != null) {
+      try {
+        await _repository.updateParticipant(result);
+        if (mounted) {
+          setState(() => _participant = result);
+          widget.onParticipantUpdated();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Participante atualizado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao atualizar: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao atualizar participant: $e');
+      }
+    }
   }
 
   Future<void> _showDeleteConfirmation() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Deleção é gerenciada pelo servidor.'),
-        duration: Duration(seconds: 2),
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Tem certeza que deseja deletar este participante?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Deletar', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
+    
+    if (confirmed == true) {
+      try {
+        await _repository.deleteParticipant(_participant.id);
+        if (mounted) {
+          widget.onParticipantUpdated();
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Participante deletado com sucesso!'),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erro ao deletar: $e'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        if (kDebugMode) print('Erro ao deletar participant: $e');
+      }
+    }
   }
 
   @override

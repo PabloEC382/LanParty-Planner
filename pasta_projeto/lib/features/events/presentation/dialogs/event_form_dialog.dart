@@ -38,8 +38,17 @@ class _EventFormDialogState extends State<_EventFormDialog> {
     final initial = widget.initial;
     _nameController = TextEditingController(text: initial?.name ?? '');
     _descriptionController = TextEditingController(text: initial?.description ?? '');
-    _startDateController = TextEditingController(text: initial?.startDate.toIso8601String().split('T')[0] ?? '');
-    _endDateController = TextEditingController(text: initial?.endDate.toIso8601String().split('T')[0] ?? '');
+    
+    // Safer date parsing - handle null and parse correctly
+    final startDateStr = initial?.startDate != null 
+      ? initial!.startDate.toString().split(' ')[0]
+      : '';
+    final endDateStr = initial?.endDate != null 
+      ? initial!.endDate.toString().split(' ')[0]
+      : '';
+    
+    _startDateController = TextEditingController(text: startDateStr);
+    _endDateController = TextEditingController(text: endDateStr);
     _startTimeController = TextEditingController(text: initial?.startTime ?? '');
     _endTimeController = TextEditingController(text: initial?.endTime ?? '');
     _venueIdController = TextEditingController(text: initial?.venueId ?? '');

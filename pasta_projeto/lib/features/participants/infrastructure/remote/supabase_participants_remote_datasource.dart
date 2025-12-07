@@ -224,6 +224,10 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
           .update(dto.toMap())
           .eq('id', id);
 
+      if (response == null || response.isEmpty) {
+        throw Exception('Update failed: no rows returned from Supabase');
+      }
+
       return ParticipantDto.fromMap(response[0] as Map<String, dynamic>);
     } catch (e) {
       if (kDebugMode) {

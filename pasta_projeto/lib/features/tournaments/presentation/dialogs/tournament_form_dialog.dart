@@ -39,7 +39,13 @@ class _TournamentFormDialogState extends State<_TournamentFormDialog> {
     _gameIdController = TextEditingController(text: widget.initial?.gameId ?? '');
     _maxParticipantsController = TextEditingController(text: widget.initial?.maxParticipants.toString() ?? '32');
     _prizePoolController = TextEditingController(text: widget.initial?.prizePool.toString() ?? '0.0');
-    _startDateController = TextEditingController(text: widget.initial?.startDate.toIso8601String().split('T')[0] ?? DateTime.now().toIso8601String().split('T')[0]);
+    
+    // Safer date parsing
+    final startDateStr = widget.initial?.startDate != null 
+      ? widget.initial!.startDate.toString().split(' ')[0]
+      : DateTime.now().toString().split(' ')[0];
+    
+    _startDateController = TextEditingController(text: startDateStr);
     _format = widget.initial?.format ?? TournamentFormat.singleElimination;
     _status = widget.initial?.status ?? TournamentStatus.draft;
   }

@@ -224,6 +224,10 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
           .update(dto.toMap())
           .eq('id', id);
 
+      if (response == null || response.isEmpty) {
+        throw Exception('Update failed: no rows returned from Supabase');
+      }
+
       return TournamentDto.fromMap(response[0] as Map<String, dynamic>);
     } catch (e) {
       if (kDebugMode) {

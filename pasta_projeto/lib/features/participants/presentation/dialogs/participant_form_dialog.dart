@@ -35,7 +35,11 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
     _nameController = TextEditingController(text: widget.initial?.name ?? '');
     _emailController = TextEditingController(text: widget.initial?.email ?? '');
     _nicknameController = TextEditingController(text: widget.initial?.nickname ?? '');
-    _skillLevelController = TextEditingController(text: widget.initial?.skillLevel.toString() ?? '1');
+    _skillLevelController = TextEditingController(
+      text: widget.initial?.skillLevel != null 
+        ? widget.initial!.skillLevel.toString() 
+        : '1'
+    );
     _avatarUrlController = TextEditingController(text: widget.initial?.avatarUri?.toString() ?? '');
     _isPremium = widget.initial?.isPremium ?? false;
   }

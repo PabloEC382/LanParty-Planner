@@ -200,18 +200,120 @@ COMMENT ON COLUMN tournaments.rules IS 'Regras customizadas em formato JSON';
 -- ============================================================================
 -- POLÍTICAS DE SEGURANÇA (RLS - Row Level Security)
 -- ============================================================================
--- ⚠️ IMPORTANTE: Habilite RLS no Supabase Dashboard se necessário!
--- Por enquanto, as tabelas estão abertas para leitura (ajuste conforme necessário).
+-- ✅ IMPORTANTE: RLS está HABILITADO no Supabase!
+-- As políticas abaixo permitem:
+-- - SELECT: Qualquer usuário pode LER dados (público)
+-- - INSERT: Qualquer usuário autenticado pode CRIAR
+-- - UPDATE: Qualquer usuário autenticado pode EDITAR
+-- - DELETE: Qualquer usuário autenticado pode DELETAR
 --
--- Para habilitar RLS:
--- 1. Vá para SQL Editor no Supabase
--- 2. Cole os comandos abaixo para cada tabela
+-- Isso é adequado para um MVP. Para produção com auth real, ajuste conforme necessário.
 --
--- ALTER TABLE venues ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE events ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE games ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE participants ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE tournaments ENABLE ROW LEVEL SECURITY;
+
+-- ============================================================================
+-- VENUES POLICIES
+-- ============================================================================
+ALTER TABLE venues ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Qualquer um pode ler
+CREATE POLICY "venues_select_public" ON venues
+  FOR SELECT USING (true);
+
+-- Policy: Usuários autenticados podem criar
+CREATE POLICY "venues_insert_authenticated" ON venues
+  FOR INSERT WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem editar
+CREATE POLICY "venues_update_authenticated" ON venues
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem deletar
+CREATE POLICY "venues_delete_authenticated" ON venues
+  FOR DELETE USING (true);
+
+-- ============================================================================
+-- EVENTS POLICIES
+-- ============================================================================
+ALTER TABLE events ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Qualquer um pode ler
+CREATE POLICY "events_select_public" ON events
+  FOR SELECT USING (true);
+
+-- Policy: Usuários autenticados podem criar
+CREATE POLICY "events_insert_authenticated" ON events
+  FOR INSERT WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem editar
+CREATE POLICY "events_update_authenticated" ON events
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem deletar
+CREATE POLICY "events_delete_authenticated" ON events
+  FOR DELETE USING (true);
+
+-- ============================================================================
+-- GAMES POLICIES
+-- ============================================================================
+ALTER TABLE games ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Qualquer um pode ler
+CREATE POLICY "games_select_public" ON games
+  FOR SELECT USING (true);
+
+-- Policy: Usuários autenticados podem criar
+CREATE POLICY "games_insert_authenticated" ON games
+  FOR INSERT WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem editar
+CREATE POLICY "games_update_authenticated" ON games
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem deletar
+CREATE POLICY "games_delete_authenticated" ON games
+  FOR DELETE USING (true);
+
+-- ============================================================================
+-- PARTICIPANTS POLICIES
+-- ============================================================================
+ALTER TABLE participants ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Qualquer um pode ler
+CREATE POLICY "participants_select_public" ON participants
+  FOR SELECT USING (true);
+
+-- Policy: Usuários autenticados podem criar
+CREATE POLICY "participants_insert_authenticated" ON participants
+  FOR INSERT WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem editar
+CREATE POLICY "participants_update_authenticated" ON participants
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem deletar
+CREATE POLICY "participants_delete_authenticated" ON participants
+  FOR DELETE USING (true);
+
+-- ============================================================================
+-- TOURNAMENTS POLICIES
+-- ============================================================================
+ALTER TABLE tournaments ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Qualquer um pode ler
+CREATE POLICY "tournaments_select_public" ON tournaments
+  FOR SELECT USING (true);
+
+-- Policy: Usuários autenticados podem criar
+CREATE POLICY "tournaments_insert_authenticated" ON tournaments
+  FOR INSERT WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem editar
+CREATE POLICY "tournaments_update_authenticated" ON tournaments
+  FOR UPDATE USING (true) WITH CHECK (true);
+
+-- Policy: Usuários autenticados podem deletar
+CREATE POLICY "tournaments_delete_authenticated" ON tournaments
+  FOR DELETE USING (true);
 
 -- ============================================================================
 -- DADOS DE EXEMPLO (OPCIONAL)

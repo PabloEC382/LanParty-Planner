@@ -278,6 +278,10 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
           .update(dto.toMap())
           .eq('id', id);
       
+      if (response == null || response.isEmpty) {
+        throw Exception('Update failed: no rows returned from Supabase');
+      }
+      
       if (kDebugMode) {
         developer.log(
           'SupabaseGamesRemoteDatasource.updateGame: game $id atualizado com sucesso',
