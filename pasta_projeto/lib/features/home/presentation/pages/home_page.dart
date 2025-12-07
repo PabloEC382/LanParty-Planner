@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import '../../../../services/shared_preferences_services.dart';
 import '../../../core/theme.dart';
+import '../../../core/theme_controller.dart';
 import '../../../consent/consent_history_screen.dart';
 import '../../../events/presentation/pages/events_list_screen.dart';
 import '../../../games/presentation/pages/games_list_screen.dart';
@@ -15,7 +16,12 @@ import '../widgets/upcoming_events_widget.dart';
 
 class MyHomePage extends StatefulWidget {
   static const routeName = '/home';
-  const MyHomePage({super.key});
+  final ThemeController themeController;
+
+  const MyHomePage({
+    super.key,
+    required this.themeController,
+  });
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -127,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
-                        ListTile(
+            ListTile(
               leading: const Icon(Icons.people),
               title: const Text('Participantes'),
               onTap: () {
@@ -145,6 +151,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 );
               },
             ),
+            const Divider(),
+            // ========== TOGGLE DE TEMA ==========
+            _buildThemeToggle(context),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.help_outline),
@@ -165,6 +174,32 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+    );
+  }
+
+  /// Constrói o widget de toggle de tema
+  Widget _buildThemeToggle(BuildContext context) {
+    final brightness = MediaQuery.platformBrightnessOf(context);
+    final controller = widget.themeController;
+
+    // Calcular se está em modo escuro
+    final isDark = controller.mode == ThemeMode.dark ||
+        (controller.mode == ThemeMode.system && brightness == Brightness.dark);
+
+    return SwitchListTile(
+      secondary: Icon(
+        isDark ? Icons.dark_mode : Icons.light_mode_outlined,
+      ),
+      title: const Text('Tema escuro'),
+      subtitle: Text(
+        controller.isSystemMode
+            ? 'Seguindo o sistema'
+            : (isDark ? 'Ativado' : 'Desativado'),
+      ),
+      value: isDark,
+      onChanged: (value) async {
+        await controller.toggle(brightness);
+      },
     );
   }
 }

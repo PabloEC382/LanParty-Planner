@@ -13,6 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:lan_party_planner/features/app/lan_party_planner_app.dart';
+import 'package:lan_party_planner/features/core/theme_controller.dart';
 
 /// Custom LocalStorage implementation that avoids Hive migration issues
 /// and prevents TimeoutException that causes IDE pauses.
@@ -55,6 +56,10 @@ class CustomLocalStorage extends LocalStorage {
 Future<void> main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+  // Criar e carregar o controlador de tema
+  final themeController = ThemeController();
+  await themeController.load();
 
   // Try loading dotenv from the packaged assets (pubspec.yaml includes .env)
   var loadedEnv = false;
@@ -236,5 +241,5 @@ Future<void> main() async {
         return true;
       };
 
-  runApp(const LanPartyPlannerApp());
+  runApp(LanPartyPlannerApp(themeController: themeController));
 }
