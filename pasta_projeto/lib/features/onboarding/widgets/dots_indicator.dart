@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/theme.dart';
 
 class DotsIndicator extends StatelessWidget {
   final int count;
@@ -14,7 +13,7 @@ class DotsIndicator extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         width: 10,
         height: 10,
-        decoration: BoxDecoration(color: i == activeIndex ? cyan : Colors.white24, shape: BoxShape.circle),
+        decoration: BoxDecoration(color: i == activeIndex ? const Color(0xFFFBBF24) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3), shape: BoxShape.circle),
       )),
     );
   }

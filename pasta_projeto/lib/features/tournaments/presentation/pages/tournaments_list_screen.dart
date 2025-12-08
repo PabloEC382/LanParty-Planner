@@ -234,7 +234,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: cyan,
+        backgroundColor: Color(0xFFFBBF24),
         onPressed: _showAddTournamentDialog,
         child: const Icon(Icons.add, color: Colors.black),
       ),
@@ -243,7 +243,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: cyan));
+      return const Center(child: CircularProgressIndicator(color: Color(0xFFFBBF24)));
     }
     if (_error != null) {
       return Center(
@@ -281,7 +281,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => AlertDialog(
-                  backgroundColor: slate,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   title: const Text(
                     'Confirmar exclusão',
                     style: TextStyle(color: Colors.white),
@@ -334,7 +334,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
               child: ListTile(
                 leading: Icon(
                   Icons.emoji_events,
-                  color: tournament.canRegister ? cyan : Colors.white38,
+                  color: tournament.canRegister ? Color(0xFFFBBF24) : Colors.white38,
                   size: 40,
                 ),
                 title: Text(
@@ -350,7 +350,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
                     const SizedBox(height: 4),
                     Text(
                       tournament.statusText,
-                      style: const TextStyle(color: cyan, fontSize: 12),
+                      style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 12),
                     ),
                     Text(
                       tournament.formatText,
@@ -367,7 +367,7 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
                   ],
                 ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.edit, color: cyan),
+                  icon: const Icon(Icons.edit, color: Color(0xFFFBBF24)),
                   onPressed: () => _showEditTournamentDialog(tournament),
                 ),
               ),

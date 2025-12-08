@@ -231,7 +231,7 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: cyan,
+        backgroundColor: Color(0xFFFBBF24),
         onPressed: _showAddVenueDialog,
         child: const Icon(Icons.add, color: Colors.black),
       ),
@@ -240,7 +240,7 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: cyan));
+      return const Center(child: CircularProgressIndicator(color: Color(0xFFFBBF24)));
     }
     if (_error != null) {
       return Center(
@@ -278,7 +278,7 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => AlertDialog(
-                  backgroundColor: slate,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   title: const Text(
                     'Confirmar exclusão',
                     style: TextStyle(color: Colors.white),
@@ -331,7 +331,7 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
                 child: ListTile(
                 leading: const Icon(
                   Icons.place,
-                  color: cyan,
+                  color: Color(0xFFFBBF24),
                   size: 40,
                 ),
                 title: Text(
@@ -347,7 +347,7 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '${venue.city} - ${venue.state}',
-                      style: const TextStyle(color: cyan, fontSize: 12),
+                      style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 12),
                     ),
                     Text(
                       venue.capacityCategory,
@@ -360,7 +360,7 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
                   ],
                 ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.edit, color: cyan),
+                  icon: const Icon(Icons.edit, color: Color(0xFFFBBF24)),
                   onPressed: () => _showEditVenueDialog(venue),
                 ),
               ),

@@ -163,8 +163,8 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
                       : purple.withValues(alpha: 0.3),
                   child: Text(
                     _participant.nickname[0].toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
@@ -177,9 +177,9 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
                     children: [
                       Text(
                         _participant.displayName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

@@ -52,7 +52,7 @@ class _PolicyViewerPageState extends State<PolicyViewerPage> {
       appBar: AppBar(backgroundColor: purple, title: Text(widget.title)),
       body: Column(
         children: [
-          Expanded(child: _text.isEmpty ? const Center(child: CircularProgressIndicator()) : SingleChildScrollView(controller: _controller, padding: const EdgeInsets.all(24), child: SelectableText(_text, style: const TextStyle(color: Colors.white, fontSize: 16)))),
+          Expanded(child: _text.isEmpty ? const Center(child: CircularProgressIndicator()) : SingleChildScrollView(controller: _controller, padding: const EdgeInsets.all(24), child: SelectableText(_text, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 16)))),
           SafeArea(child: Padding(padding: const EdgeInsets.all(16), child: FilledButton.icon(onPressed: _read ? _agreeAndClose : null, icon: const Icon(Icons.check), label: const Text('Concordo com os termos')))),
         ],
       ),

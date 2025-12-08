@@ -236,7 +236,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: cyan,
+        backgroundColor: Color(0xFFFBBF24),
         onPressed: _showAddGameDialog,
         child: const Icon(Icons.add, color: Colors.black),
       ),
@@ -245,7 +245,7 @@ class _GamesListScreenState extends State<GamesListScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: cyan));
+      return const Center(child: CircularProgressIndicator(color: Color(0xFFFBBF24)));
     }
 
     if (_error != null) {
@@ -435,7 +435,7 @@ class _GameCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 4),
-              Text(game.genre, style: const TextStyle(color: cyan, fontSize: 12)),
+              Text(game.genre, style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 12)),
               const SizedBox(height: 4),
               Text(
                 game.playerRange,
@@ -456,12 +456,12 @@ class _GameCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: cyan.withValues(alpha: 0.2),
+                        color: Color(0xFFFBBF24).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
                         '🔥 Popular',
-                        style: TextStyle(color: cyan, fontSize: 10),
+                        style: TextStyle(color: Color(0xFFFBBF24), fontSize: 10),
                       ),
                     ),
                 ],
@@ -469,7 +469,7 @@ class _GameCard extends StatelessWidget {
             ],
           ),
           trailing: IconButton(
-            icon: const Icon(Icons.edit, color: cyan),
+            icon: const Icon(Icons.edit, color: Color(0xFFFBBF24)),
             onPressed: onEdit,
           ),
         ),

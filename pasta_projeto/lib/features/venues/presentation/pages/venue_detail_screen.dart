@@ -156,8 +156,8 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
             // Título
             Text(
               _venue.name,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
@@ -190,9 +190,9 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _venue.fullAddress,
-                    style: const TextStyle(
-                      color: Colors.white70,
+                    _venue.address,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       fontSize: 14,
                       height: 1.5,
                     ),

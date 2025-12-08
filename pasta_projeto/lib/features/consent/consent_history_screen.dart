@@ -54,7 +54,7 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
           style: TextStyle(color: Colors.white),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancelar', style: TextStyle(color: cyan))),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancelar', style: TextStyle(color: Color(0xFFFBBF24)))),
           TextButton(onPressed: () { Navigator.of(ctx).pop(); _revokeConsent(); }, child: const Text('Revogar', style: TextStyle(color: purple))),
         ],
       ),
@@ -74,14 +74,14 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.verified_user, color: cyan, size: 60),
+            const Icon(Icons.verified_user, color: Color(0xFFFBBF24), size: 60),
             const SizedBox(height: 16),
             Text('Status atual:', style: Theme.of(context).textTheme.headlineMedium),
             const SizedBox(height: 8),
             Text(
               _accepted ? 'Consentimento ACEITO' : 'Consentimento NÃO ACEITO',
               style: TextStyle(
-                color: _accepted ? cyan : Colors.redAccent,
+                color: _accepted ? const Color(0xFFFBBF24) : Colors.redAccent,
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),

@@ -46,7 +46,7 @@ class _GoToAcessObPageState extends State<GoToAcessObPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.verified_user, color: cyan, size: 88),
+              const Icon(Icons.verified_user, color: Color(0xFFFBBF24), size: 88),
               const SizedBox(height: 20),
               Text(
                 'Tudo pronto para Começar',

@@ -167,8 +167,8 @@ class _EventFormDialogState extends State<_EventFormDialog> {
             children: [
               Text(
                 widget.initial == null ? 'Novo Evento' : 'Editar Evento',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -176,7 +176,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
               const SizedBox(height: 16),
               TextField(
                 controller: _nameController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color(0xFFFBBF24),
@@ -187,7 +187,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: cyan),
+                    borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -195,7 +195,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
               const SizedBox(height: 12),
               TextField(
                 controller: _descriptionController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 maxLines: 3,
                 decoration: InputDecoration(
                   filled: true,
@@ -207,7 +207,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: cyan),
+                    borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -219,7 +219,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     child: TextField(
                       controller: _startDateController,
                       readOnly: true,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: const Color(0xFFFBBF24),
@@ -230,11 +230,11 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: cyan),
+                          borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         suffixIcon: IconButton(
-                          icon: const Icon(Icons.calendar_today, color: cyan),
+                          icon: const Icon(Icons.calendar_today, color: Color(0xFFFBBF24)),
                           onPressed: () => _selectDate(_startDateController),
                         ),
                       ),
@@ -245,7 +245,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     child: TextField(
                       controller: _endDateController,
                       readOnly: true,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: const Color(0xFFFBBF24),
@@ -256,11 +256,11 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: cyan),
+                          borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         suffixIcon: IconButton(
-                          icon: const Icon(Icons.calendar_today, color: cyan),
+                          icon: const Icon(Icons.calendar_today, color: Color(0xFFFBBF24)),
                           onPressed: () => _selectDate(_endDateController),
                         ),
                       ),
@@ -275,7 +275,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     child: TextField(
                       controller: _startTimeController,
                       readOnly: true,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: const Color(0xFFFBBF24),
@@ -288,11 +288,11 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: cyan),
+                          borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         suffixIcon: IconButton(
-                          icon: const Icon(Icons.schedule, color: cyan),
+                          icon: const Icon(Icons.schedule, color: Color(0xFFFBBF24)),
                           onPressed: () => _selectTime(_startTimeController),
                         ),
                       ),
@@ -303,7 +303,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     child: TextField(
                       controller: _endTimeController,
                       readOnly: true,
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: const Color(0xFFFBBF24),
@@ -316,11 +316,11 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderSide: const BorderSide(color: cyan),
+                          borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         suffixIcon: IconButton(
-                          icon: const Icon(Icons.schedule, color: cyan),
+                          icon: const Icon(Icons.schedule, color: Color(0xFFFBBF24)),
                           onPressed: () => _selectTime(_endTimeController),
                         ),
                       ),
@@ -331,7 +331,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
               const SizedBox(height: 12),
               TextField(
                 controller: _venueIdController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color(0xFFFBBF24),
@@ -344,7 +344,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: cyan),
+                    borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
@@ -352,7 +352,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
               const SizedBox(height: 12),
               TextField(
                 controller: _stateController,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: const Color(0xFFFBBF24),
@@ -365,7 +365,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: cyan),
+                    borderSide: const BorderSide(color: Color(0xFFFBBF24)),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),

@@ -234,7 +234,7 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: cyan,
+        backgroundColor: const Color(0xFFFBBF24),
         onPressed: _showAddParticipantDialog,
         child: const Icon(Icons.add, color: Colors.black),
       ),
@@ -243,7 +243,7 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: cyan));
+      return const Center(child: CircularProgressIndicator(color: Color(0xFFFBBF24)));
     }
     if (_error != null) {
       return Center(
@@ -284,7 +284,7 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => AlertDialog(
-                  backgroundColor: slate,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   title: const Text(
                     'Confirmar exclusão',
                     style: TextStyle(color: Colors.white),
@@ -337,7 +337,7 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
               child: ListTile(
                 leading: CircleAvatar(
                   backgroundColor: participant.isPremium
-                      ? cyan
+                      ? const Color(0xFFFBBF24)
                       : purple.withValues(alpha: 0.3),
                   child: Text(
                     participant.nickname[0].toUpperCase(),
@@ -356,7 +356,7 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
                   children: [
                     Text(
                       participant.skillLevelText,
-                      style: const TextStyle(color: cyan, fontSize: 12),
+                      style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 12),
                     ),
                     Text(
                       participant.badge,
@@ -365,7 +365,7 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
                   ],
                 ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.edit, color: cyan),
+                  icon: const Icon(Icons.edit, color: Color(0xFFFBBF24)),
                   onPressed: () => _showEditParticipantDialog(participant),
                 ),
               ),

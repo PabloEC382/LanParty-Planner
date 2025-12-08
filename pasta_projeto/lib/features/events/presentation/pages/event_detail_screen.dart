@@ -155,8 +155,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             // Título
             Text(
               _event.name,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
@@ -179,8 +179,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   const SizedBox(height: 8),
                   Text(
                     _event.description,
-                    style: const TextStyle(
-                      color: Colors.white70,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       fontSize: 14,
                       height: 1.5,
                     ),
@@ -214,12 +214,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     children: [
                       Text(
                         'Início: ${_event.startDate.toLocal().toString().split('.')[0]} às ${_event.startTime}',
-                        style: const TextStyle(color: Colors.white70),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         'Fim: ${_event.endDate.toLocal().toString().split('.')[0]} às ${_event.endTime}',
-                        style: const TextStyle(color: Colors.white70),
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                       ),
                     ],
                   ),
@@ -251,7 +251,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     ),
                     child: Text(
                       _event.venueId ?? 'Não definido',
-                      style: const TextStyle(color: Colors.white70),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                     ),
                   ),
                   const SizedBox(height: 24),

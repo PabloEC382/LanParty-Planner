@@ -241,7 +241,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
 
   Widget _buildBody() {
     if (_loading) {
-      return const Center(child: CircularProgressIndicator(color: cyan));
+      return const Center(child: CircularProgressIndicator(color: Color(0xFFFBBF24)));
     }
     if (_error != null) {
       return Center(
@@ -334,7 +334,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                 child: ListTile(
                   leading: const Icon(
                     Icons.event,
-                    color: cyan,
+                    color: Color(0xFFFBBF24),
                     size: 40,
                   ),
                   title: Text(
@@ -350,7 +350,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'Início: ${dateFormat.format(event.startDate)} às ${event.startTime}',
-                        style: const TextStyle(color: cyan, fontSize: 12),
+                        style: const TextStyle(color: Color(0xFFFBBF24), fontSize: 12),
                       ),
                       Text(
                         'Fim: ${dateFormat.format(event.endDate)} às ${event.endTime}',
