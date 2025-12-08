@@ -44,11 +44,11 @@ final ThemeData darkAppTheme = ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: slate.withValues(alpha: 0.12),
-    hintStyle: const TextStyle(color: Colors.white54),
-    labelStyle: const TextStyle(color: Colors.white70),
-    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: yellow)),
-    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: purple)),
+    fillColor: const Color(0xFFFBBF24), // Amarelo dourado
+    hintStyle: const TextStyle(color: Color(0xFF78350F)),
+    labelStyle: const TextStyle(color: Color(0xFF78350F)),
+    enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFFBBF24))),
+    focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFFBBF24))),
   ),
 );
 
@@ -87,7 +87,7 @@ final ThemeData lightAppTheme = ThemeData(
   textTheme: const TextTheme(
     headlineMedium: TextStyle(color: Color(0xFF1F2937), fontSize: 24, fontWeight: FontWeight.bold),
     bodyMedium: TextStyle(color: Color(0xFF4B5563), fontSize: 16),
-    labelLarge: TextStyle(color: Colors.white),
+    labelLarge: TextStyle(color: Color(0xFF1F2937)), // Preto em tema claro
   ),
   inputDecorationTheme: const InputDecorationTheme(
     filled: true,

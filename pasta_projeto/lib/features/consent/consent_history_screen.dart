@@ -64,7 +64,6 @@ class _ConsentHistoryScreenState extends State<ConsentHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: AppBar(
         backgroundColor: purple,
         title: const Text('Histórico de Consentimento'),

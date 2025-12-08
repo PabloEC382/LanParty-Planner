@@ -158,7 +158,7 @@ class _EventFormDialogState extends State<_EventFormDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: slate,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -178,8 +178,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                 controller: _nameController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFFBBF24),
                   labelText: 'Nome do Evento',
-                  labelStyle: const TextStyle(color: cyan),
+                  labelStyle: const TextStyle(color: Color(0xFF78350F)),
                   enabledBorder: OutlineInputBorder(
                     borderSide: const BorderSide(color: purple),
                     borderRadius: BorderRadius.circular(8),
@@ -196,8 +198,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                 style: const TextStyle(color: Colors.white),
                 maxLines: 3,
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFFBBF24),
                   labelText: 'Descrição',
-                  labelStyle: const TextStyle(color: cyan),
+                  labelStyle: const TextStyle(color: Color(0xFF78350F)),
                   enabledBorder: OutlineInputBorder(
                     borderSide: const BorderSide(color: purple),
                     borderRadius: BorderRadius.circular(8),
@@ -217,8 +221,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                       readOnly: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color(0xFFFBBF24),
                         labelText: 'Data Início',
-                        labelStyle: const TextStyle(color: cyan),
+                        labelStyle: const TextStyle(color: Color(0xFF78350F)),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: purple),
                           borderRadius: BorderRadius.circular(8),
@@ -241,8 +247,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                       readOnly: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color(0xFFFBBF24),
                         labelText: 'Data Fim',
-                        labelStyle: const TextStyle(color: cyan),
+                        labelStyle: const TextStyle(color: Color(0xFF78350F)),
                         enabledBorder: OutlineInputBorder(
                           borderSide: const BorderSide(color: purple),
                           borderRadius: BorderRadius.circular(8),
@@ -269,8 +277,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                       readOnly: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color(0xFFFBBF24),
                         labelText: 'Horário Início',
-                        labelStyle: const TextStyle(color: cyan),
+                        labelStyle: const TextStyle(color: Color(0xFF78350F)),
                         hintText: 'HH:mm',
                         hintStyle: const TextStyle(color: Colors.white38),
                         enabledBorder: OutlineInputBorder(
@@ -295,8 +305,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                       readOnly: true,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color(0xFFFBBF24),
                         labelText: 'Horário Fim',
-                        labelStyle: const TextStyle(color: cyan),
+                        labelStyle: const TextStyle(color: Color(0xFF78350F)),
                         hintText: 'HH:mm',
                         hintStyle: const TextStyle(color: Colors.white38),
                         enabledBorder: OutlineInputBorder(
@@ -321,8 +333,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                 controller: _venueIdController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFFBBF24),
                   labelText: 'ID do Local (opcional)',
-                  labelStyle: const TextStyle(color: cyan),
+                  labelStyle: const TextStyle(color: Color(0xFF78350F)),
                   hintText: 'Deixe em branco se não tiver local definido',
                   hintStyle: const TextStyle(color: Colors.white38),
                   enabledBorder: OutlineInputBorder(
@@ -340,8 +354,10 @@ class _EventFormDialogState extends State<_EventFormDialog> {
                 controller: _stateController,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color(0xFFFBBF24),
                   labelText: 'Estado (opcional)',
-                  labelStyle: const TextStyle(color: cyan),
+                  labelStyle: const TextStyle(color: Color(0xFF78350F)),
                   hintText: 'Ex: SP, RJ, MG...',
                   hintStyle: const TextStyle(color: Colors.white38),
                   enabledBorder: OutlineInputBorder(

@@ -137,7 +137,6 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Detalhes do Local',

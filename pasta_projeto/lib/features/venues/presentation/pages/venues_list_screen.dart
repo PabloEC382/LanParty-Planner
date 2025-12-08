@@ -215,7 +215,6 @@ class _VenuesListScreenState extends State<VenuesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Locais',

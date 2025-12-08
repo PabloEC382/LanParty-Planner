@@ -215,7 +215,6 @@ class _TournamentsListScreenState extends State<TournamentsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Torneios',

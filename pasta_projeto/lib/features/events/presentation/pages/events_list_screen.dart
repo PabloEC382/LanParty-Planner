@@ -216,7 +216,6 @@ class _EventsListScreenState extends State<EventsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Eventos',
@@ -282,7 +281,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
                 context: context,
                 barrierDismissible: false,
                 builder: (context) => AlertDialog(
-                  backgroundColor: slate,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                   title: const Text(
                     'Confirmar exclusão',
                     style: TextStyle(color: Colors.white),

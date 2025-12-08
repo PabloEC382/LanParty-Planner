@@ -137,7 +137,6 @@ class _TournamentDetailScreenState extends State<TournamentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Detalhes do Torneio',

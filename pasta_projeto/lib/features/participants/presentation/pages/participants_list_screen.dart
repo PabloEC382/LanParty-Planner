@@ -215,7 +215,6 @@ class _ParticipantsListScreenState extends State<ParticipantsListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Participantes',

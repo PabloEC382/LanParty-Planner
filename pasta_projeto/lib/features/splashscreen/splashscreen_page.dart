@@ -44,7 +44,6 @@ class _SplashscreenPageState extends State<SplashscreenPage> {
     );
 
     return Scaffold(
-      backgroundColor: slate,
       body: SafeArea(
         child: Center(
           child: Column(

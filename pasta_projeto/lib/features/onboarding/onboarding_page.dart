@@ -61,7 +61,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final showSkip = _currentPage <= 1;
 
     return Scaffold(
-      backgroundColor: slate,
       body: SafeArea(
         child: Stack(
           children: [

@@ -220,7 +220,6 @@ class _GamesListScreenState extends State<GamesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Jogos',
@@ -352,7 +351,7 @@ class _GameCard extends StatelessWidget {
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            backgroundColor: slate,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             title: const Text(
               'Confirmar exclusão',
               style: TextStyle(color: Colors.white),

@@ -49,7 +49,6 @@ class _PolicyViewerPageState extends State<PolicyViewerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: AppBar(backgroundColor: purple, title: Text(widget.title)),
       body: Column(
         children: [

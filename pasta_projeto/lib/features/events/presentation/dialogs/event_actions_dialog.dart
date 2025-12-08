@@ -40,7 +40,7 @@ class _EventActionsDialog extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: slate,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         title: const Text(
           'Confirmar exclusão',
           style: TextStyle(color: Colors.white),
@@ -77,7 +77,7 @@ class _EventActionsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: slate,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),

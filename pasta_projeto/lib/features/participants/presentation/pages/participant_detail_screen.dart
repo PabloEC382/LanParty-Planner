@@ -137,7 +137,6 @@ class _ParticipantDetailScreenState extends State<ParticipantDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: slate,
       appBar: buildAppBarWithHome(
         context,
         title: 'Detalhes do Participante',
