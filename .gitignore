@@ -45,12 +45,10 @@ Thumbs.db
 
 # Generated files
 .metadata
-.dart_tool/
 .flutter-plugins-dependencies
-
-# Dependencies
-.dart_tool/
-pubspec.lock
 
 # Coverage
 coverage/
+
+# Legacy
+pasta_projeto/
