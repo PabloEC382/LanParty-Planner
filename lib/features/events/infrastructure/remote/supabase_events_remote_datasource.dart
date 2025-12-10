@@ -9,10 +9,12 @@ import 'events_remote_api.dart';
 /// Implementação concreta de [EventsRemoteApi] usando Supabase como backend remoto.
 class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
   static const String _tableName = 'events';
-  final SupabaseClient? _client;
+  final SupabaseClient? _providedClient;
 
   SupabaseEventsRemoteDatasource({SupabaseClient? client})
-      : _client = client ?? SupabaseService.client;
+      : _providedClient = client;
+
+  SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
   @override
   Future<RemotePage<EventDto>> fetchEvents({
@@ -21,12 +23,7 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
     int offset = 0,
   }) async {
     try {
-      final client = _client;
-      if (client == null) {
-        return RemotePage(items: []);
-      }
-
-      final baseQuery = client.from(_tableName).select();
+      final baseQuery = _client.from(_tableName).select();
 
       late final List<dynamic> rows;
       if (since != null) {
@@ -65,6 +62,16 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
         );
       }
       return RemotePage(items: []);
+    } on StateError catch (e) {
+      // Supabase não foi inicializado - propagar o erro
+      if (kDebugMode) {
+        developer.log(
+          'Supabase não inicializado ao buscar events: ${e.message}',
+          name: 'SupabaseEventsRemoteDatasource',
+          error: e,
+        );
+      }
+      rethrow;
     } catch (e) {
       if (kDebugMode) {
         developer.log(
@@ -118,17 +125,6 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
   @override
   Future<int> upsertEvents(List<EventDto> dtos) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseEventsRemoteDatasource.upsertEvents: cliente Supabase não inicializado',
-            name: 'SupabaseEventsRemoteDatasource',
-          );
-        }
-        return 0;
-      }
-
       if (dtos.isEmpty) {
         if (kDebugMode) {
           developer.log(
@@ -150,7 +146,7 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
       }
 
       // Comentário: Usar upsert para insert-or-update
-      final response = await client.from('events').upsert(
+      final response = await _client.from(_tableName).upsert(
         maps,
         onConflict: 'id',
       );
@@ -178,11 +174,6 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
   @override
   Future<EventDto> createEvent(EventDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseEventsRemoteDatasource.createEvent: criando novo event',
@@ -190,7 +181,7 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
         );
       }
 
-      final response = await client.from('events').insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }
@@ -210,11 +201,6 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
   @override
   Future<EventDto> updateEvent(String id, EventDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseEventsRemoteDatasource.updateEvent: atualizando event $id',
@@ -222,8 +208,8 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
         );
       }
 
-      final response = await client
-          .from('events')
+      final response = await _client
+          .from(_tableName)
           .update(dto.toMap())
           .eq('id', id)
           .select();
@@ -248,11 +234,6 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
   @override
   Future<void> deleteEvent(String id) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseEventsRemoteDatasource.deleteEvent: deletando event id=$id (type=${id.runtimeType})',
@@ -260,7 +241,7 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
         );
       }
 
-      final response = await client.from('events').delete().eq('id', id);
+      final response = await _client.from(_tableName).delete().eq('id', id);
       
       if (kDebugMode) {
         developer.log(

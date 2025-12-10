@@ -51,6 +51,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
       });
     }
   }
+
   Future<void> _loadEvents() async {
     setState(() {
       _loading = true;
@@ -78,6 +79,7 @@ class _EventsListScreenState extends State<EventsListScreen> {
           if (kDebugMode) {
             print('EventsListScreen._loadEvents: erro ao sincronizar - $syncError');
           }
+          // Continuar mesmo com erro de sincronização
         }
       }
       
@@ -88,23 +90,19 @@ class _EventsListScreenState extends State<EventsListScreen> {
           _events = events;
           _loading = false;
         });
-        if (kDebugMode) {
-          print('EventsListScreen._loadEvents: UI atualizada com ${events.length} eventos');
-        }
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _error = e.toString();
+          _error = 'Erro ao carregar eventos: $e';
           _loading = false;
         });
         if (kDebugMode) {
-          print('EventsListScreen._loadEvents: erro ao carregar - $e');
+          print('EventsListScreen._loadEvents: erro geral - $e');
         }
       }
     }
   }
-
 
   Future<void> _showAddEventDialog() async {
     final result = await showEventFormDialog(context);

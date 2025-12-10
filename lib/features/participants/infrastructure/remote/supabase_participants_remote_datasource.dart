@@ -9,10 +9,12 @@ import 'participants_remote_api.dart';
 /// Implementação concreta de [ParticipantsRemoteApi] usando Supabase como backend remoto.
 class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
   static const String _tableName = 'participants';
-  final SupabaseClient? _client;
+  final SupabaseClient? _providedClient;
 
   SupabaseParticipantsRemoteDatasource({SupabaseClient? client})
-      : _client = client ?? SupabaseService.client;
+      : _providedClient = client;
+
+  SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
   @override
   Future<RemotePage<ParticipantDto>> fetchParticipants({
@@ -21,12 +23,7 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
     int offset = 0,
   }) async {
     try {
-      final client = _client;
-      if (client == null) {
-        return RemotePage(items: []);
-      }
-
-      final baseQuery = client.from(_tableName).select();
+      final baseQuery = _client.from(_tableName).select();
 
       late final List<dynamic> rows;
       if (since != null) {
@@ -118,17 +115,6 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
   @override
   Future<int> upsertParticipants(List<ParticipantDto> dtos) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseParticipantsRemoteDatasource.upsertParticipants: cliente Supabase não inicializado',
-            name: 'SupabaseParticipantsRemoteDatasource',
-          );
-        }
-        return 0;
-      }
-
       if (dtos.isEmpty) {
         if (kDebugMode) {
           developer.log(
@@ -150,7 +136,7 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
       }
 
       // Comentário: Usar upsert para insert-or-update
-      final response = await client.from('participants').upsert(
+      final response = await _client.from(_tableName).upsert(
         maps,
         onConflict: 'id',
       );
@@ -178,11 +164,6 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
   @override
   Future<ParticipantDto> createParticipant(ParticipantDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseParticipantsRemoteDatasource.createParticipant: criando novo participant',
@@ -190,7 +171,7 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
         );
       }
 
-      final response = await client.from('participants').insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }
@@ -210,11 +191,6 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
   @override
   Future<ParticipantDto> updateParticipant(String id, ParticipantDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseParticipantsRemoteDatasource.updateParticipant: atualizando participant $id',
@@ -222,8 +198,8 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
         );
       }
 
-      final response = await client
-          .from('participants')
+      final response = await _client
+          .from(_tableName)
           .update(dto.toMap())
           .eq('id', id)
           .select();
@@ -248,11 +224,6 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
   @override
   Future<void> deleteParticipant(String id) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseParticipantsRemoteDatasource.deleteParticipant: deletando participant id=$id (type=${id.runtimeType})',
@@ -260,7 +231,7 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
         );
       }
 
-      final response = await client.from('participants').delete().eq('id', id);
+      final response = await _client.from(_tableName).delete().eq('id', id);
       if (kDebugMode) {
         developer.log(
           'SupabaseParticipantsRemoteDatasource.deleteParticipant: resposta=$response',

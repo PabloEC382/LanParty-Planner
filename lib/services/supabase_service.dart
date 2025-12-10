@@ -2,16 +2,48 @@ import 'dart:developer' as developer;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseService {
-  static final SupabaseClient _client = Supabase.instance.client;
+  static late SupabaseClient _client;
+  static bool _isInitialized = false;
+
+  /// Inicializa o cliente Supabase (deve ser chamado após Supabase.initialize)
+  static void _initializeClient() {
+    if (!_isInitialized) {
+      try {
+        _client = Supabase.instance.client;
+        _isInitialized = true;
+        developer.log('SupabaseService cliente inicializado', name: 'SupabaseService');
+      } catch (e) {
+        developer.log('Erro ao inicializar cliente Supabase: $e', name: 'SupabaseService', error: e);
+      }
+    }
+  }
 
   /// Obtém o cliente Supabase configurado
-  static SupabaseClient get client => _client;
+  static SupabaseClient get client {
+    _initializeClient();
+    if (!_isInitialized) {
+      throw StateError('Supabase não foi inicializado. Chame Supabase.initialize() em main() antes de usar SupabaseService.');
+    }
+    return _client;
+  }
 
   /// Obtém a sessão do usuário atual
-  static Session? get currentSession => _client.auth.currentSession;
+  static Session? get currentSession {
+    try {
+      return client.auth.currentSession;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Obtém o usuário atual
-  static User? get currentUser => _client.auth.currentUser;
+  static User? get currentUser {
+    try {
+      return client.auth.currentUser;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// Verifica se o usuário está autenticado
   static bool get isAuthenticated => currentUser != null;
@@ -19,6 +51,7 @@ class SupabaseService {
   /// Inicializa o Supabase e exibe informações de debug
   static void initializeSupabase() {
     try {
+      _initializeClient();
       developer.log('Supabase inicializado com sucesso', name: 'SupabaseService');
       
       if (isAuthenticated) {

@@ -9,10 +9,12 @@ import 'tournaments_remote_api.dart';
 /// Implementação concreta de [TournamentsRemoteApi] usando Supabase como backend remoto.
 class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
   static const String _tableName = 'tournaments';
-  final SupabaseClient? _client;
+  final SupabaseClient? _providedClient;
 
   SupabaseTournamentsRemoteDatasource({SupabaseClient? client})
-      : _client = client ?? SupabaseService.client;
+      : _providedClient = client;
+
+  SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
   @override
   Future<RemotePage<TournamentDto>> fetchTournaments({
@@ -21,12 +23,7 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
     int offset = 0,
   }) async {
     try {
-      final client = _client;
-      if (client == null) {
-        return RemotePage(items: []);
-      }
-
-      final baseQuery = client.from(_tableName).select();
+      final baseQuery = _client.from(_tableName).select();
 
       late final List<dynamic> rows;
       if (since != null) {
@@ -118,17 +115,6 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
   @override
   Future<int> upsertTournaments(List<TournamentDto> dtos) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseTournamentsRemoteDatasource.upsertTournaments: cliente Supabase não inicializado',
-            name: 'SupabaseTournamentsRemoteDatasource',
-          );
-        }
-        return 0;
-      }
-
       if (dtos.isEmpty) {
         if (kDebugMode) {
           developer.log(
@@ -150,7 +136,7 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
       }
 
       // Comentário: Usar upsert para insert-or-update
-      final response = await client.from('tournaments').upsert(
+      final response = await _client.from(_tableName).upsert(
         maps,
         onConflict: 'id',
       );
@@ -178,11 +164,6 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
   @override
   Future<TournamentDto> createTournament(TournamentDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseTournamentsRemoteDatasource.createTournament: criando novo tournament',
@@ -190,7 +171,7 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
         );
       }
 
-      final response = await client.from('tournaments').insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }
@@ -210,11 +191,6 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
   @override
   Future<TournamentDto> updateTournament(String id, TournamentDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseTournamentsRemoteDatasource.updateTournament: atualizando tournament $id',
@@ -222,8 +198,8 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
         );
       }
 
-      final response = await client
-          .from('tournaments')
+      final response = await _client
+          .from(_tableName)
           .update(dto.toMap())
           .eq('id', id)
           .select();
@@ -248,11 +224,6 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
   @override
   Future<void> deleteTournament(String id) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseTournamentsRemoteDatasource.deleteTournament: deletando tournament id=$id (type=${id.runtimeType})',
@@ -260,7 +231,7 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
         );
       }
 
-      final response = await client.from('tournaments').delete().eq('id', id);
+      final response = await _client.from(_tableName).delete().eq('id', id);
       if (kDebugMode) {
         developer.log(
           'SupabaseTournamentsRemoteDatasource.deleteTournament: resposta=$response',

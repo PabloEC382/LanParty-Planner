@@ -9,10 +9,12 @@ import 'venues_remote_api.dart';
 /// Implementação concreta de [VenuesRemoteApi] usando Supabase como backend remoto.
 class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
   static const String _tableName = 'venues';
-  final SupabaseClient? _client;
+  final SupabaseClient? _providedClient;
 
   SupabaseVenuesRemoteDatasource({SupabaseClient? client})
-      : _client = client ?? SupabaseService.client;
+      : _providedClient = client;
+
+  SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
   @override
   Future<RemotePage<VenueDto>> fetchVenues({
@@ -21,12 +23,7 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
     int offset = 0,
   }) async {
     try {
-      final client = _client;
-      if (client == null) {
-        return RemotePage(items: []);
-      }
-
-      final baseQuery = client.from(_tableName).select();
+      final baseQuery = _client.from(_tableName).select();
 
       late final List<dynamic> rows;
       if (since != null) {
@@ -118,17 +115,6 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
   @override
   Future<int> upsertVenues(List<VenueDto> dtos) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseVenuesRemoteDatasource.upsertVenues: cliente Supabase não inicializado',
-            name: 'SupabaseVenuesRemoteDatasource',
-          );
-        }
-        return 0;
-      }
-
       if (dtos.isEmpty) {
         if (kDebugMode) {
           developer.log(
@@ -150,7 +136,7 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
       }
 
       // Comentário: Usar upsert para insert-or-update
-      final response = await client.from('venues').upsert(
+      final response = await _client.from(_tableName).upsert(
         maps,
         onConflict: 'id',
       );
@@ -178,11 +164,6 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
   @override
   Future<VenueDto> createVenue(VenueDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseVenuesRemoteDatasource.createVenue: criando novo venue',
@@ -190,7 +171,7 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
         );
       }
 
-      final response = await client.from('venues').insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }
@@ -210,11 +191,6 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
   @override
   Future<VenueDto> updateVenue(String id, VenueDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseVenuesRemoteDatasource.updateVenue: atualizando venue $id',
@@ -222,8 +198,8 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
         );
       }
 
-      final response = await client
-          .from('venues')
+      final response = await _client
+          .from(_tableName)
           .update(dto.toMap())
           .eq('id', id)
           .select();
@@ -248,11 +224,6 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
   @override
   Future<void> deleteVenue(String id) async {
     try {
-      final client = _client;
-      if (client == null) {
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseVenuesRemoteDatasource.deleteVenue: deletando venue id=$id (type=${id.runtimeType})',
@@ -260,7 +231,7 @@ class SupabaseVenuesRemoteDatasource implements VenuesRemoteApi {
         );
       }
 
-      final response = await client.from('venues').delete().eq('id', id);
+      final response = await _client.from(_tableName).delete().eq('id', id);
       if (kDebugMode) {
         developer.log(
           'SupabaseVenuesRemoteDatasource.deleteVenue: resposta=$response',

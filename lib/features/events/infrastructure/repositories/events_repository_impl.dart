@@ -97,8 +97,26 @@ class EventsRepositoryImpl implements EventsRepository {
           }
         }
       }
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.syncFromServer: buscando events no servidor (since=$since)',
+          name: 'EventsRepositoryImpl',
+        );
+      }
       final page = await _remoteApi.fetchEvents(since: since, limit: 500);
+      if (kDebugMode) {
+        developer.log(
+          'EventsRepositoryImpl.syncFromServer: página recebida com ${page.items.length} items, isEmpty=${page.isEmpty}',
+          name: 'EventsRepositoryImpl',
+        );
+      }
       if (page.isEmpty) {
+        if (kDebugMode) {
+          developer.log(
+            'EventsRepositoryImpl.syncFromServer: nenhum evento retornado do servidor',
+            name: 'EventsRepositoryImpl',
+          );
+        }
         return 0;
       }
       await _localDao.upsertAll(page.items);
@@ -106,7 +124,7 @@ class EventsRepositoryImpl implements EventsRepository {
       await prefs.setString(_lastSyncKeyV1, newestUpdatedAt.toIso8601String());
       if (kDebugMode) {
         developer.log(
-          'EventsRepositoryImpl.syncFromServer: ${page.items.length} events sincronizados',
+          'EventsRepositoryImpl.syncFromServer: ${page.items.length} events sincronizados, lastSync atualizado para $newestUpdatedAt',
           name: 'EventsRepositoryImpl',
         );
       }

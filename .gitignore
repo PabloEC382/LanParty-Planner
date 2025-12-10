@@ -50,5 +50,7 @@ Thumbs.db
 # Coverage
 coverage/
 
-# Legacy
+# Legacy - EXCLUIR COMPLETAMENTE
 pasta_projeto/
+pasta_projeto/**/*
+

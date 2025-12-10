@@ -6,8 +6,6 @@ import '../../../../core/models/remote_page.dart';
 import '../../../../services/supabase_service.dart';
 import 'games_remote_api.dart';
 
-// ignore_for_file: unnecessary_null_checks
-
 /// Implementação concreta de [GamesRemoteApi] usando Supabase como backend remoto.
 ///
 /// Esta classe é responsável por:
@@ -26,10 +24,12 @@ import 'games_remote_api.dart';
 class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
   static const String _tableName = 'games';
 
-  final SupabaseClient? _client;
+  final SupabaseClient? _providedClient;
 
   SupabaseGamesRemoteDatasource({SupabaseClient? client})
-      : _client = client ?? SupabaseService.client;
+      : _providedClient = client;
+
+  SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
   @override
   Future<RemotePage<GameDto>> fetchGames({
@@ -38,19 +38,8 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
     int offset = 0,
   }) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseGamesRemoteDatasource: cliente Supabase não inicializado',
-            name: 'SupabaseGamesRemoteDatasource',
-          );
-        }
-        return RemotePage(items: []);
-      }
-
       // Construir query com filtro opcional de data
-      final baseQuery = client.from(_tableName).select();
+      final baseQuery = _client.from(_tableName).select();
 
       // Filtrar por data de atualização se fornecido (sincronização incremental)
       late final List<dynamic> rows;
@@ -150,17 +139,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
   @override
   Future<int> upsertGames(List<GameDto> dtos) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseGamesRemoteDatasource.upsertGames: cliente Supabase não inicializado',
-            name: 'SupabaseGamesRemoteDatasource',
-          );
-        }
-        return 0;
-      }
-
       if (dtos.isEmpty) {
         if (kDebugMode) {
           developer.log(
@@ -183,7 +161,7 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
 
       // Comentário: Usar upsert para insert-or-update
       // Isto requer que a tabela tenha unique constraints no campo 'id'
-      final response = await client.from(_tableName).upsert(
+      final response = await _client.from(_tableName).upsert(
         maps,
         onConflict: 'id', // Assume que 'id' é unique
       );
@@ -212,17 +190,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
   @override
   Future<GameDto> createGame(GameDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseGamesRemoteDatasource.createGame: cliente Supabase não inicializado',
-            name: 'SupabaseGamesRemoteDatasource',
-          );
-        }
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseGamesRemoteDatasource.createGame: criando novo game',
@@ -230,7 +197,7 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      final response = await client.from(_tableName).insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
       
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
@@ -259,17 +226,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
   @override
   Future<GameDto> updateGame(String id, GameDto dto) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseGamesRemoteDatasource.updateGame: cliente Supabase não inicializado',
-            name: 'SupabaseGamesRemoteDatasource',
-          );
-        }
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseGamesRemoteDatasource.updateGame: atualizando game $id',
@@ -277,7 +233,7 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      final response = await client
+      final response = await _client
           .from(_tableName)
           .update(dto.toMap())
           .eq('id', id)
@@ -310,17 +266,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
   @override
   Future<void> deleteGame(String id) async {
     try {
-      final client = _client;
-      if (client == null) {
-        if (kDebugMode) {
-          developer.log(
-            'SupabaseGamesRemoteDatasource.deleteGame: cliente Supabase não inicializado',
-            name: 'SupabaseGamesRemoteDatasource',
-          );
-        }
-        throw Exception('Supabase client not initialized');
-      }
-
       if (kDebugMode) {
         developer.log(
           'SupabaseGamesRemoteDatasource.deleteGame: deletando game id=$id (type=${id.runtimeType})',
@@ -328,7 +273,7 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      final response = await client.from(_tableName).delete().eq('id', id);
+      final response = await _client.from(_tableName).delete().eq('id', id);
       
       if (kDebugMode) {
         developer.log(

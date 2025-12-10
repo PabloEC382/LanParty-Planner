@@ -38,6 +38,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - .env
     - assets/PNGs/logoIASemfundo.png
     - assets/PNGs/logoIA.png
     - assets/privacidade.md
