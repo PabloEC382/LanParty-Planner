@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../domain/entities/participant.dart';
+import '../../../../services/image_picker_service.dart';
 
 Future<Participant?> showParticipantFormDialog(
   BuildContext context, {
@@ -25,8 +27,8 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
   late TextEditingController _emailController;
   late TextEditingController _nicknameController;
   late TextEditingController _skillLevelController;
-  late TextEditingController _avatarUrlController;
   late bool _isPremium;
+  String? _selectedAvatarPath;
 
   @override
   void initState() {
@@ -40,7 +42,13 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
         ? widget.initial!.skillLevel.toString() 
         : '1'
     );
-    _avatarUrlController = TextEditingController(text: widget.initial?.avatarUri?.toString() ?? '');
+    // Se a entidade inicial tiver avatar, verificar se é um caminho local válido
+    if (widget.initial?.avatarUri != null) {
+      final imagePath = widget.initial!.avatarUri!.toFilePath();
+      if (ImagePickerService.imageFileExists(imagePath)) {
+        _selectedAvatarPath = imagePath;
+      }
+    }
     _isPremium = widget.initial?.isPremium ?? false;
   }
 
@@ -50,7 +58,6 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
     _emailController.dispose();
     _nicknameController.dispose();
     _skillLevelController.dispose();
-    _avatarUrlController.dispose();
     super.dispose();
   }
 
@@ -79,7 +86,7 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
       email: _emailController.text,
       nickname: _nicknameController.text,
       skillLevel: skillLevel,
-      avatarUri: _avatarUrlController.text.isEmpty ? null : Uri.tryParse(_avatarUrlController.text),
+      avatarUri: _selectedAvatarPath != null ? Uri.file(_selectedAvatarPath!) : null,
       isPremium: _isPremium,
       preferredGames: widget.initial?.preferredGames ?? {},
       registeredAt: widget.initial?.registeredAt ?? DateTime.now(),
@@ -87,6 +94,15 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
     );
 
     Navigator.of(context).pop(participant);
+  }
+
+  Future<void> _pickAvatar() async {
+    final imagePath = await ImagePickerService().pickImageFromGallery();
+    if (imagePath != null) {
+      setState(() {
+        _selectedAvatarPath = imagePath;
+      });
+    }
   }
 
   @override
@@ -131,13 +147,50 @@ class _ParticipantFormDialogState extends State<_ParticipantFormDialog> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _avatarUrlController,
-              decoration: const InputDecoration(
-                labelText: 'URL do Avatar',
-                border: OutlineInputBorder(),
+            // Avatar do Participante
+            GestureDetector(
+              onTap: _pickAvatar,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey, width: 2),
+                  color: Colors.grey[100],
+                ),
+                child: _selectedAvatarPath != null
+                    ? ClipOval(
+                        child: Image.file(
+                          File(_selectedAvatarPath!),
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.add_a_photo, size: 32, color: Colors.grey),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Avatar',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
               ),
             ),
+            if (_selectedAvatarPath != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _selectedAvatarPath = null;
+                    });
+                  },
+                  icon: const Icon(Icons.close),
+                  label: const Text('Remover Avatar'),
+                ),
+              ),
             const SizedBox(height: 12),
             CheckboxListTile(
               title: const Text('Participante Premium'),

@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../domain/entities/game.dart';
+import '../../../../services/image_picker_service.dart';
 
 Future<Game?> showGameFormDialog(
   BuildContext context, {
@@ -26,7 +28,7 @@ class _GameFormDialogState extends State<_GameFormDialog> {
   late TextEditingController _genreController;
   late TextEditingController _minPlayersController;
   late TextEditingController _maxPlayersController;
-  late TextEditingController _imageUrlController;
+  String? _selectedImagePath;
 
   @override
   void initState() {
@@ -37,7 +39,13 @@ class _GameFormDialogState extends State<_GameFormDialog> {
     _genreController = TextEditingController(text: widget.initial?.genre ?? '');
     _minPlayersController = TextEditingController(text: widget.initial?.minPlayers.toString() ?? '1');
     _maxPlayersController = TextEditingController(text: widget.initial?.maxPlayers.toString() ?? '2');
-    _imageUrlController = TextEditingController(text: widget.initial?.coverImageUri?.toString() ?? '');
+    // Se a entidade inicial tiver imagem, verificar se é um caminho local válido
+    if (widget.initial?.coverImageUri != null) {
+      final imagePath = widget.initial!.coverImageUri!.toFilePath();
+      if (ImagePickerService.imageFileExists(imagePath)) {
+        _selectedImagePath = imagePath;
+      }
+    }
   }
 
   @override
@@ -47,8 +55,16 @@ class _GameFormDialogState extends State<_GameFormDialog> {
     _genreController.dispose();
     _minPlayersController.dispose();
     _maxPlayersController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final imagePath = await ImagePickerService().pickImageFromGallery();
+    if (imagePath != null) {
+      setState(() {
+        _selectedImagePath = imagePath;
+      });
+    }
   }
 
   void _submit() {
@@ -75,7 +91,7 @@ class _GameFormDialogState extends State<_GameFormDialog> {
       id: widget.initial?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       title: _titleController.text,
       description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-      coverImageUri: _imageUrlController.text.isEmpty ? null : Uri.tryParse(_imageUrlController.text),
+      coverImageUri: _selectedImagePath != null ? Uri.file(_selectedImagePath!) : null,
       genre: _genreController.text,
       minPlayers: minPlayers,
       maxPlayers: maxPlayers,
@@ -148,13 +164,48 @@ class _GameFormDialogState extends State<_GameFormDialog> {
               ],
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: _imageUrlController,
-              decoration: const InputDecoration(
-                labelText: 'URL da Imagem',
-                border: OutlineInputBorder(),
+            // Imagem do Jogo
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                width: double.infinity,
+                height: 150,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey[100],
+                ),
+                child: _selectedImagePath != null
+                    ? Image.file(
+                        File(_selectedImagePath!),
+                        fit: BoxFit.cover,
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.add_photo_alternate, size: 48, color: Colors.grey),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Toque para selecionar imagem',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
               ),
             ),
+            if (_selectedImagePath != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _selectedImagePath = null;
+                    });
+                  },
+                  icon: const Icon(Icons.close),
+                  label: const Text('Remover Imagem'),
+                ),
+              ),
           ],
         ),
       ),
