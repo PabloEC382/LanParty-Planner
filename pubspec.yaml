@@ -42,7 +42,6 @@ flutter:
     - assets/PNGs/logoIA.png
     - assets/privacidade.md
     - assets/termos.md
-    - .env
 
 flutter_icons:
   android: true
