@@ -6,13 +6,12 @@ import '../../../../core/models/remote_page.dart';
 import '../../../../services/supabase_service.dart';
 import 'participants_remote_api.dart';
 
-/// Implementação concreta de [ParticipantsRemoteApi] usando Supabase como backend remoto.
 class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
   static const String _tableName = 'participants';
   final SupabaseClient? _providedClient;
 
   SupabaseParticipantsRemoteDatasource({SupabaseClient? client})
-      : _providedClient = client;
+    : _providedClient = client;
 
   SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
@@ -82,7 +81,9 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
     final List<ParticipantDto> participants = [];
     for (final row in rows) {
       try {
-        final dto = ParticipantDto.fromMap(Map<String, dynamic>.from(row as Map));
+        final dto = ParticipantDto.fromMap(
+          Map<String, dynamic>.from(row as Map),
+        );
         participants.add(dto);
       } catch (e) {
         if (kDebugMode) {
@@ -136,10 +137,9 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
       }
 
       // Comentário: Usar upsert para insert-or-update
-      final response = await _client.from(_tableName).upsert(
-        maps,
-        onConflict: 'id',
-      );
+      final response = await _client
+          .from(_tableName)
+          .upsert(maps, onConflict: 'id');
 
       if (kDebugMode) {
         developer.log(
@@ -171,7 +171,9 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
         );
       }
 
-      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([
+        dto.toMap(),
+      ]).select();
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }
@@ -189,7 +191,10 @@ class SupabaseParticipantsRemoteDatasource implements ParticipantsRemoteApi {
   }
 
   @override
-  Future<ParticipantDto> updateParticipant(String id, ParticipantDto dto) async {
+  Future<ParticipantDto> updateParticipant(
+    String id,
+    ParticipantDto dto,
+  ) async {
     try {
       if (kDebugMode) {
         developer.log(

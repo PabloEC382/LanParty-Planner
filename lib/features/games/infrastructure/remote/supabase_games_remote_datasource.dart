@@ -6,28 +6,13 @@ import '../../../../core/models/remote_page.dart';
 import '../../../../services/supabase_service.dart';
 import 'games_remote_api.dart';
 
-/// Implementação concreta de [GamesRemoteApi] usando Supabase como backend remoto.
-///
-/// Esta classe é responsável por:
-/// - Conectar ao Supabase e buscar dados da tabela 'games'
-/// - Filtrar por data de atualização (last_sync) para sincronização incremental
-/// - Implementar paginação para evitar timeout e economizar banda
-/// - Converter rows do Supabase em DTOs estruturados
-/// - Tratar erros de rede, autenticação e parsing de forma defensiva
-///
-/// ⚠️ Dicas práticas para evitar erros comuns:
-/// - Garanta que o DTO e o Mapper aceitam múltiplos formatos vindos do backend (ex: id como int/string, datas como DateTime/String).
-/// - Sempre adicione prints/logs (usando kDebugMode) nos métodos de fetch mostrando o conteúdo dos dados recebidos e convertidos.
-/// - Envolva parsing de datas, conversão de tipos e chamadas externas em try/catch, logando o erro e retornando valores seguros.
-/// - Não exponha segredos (keys) em prints/logs.
-/// - Consulte os arquivos de debug do projeto para exemplos de logs e soluções de problemas reais.
 class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
   static const String _tableName = 'games';
 
   final SupabaseClient? _providedClient;
 
   SupabaseGamesRemoteDatasource({SupabaseClient? client})
-      : _providedClient = client;
+    : _providedClient = client;
 
   SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
@@ -38,10 +23,8 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
     int offset = 0,
   }) async {
     try {
-      // Construir query com filtro opcional de data
       final baseQuery = _client.from(_tableName).select();
 
-      // Filtrar por data de atualização se fornecido (sincronização incremental)
       late final List<dynamic> rows;
       if (since != null) {
         final sinceDateStr = since.toIso8601String();
@@ -57,7 +40,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
           );
         }
       } else {
-        // Sem filtro de data
         rows = await baseQuery
             .order('updated_at', ascending: false)
             .range(offset, offset + limit - 1);
@@ -72,7 +54,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
 
       return _processGameRows(rows, limit, offset);
     } on PostgrestException catch (e) {
-      // Erro de banco de dados (RLS, conexão, etc)
       if (kDebugMode) {
         developer.log(
           'Erro PostgreSQL ao buscar games: ${e.message}',
@@ -82,7 +63,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
       }
       return RemotePage(items: []);
     } catch (e) {
-      // Erro genérico (rede, parsing, etc)
       if (kDebugMode) {
         developer.log(
           'Erro desconhecido ao buscar games: $e',
@@ -100,7 +80,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
     int limit,
     int offset,
   ) async {
-    // Converter rows para DTOs
     final List<GameDto> games = [];
     for (final row in rows) {
       try {
@@ -114,12 +93,10 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
             error: e,
           );
         }
-        // Continuar processando outros registros em caso de erro em um deles
         continue;
       }
     }
 
-    // Determinar se há próxima página baseado no tamanho da resposta
     final hasMore = rows.length == limit;
     final nextOffset = hasMore ? offset + limit : null;
 
@@ -149,7 +126,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         return 0;
       }
 
-      // Comentário: Converter DTOs para mapas para envio ao Supabase
       final maps = dtos.map((dto) => dto.toMap()).toList();
 
       if (kDebugMode) {
@@ -159,12 +135,9 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      // Comentário: Usar upsert para insert-or-update
-      // Isto requer que a tabela tenha unique constraints no campo 'id'
-      final response = await _client.from(_tableName).upsert(
-        maps,
-        onConflict: 'id', // Assume que 'id' é unique
-      );
+      final response = await _client
+          .from(_tableName)
+          .upsert(maps, onConflict: 'id');
 
       if (kDebugMode) {
         developer.log(
@@ -173,7 +146,6 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      // Retorna quantidade de linhas processadas (melhor esforço)
       return response.length;
     } catch (e) {
       if (kDebugMode) {
@@ -197,12 +169,14 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
         );
       }
 
-      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
-      
+      final response = await _client.from(_tableName).insert([
+        dto.toMap(),
+      ]).select();
+
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }
-      
+
       if (kDebugMode) {
         developer.log(
           'SupabaseGamesRemoteDatasource.createGame: game criado com sucesso',
@@ -238,11 +212,11 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
           .update(dto.toMap())
           .eq('id', id)
           .select();
-      
+
       if (response.isEmpty) {
         throw Exception('Update failed: no rows returned from Supabase');
       }
-      
+
       if (kDebugMode) {
         developer.log(
           'SupabaseGamesRemoteDatasource.updateGame: game $id atualizado com sucesso',
@@ -274,7 +248,7 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
       }
 
       final response = await _client.from(_tableName).delete().eq('id', id);
-      
+
       if (kDebugMode) {
         developer.log(
           'SupabaseGamesRemoteDatasource.deleteGame: resposta=$response',
@@ -293,38 +267,3 @@ class SupabaseGamesRemoteDatasource implements GamesRemoteApi {
     }
   }
 }
-
-/*
-// Exemplo de uso:
-final remote = SupabaseGamesRemoteDatasource();
-final page = await remote.fetchGames(limit: 500);
-if (page.isNotEmpty) {
-  print('Recebidos ${page.length} games do Supabase');
-}
-
-// Integração com DAO local e Repository:
-final dao = GamesLocalDaoSharedPrefs();
-final remoteApi = SupabaseGamesRemoteDatasource();
-final repo = GamesRepositoryImpl(remoteApi: remoteApi, localDao: dao);
-final lista = await repo.listAll();
-
-// Dica: implemente sincronização em background usando isolates ou WorkManager.
-// Para testes, crie um mock que retorna dados fixos.
-
-// Checklist de erros comuns e como evitar:
-// - Erro de conversão de tipos (ex: id como string): ajuste o fromMap do DTO para aceitar múltiplos formatos.
-// - Falha ao atualizar UI após sync: verifique se o widget está mounted antes de chamar setState.
-// - Dados não aparecem após sync: adicione prints/logs para inspecionar o conteúdo do cache e o fluxo de conversão.
-// - Problemas com Supabase (RLS, inicialização): consulte supabase_rls_remediation.md e supabase_init_debug_prompt.md.
-// - Erro de conexão: implemente exponential backoff e retry (máx 3 tentativas com delay crescente).
-
-// Exemplo de logs esperados:
-// SupabaseGamesRemoteDatasource.fetchGames: filtrando desde 2024-01-01T00:00:00.000Z
-// SupabaseGamesRemoteDatasource.fetchGames: recebidos 3 registros
-// SupabaseGamesRemoteDatasource.fetchGames: convertidos 3 games, hasMore=false
-
-// Referências úteis:
-// - games_cache_debug_prompt.md
-// - supabase_init_debug_prompt.md
-// - supabase_rls_remediation.md
-*/

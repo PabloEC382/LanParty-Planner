@@ -6,13 +6,12 @@ import '../../../../core/models/remote_page.dart';
 import '../../../../services/supabase_service.dart';
 import 'tournaments_remote_api.dart';
 
-/// Implementação concreta de [TournamentsRemoteApi] usando Supabase como backend remoto.
 class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
   static const String _tableName = 'tournaments';
   final SupabaseClient? _providedClient;
 
   SupabaseTournamentsRemoteDatasource({SupabaseClient? client})
-      : _providedClient = client;
+    : _providedClient = client;
 
   SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
@@ -82,7 +81,9 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
     final List<TournamentDto> tournaments = [];
     for (final row in rows) {
       try {
-        final dto = TournamentDto.fromMap(Map<String, dynamic>.from(row as Map));
+        final dto = TournamentDto.fromMap(
+          Map<String, dynamic>.from(row as Map),
+        );
         tournaments.add(dto);
       } catch (e) {
         if (kDebugMode) {
@@ -136,10 +137,9 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
       }
 
       // Comentário: Usar upsert para insert-or-update
-      final response = await _client.from(_tableName).upsert(
-        maps,
-        onConflict: 'id',
-      );
+      final response = await _client
+          .from(_tableName)
+          .upsert(maps, onConflict: 'id');
 
       if (kDebugMode) {
         developer.log(
@@ -171,7 +171,9 @@ class SupabaseTournamentsRemoteDatasource implements TournamentsRemoteApi {
         );
       }
 
-      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([
+        dto.toMap(),
+      ]).select();
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }

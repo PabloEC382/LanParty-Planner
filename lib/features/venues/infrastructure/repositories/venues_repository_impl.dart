@@ -7,7 +7,6 @@ import '../mappers/venue_mapper.dart';
 import '../local/venues_local_dao_shared_prefs.dart';
 import '../remote/venues_remote_api.dart';
 
-/// Implementação concreta do [VenuesRepository] usando estratégia de cache local com sincronização remota.
 class VenuesRepositoryImpl implements VenuesRepository {
   static const String _lastSyncKeyV1 = 'venues_last_sync_v1';
 
@@ -18,8 +17,8 @@ class VenuesRepositoryImpl implements VenuesRepository {
   VenuesRepositoryImpl({
     required VenuesRemoteApi remoteApi,
     required VenuesLocalDaoSharedPrefs localDao,
-  })  : _remoteApi = remoteApi,
-        _localDao = localDao {
+  }) : _remoteApi = remoteApi,
+       _localDao = localDao {
     _prefs = SharedPreferences.getInstance();
   }
 
@@ -57,7 +56,6 @@ class VenuesRepositoryImpl implements VenuesRepository {
       }
 
       // ===== ETAPA 1: PUSH =====
-      // Comentário: Enviar dados locais para o servidor (melhor esforço)
       try {
         final localDtos = await _localDao.listAll();
         if (localDtos.isNotEmpty) {
@@ -70,7 +68,6 @@ class VenuesRepositoryImpl implements VenuesRepository {
           }
         }
       } catch (pushError) {
-        // Comentário: Falha de push não bloqueia o pull
         if (kDebugMode) {
           developer.log(
             'VenuesRepositoryImpl.syncFromServer: erro ao fazer push (continuando com pull): $pushError',
@@ -215,12 +212,19 @@ class VenuesRepositoryImpl implements VenuesRepository {
       final createdDto = await _remoteApi.createVenue(dto);
       await _localDao.upsertAll([createdDto]);
       if (kDebugMode) {
-        developer.log('VenuesRepositoryImpl.createVenue: criado ${venue.id}', name: 'VenuesRepositoryImpl');
+        developer.log(
+          'VenuesRepositoryImpl.createVenue: criado ${venue.id}',
+          name: 'VenuesRepositoryImpl',
+        );
       }
       return VenueMapper.toEntity(createdDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao criar venue: $e', name: 'VenuesRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao criar venue: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -232,12 +236,19 @@ class VenuesRepositoryImpl implements VenuesRepository {
       final updatedDto = await _remoteApi.updateVenue(venue.id, dto);
       await _localDao.upsertAll([updatedDto]);
       if (kDebugMode) {
-        developer.log('VenuesRepositoryImpl.updateVenue: atualizado ${venue.id}', name: 'VenuesRepositoryImpl');
+        developer.log(
+          'VenuesRepositoryImpl.updateVenue: atualizado ${venue.id}',
+          name: 'VenuesRepositoryImpl',
+        );
       }
       return VenueMapper.toEntity(updatedDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao atualizar venue: $e', name: 'VenuesRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao atualizar venue: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -253,11 +264,18 @@ class VenuesRepositoryImpl implements VenuesRepository {
         await _localDao.upsertAll(filtered);
       }
       if (kDebugMode) {
-        developer.log('VenuesRepositoryImpl.deleteVenue: deletado $id', name: 'VenuesRepositoryImpl');
+        developer.log(
+          'VenuesRepositoryImpl.deleteVenue: deletado $id',
+          name: 'VenuesRepositoryImpl',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao deletar venue: $e', name: 'VenuesRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao deletar venue: $e',
+          name: 'VenuesRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }

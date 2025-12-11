@@ -7,7 +7,6 @@ import '../mappers/event_mapper.dart';
 import '../local/events_local_dao_shared_prefs.dart';
 import '../remote/events_remote_api.dart';
 
-/// Implementação concreta do [EventsRepository] usando estratégia de cache local com sincronização remota.
 class EventsRepositoryImpl implements EventsRepository {
   static const String _lastSyncKeyV1 = 'events_last_sync_v1';
 
@@ -18,8 +17,8 @@ class EventsRepositoryImpl implements EventsRepository {
   EventsRepositoryImpl({
     required EventsRemoteApi remoteApi,
     required EventsLocalDaoSharedPrefs localDao,
-  })  : _remoteApi = remoteApi,
-        _localDao = localDao {
+  }) : _remoteApi = remoteApi,
+       _localDao = localDao {
     _prefs = SharedPreferences.getInstance();
   }
 
@@ -174,7 +173,9 @@ class EventsRepositoryImpl implements EventsRepository {
         );
       }
       final dtos = await _localDao.listAll();
-      final featured = dtos.where((dto) => dto.state == 'published' || dto.state == 'ongoing').toList();
+      final featured = dtos
+          .where((dto) => dto.state == 'published' || dto.state == 'ongoing')
+          .toList();
       return featured.map((dto) => EventMapper.toEntity(dto)).toList();
     } catch (e) {
       if (kDebugMode) {
@@ -233,12 +234,19 @@ class EventsRepositoryImpl implements EventsRepository {
       final createdDto = await _remoteApi.createEvent(dto);
       await _localDao.upsertAll([createdDto]);
       if (kDebugMode) {
-        developer.log('EventsRepositoryImpl.createEvent: criado ${event.id}', name: 'EventsRepositoryImpl');
+        developer.log(
+          'EventsRepositoryImpl.createEvent: criado ${event.id}',
+          name: 'EventsRepositoryImpl',
+        );
       }
       return EventMapper.toEntity(createdDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao criar event: $e', name: 'EventsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao criar event: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -250,12 +258,19 @@ class EventsRepositoryImpl implements EventsRepository {
       final updatedDto = await _remoteApi.updateEvent(event.id, dto);
       await _localDao.upsertAll([updatedDto]);
       if (kDebugMode) {
-        developer.log('EventsRepositoryImpl.updateEvent: atualizado ${event.id}', name: 'EventsRepositoryImpl');
+        developer.log(
+          'EventsRepositoryImpl.updateEvent: atualizado ${event.id}',
+          name: 'EventsRepositoryImpl',
+        );
       }
       return EventMapper.toEntity(updatedDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao atualizar event: $e', name: 'EventsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao atualizar event: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -271,11 +286,18 @@ class EventsRepositoryImpl implements EventsRepository {
         await _localDao.upsertAll(filtered);
       }
       if (kDebugMode) {
-        developer.log('EventsRepositoryImpl.deleteEvent: deletado $id', name: 'EventsRepositoryImpl');
+        developer.log(
+          'EventsRepositoryImpl.deleteEvent: deletado $id',
+          name: 'EventsRepositoryImpl',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao deletar event: $e', name: 'EventsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao deletar event: $e',
+          name: 'EventsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }

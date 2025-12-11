@@ -7,7 +7,6 @@ import '../mappers/tournament_mapper.dart';
 import '../local/tournaments_local_dao_shared_prefs.dart';
 import '../remote/tournaments_remote_api.dart';
 
-/// Implementação concreta do [TournamentsRepository] usando estratégia de cache local com sincronização remota.
 class TournamentsRepositoryImpl implements TournamentsRepository {
   static const String _lastSyncKeyV1 = 'tournaments_last_sync_v1';
 
@@ -18,8 +17,8 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
   TournamentsRepositoryImpl({
     required TournamentsRemoteApi remoteApi,
     required TournamentsLocalDaoSharedPrefs localDao,
-  })  : _remoteApi = remoteApi,
-        _localDao = localDao {
+  }) : _remoteApi = remoteApi,
+       _localDao = localDao {
     _prefs = SharedPreferences.getInstance();
   }
 
@@ -158,7 +157,8 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
       final dtos = await _localDao.listAll();
       final featured = dtos.where((dto) {
         // Filtrar por status registration ou in_progress como "featured"
-        return dto.status.toLowerCase() == 'registration' || dto.status.toLowerCase() == 'in_progress';
+        return dto.status.toLowerCase() == 'registration' ||
+            dto.status.toLowerCase() == 'in_progress';
       }).toList();
       return featured.map((dto) => TournamentMapper.toEntity(dto)).toList();
     } catch (e) {
@@ -218,12 +218,19 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
       final createdDto = await _remoteApi.createTournament(dto);
       await _localDao.upsertAll([createdDto]);
       if (kDebugMode) {
-        developer.log('TournamentsRepositoryImpl.createTournament: criado ${tournament.id}', name: 'TournamentsRepositoryImpl');
+        developer.log(
+          'TournamentsRepositoryImpl.createTournament: criado ${tournament.id}',
+          name: 'TournamentsRepositoryImpl',
+        );
       }
       return TournamentMapper.toEntity(createdDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao criar tournament: $e', name: 'TournamentsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao criar tournament: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -235,12 +242,19 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
       final updatedDto = await _remoteApi.updateTournament(tournament.id, dto);
       await _localDao.upsertAll([updatedDto]);
       if (kDebugMode) {
-        developer.log('TournamentsRepositoryImpl.updateTournament: atualizado ${tournament.id}', name: 'TournamentsRepositoryImpl');
+        developer.log(
+          'TournamentsRepositoryImpl.updateTournament: atualizado ${tournament.id}',
+          name: 'TournamentsRepositoryImpl',
+        );
       }
       return TournamentMapper.toEntity(updatedDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao atualizar tournament: $e', name: 'TournamentsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao atualizar tournament: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -256,11 +270,18 @@ class TournamentsRepositoryImpl implements TournamentsRepository {
         await _localDao.upsertAll(filtered);
       }
       if (kDebugMode) {
-        developer.log('TournamentsRepositoryImpl.deleteTournament: deletado $id', name: 'TournamentsRepositoryImpl');
+        developer.log(
+          'TournamentsRepositoryImpl.deleteTournament: deletado $id',
+          name: 'TournamentsRepositoryImpl',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao deletar tournament: $e', name: 'TournamentsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao deletar tournament: $e',
+          name: 'TournamentsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }

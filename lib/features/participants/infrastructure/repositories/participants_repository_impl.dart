@@ -7,7 +7,6 @@ import '../mappers/participant_mapper.dart';
 import '../local/participants_local_dao_shared_prefs.dart';
 import '../remote/participants_remote_api.dart';
 
-/// Implementação concreta do [ParticipantsRepository] usando estratégia de cache local com sincronização remota.
 class ParticipantsRepositoryImpl implements ParticipantsRepository {
   static const String _lastSyncKeyV1 = 'participants_last_sync_v1';
 
@@ -18,8 +17,8 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
   ParticipantsRepositoryImpl({
     required ParticipantsRemoteApi remoteApi,
     required ParticipantsLocalDaoSharedPrefs localDao,
-  })  : _remoteApi = remoteApi,
-        _localDao = localDao {
+  }) : _remoteApi = remoteApi,
+       _localDao = localDao {
     _prefs = SharedPreferences.getInstance();
   }
 
@@ -156,7 +155,9 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
         );
       }
       final dtos = await _localDao.listAll();
-      final featured = dtos.where((dto) => dto.is_premium || dto.skill_level >= 8).toList();
+      final featured = dtos
+          .where((dto) => dto.is_premium || dto.skill_level >= 8)
+          .toList();
       return featured.map((dto) => ParticipantMapper.toEntity(dto)).toList();
     } catch (e) {
       if (kDebugMode) {
@@ -215,12 +216,19 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
       final createdDto = await _remoteApi.createParticipant(dto);
       await _localDao.upsertAll([createdDto]);
       if (kDebugMode) {
-        developer.log('ParticipantsRepositoryImpl.createParticipant: criado ${participant.id}', name: 'ParticipantsRepositoryImpl');
+        developer.log(
+          'ParticipantsRepositoryImpl.createParticipant: criado ${participant.id}',
+          name: 'ParticipantsRepositoryImpl',
+        );
       }
       return ParticipantMapper.toEntity(createdDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao criar participant: $e', name: 'ParticipantsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao criar participant: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -229,15 +237,25 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
   Future<Participant> updateParticipant(Participant participant) async {
     try {
       final dto = ParticipantMapper.toDto(participant);
-      final updatedDto = await _remoteApi.updateParticipant(participant.id, dto);
+      final updatedDto = await _remoteApi.updateParticipant(
+        participant.id,
+        dto,
+      );
       await _localDao.upsertAll([updatedDto]);
       if (kDebugMode) {
-        developer.log('ParticipantsRepositoryImpl.updateParticipant: atualizado ${participant.id}', name: 'ParticipantsRepositoryImpl');
+        developer.log(
+          'ParticipantsRepositoryImpl.updateParticipant: atualizado ${participant.id}',
+          name: 'ParticipantsRepositoryImpl',
+        );
       }
       return ParticipantMapper.toEntity(updatedDto);
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao atualizar participant: $e', name: 'ParticipantsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao atualizar participant: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }
@@ -253,11 +271,18 @@ class ParticipantsRepositoryImpl implements ParticipantsRepository {
         await _localDao.upsertAll(filtered);
       }
       if (kDebugMode) {
-        developer.log('ParticipantsRepositoryImpl.deleteParticipant: deletado $id', name: 'ParticipantsRepositoryImpl');
+        developer.log(
+          'ParticipantsRepositoryImpl.deleteParticipant: deletado $id',
+          name: 'ParticipantsRepositoryImpl',
+        );
       }
     } catch (e) {
       if (kDebugMode) {
-        developer.log('Erro ao deletar participant: $e', name: 'ParticipantsRepositoryImpl', error: e);
+        developer.log(
+          'Erro ao deletar participant: $e',
+          name: 'ParticipantsRepositoryImpl',
+          error: e,
+        );
       }
       rethrow;
     }

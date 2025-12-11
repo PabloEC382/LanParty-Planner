@@ -10,8 +10,8 @@ class VenueDto {
   final List<String>? facilities;
   final double rating;
   final int total_reviews;
-  final String created_at; // ISO8601
-  final String updated_at; // ISO8601
+  final String created_at;
+  final String updated_at;
 
   VenueDto({
     required this.id,

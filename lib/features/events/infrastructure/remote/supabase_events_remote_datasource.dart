@@ -6,13 +6,12 @@ import '../../../../core/models/remote_page.dart';
 import '../../../../services/supabase_service.dart';
 import 'events_remote_api.dart';
 
-/// Implementação concreta de [EventsRemoteApi] usando Supabase como backend remoto.
 class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
   static const String _tableName = 'events';
   final SupabaseClient? _providedClient;
 
   SupabaseEventsRemoteDatasource({SupabaseClient? client})
-      : _providedClient = client;
+    : _providedClient = client;
 
   SupabaseClient get _client => _providedClient ?? SupabaseService.client;
 
@@ -146,10 +145,9 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
       }
 
       // Comentário: Usar upsert para insert-or-update
-      final response = await _client.from(_tableName).upsert(
-        maps,
-        onConflict: 'id',
-      );
+      final response = await _client
+          .from(_tableName)
+          .upsert(maps, onConflict: 'id');
 
       if (kDebugMode) {
         developer.log(
@@ -181,7 +179,9 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
         );
       }
 
-      final response = await _client.from(_tableName).insert([dto.toMap()]).select();
+      final response = await _client.from(_tableName).insert([
+        dto.toMap(),
+      ]).select();
       if (response.isEmpty) {
         throw Exception('Create failed: no rows returned from Supabase');
       }
@@ -242,7 +242,7 @@ class SupabaseEventsRemoteDatasource implements EventsRemoteApi {
       }
 
       final response = await _client.from(_tableName).delete().eq('id', id);
-      
+
       if (kDebugMode) {
         developer.log(
           'SupabaseEventsRemoteDatasource.deleteEvent: resposta=$response',
